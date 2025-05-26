@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils'; // Assuming you have a cn utility for classnames
 
+// 这里需在与app目录下的的路由相一致
 const navigationItems = [
   {
     group: 'Opt Center',
@@ -17,6 +18,13 @@ const navigationItems = [
       { name: 'Data Analysis', href: '/core/task-center/data-analysis' },
       { name: 'Flight Result', href: '/core/task-center/flight-result' },
       { name: 'Flight Task', href: '/core/task-center/flight-task' },
+    ],
+  },
+  {
+    group: 'System Center',
+    items: [
+      { name: 'User Management', href: '/core/system-center/user-management' },
+      { name: 'Role Management', href: '/core/system-center/role-management' },
     ],
   },
 ];
