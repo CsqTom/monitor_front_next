@@ -9,7 +9,7 @@ export default function Home() {
     // const store = await Store.load('store.json')
     // const currentPage = await store.get<string>('currentPage')
     // redirect(currentPage || '/core/record')
-    redirect('/core/record')
+    redirect('/core/opt-center/record')
   }
   useEffect(() => {
     console.log('init')

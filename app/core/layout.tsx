@@ -1,8 +1,8 @@
 'use client'
 
-import { ThemeProvider } from "@/components/theme-provider"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
+import { ThemeProvider } from "@/components/theme-provider";
+import { SecondaryNavBar } from '@/components/navigation/SecondaryNavBar';
+
 // import useSettingStore from "@/stores/setting"
 // import { useEffect } from "react";
 // import { initChatsDb } from "@/db/chats"
@@ -43,17 +43,15 @@ export default function RootLayout({
       enableSystem
       disableTransitionOnChange
     >
-      <div>
-        {children}
-      </div>
-      {/* <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <main className="flex flex-1 flex-col overflow-hidden w-[calc(100vw-48px)]">
+      <div className="flex h-screen flex-col">
+        {/* Placeholder for TopNavBar */}
+        <div className="flex flex-1 overflow-hidden">
+          <SecondaryNavBar />
+          <main className="flex-1 overflow-y-auto p-4">
             {children}
           </main>
-        </SidebarInset>
-      </SidebarProvider> */}
+        </div>
+      </div>
     </ThemeProvider>
   );
 }
