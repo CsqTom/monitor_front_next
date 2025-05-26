@@ -53,31 +53,35 @@ apiClient.interceptors.request.use(
   }
 );
 
-// TODO: Implement token refresh logic if needed
-// apiClient.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
-//     if (error.response?.status === 401 && !originalRequest._retry) {
-//       originalRequest._retry = true;
-//       const { refreshToken } = getTokenData();
-//       if (refreshToken) {
-//         try {
-//           // const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
-//           // setTokenData(data.access_token, data.refresh_token);
-//           // apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
-//           // return apiClient(originalRequest);
-//         } catch (refreshError) {
-//           clearTokenData();
-//           // Optionally redirect to login or show an error
-//           if (typeof window !== 'undefined') window.location.href = '/login';
-//           return Promise.reject(refreshError);
-//         }
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const { refreshToken } = getTokenData();
+      if (refreshToken) {
+        try {
+          const response = await axios.post(`${API_BASE_URL}/user/refresh_token`, { refresh_token: refreshToken });
+          const { access_token, refresh_token } = response.data.data;
+          setTokenData(access_token, refresh_token);
+          if (apiClient.defaults.headers.common) {
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+          }
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${access_token}`;
+          }
+          return apiClient(originalRequest);
+        } catch (refreshError) {
+          clearTokenData();
+          if (typeof window !== 'undefined') window.location.href = '/login';
+          return Promise.reject(refreshError);
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 interface ApiResponse<T = any> {
   code: number;
