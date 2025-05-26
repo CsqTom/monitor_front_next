@@ -2,7 +2,6 @@
 // import Chat from './chat'
 
 export default function Page() {
-  console.log('page')
   return (
     <div >
       data-analys

@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation'
 import { useEffect } from 'react'
 
 export default function Home() {
-  console.log('home')
   async function init() {
     // const store = await Store.load('store.json')
     // const currentPage = await store.get<string>('currentPage')
