@@ -189,11 +189,14 @@ export default function Page() {
       </Table>
 
       {rolesData && rolesData.total > 0 && (
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex-1 text-sm text-muted-foreground">
-            第 {rolesData.current} 页 / 共 {rolesData.pages} 页 (总计 {rolesData.total} 条)
+        <div className="flex items-center justify-between space-x-2 py-4">
+          <div className="text-sm text-muted-foreground">
+            总计 {rolesData.total} 条
           </div>
-          <div className="space-x-2">
+          <div className="flex items-center space-x-2">
+            <div className="text-sm text-muted-foreground">
+              第 {rolesData.current} 页 / 共 {rolesData.pages} 页
+            </div>
             <Button
               variant="outline"
               size="sm"
