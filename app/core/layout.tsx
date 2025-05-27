@@ -1,10 +1,12 @@
 'use client'
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ThemeProvider } from "@/components/theme-provider";
 import { SecondaryNavBar } from '@/components/navigation/SecondaryNavBar';
+import { getTokenData } from '@/lib/api_user'; // 引入 getTokenData
 
 // import useSettingStore from "@/stores/setting"
-// import { useEffect } from "react";
 // import { initChatsDb } from "@/db/chats"
 // import dayjs from "dayjs"
 // import zh from "dayjs/locale/zh-cn";
@@ -16,12 +18,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const router = useRouter();
   // const { initSettingData } = useSettingStore()
   // const { currentLocale } = useI18n()
-  // useEffect(() => {
-  //   initSettingData()
-  //   initChatsDb()
-  // }, [])
+  useEffect(() => {
+    // initSettingData()
+    // initChatsDb()
+    const { accessToken } = getTokenData();
+    if (!accessToken) {
+      router.push('/login');
+    }
+  }, [router]);
 
   // useEffect(() => {
   //   switch (currentLocale) {

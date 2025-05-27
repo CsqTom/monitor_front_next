@@ -3,6 +3,9 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  // In a pure web environment, middleware relies on cookies.
+  // For Tauri, token management might differ and localStorage is not directly accessible here.
+  // This line assumes 'access_token' is set as an HttpOnly cookie by the auth process if needed by middleware.
   const accessToken = request.cookies.get('access_token')?.value;
 
   // 如果用户尝试访问 /core/* 路径但未登录，则重定向到登录页面

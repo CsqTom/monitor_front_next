@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast'; // Assuming you have a toast hook
-import { request, setTokenData, ApiResponse } from '@/lib/api_user';
-import Cookies from 'js-cookie';
+import { request, setTokenData } from '@/lib/api_user';
 
 interface LoginResponseData {
   id: number;
@@ -38,19 +37,6 @@ export default function LoginPage() {
 
       if (response.data.code === 200 && response.data.data) {
         setTokenData(response.data.data.access_token, response.data.data.refresh_token);
-        // Set access_token as a cookie for middleware to access
-        Cookies.set('access_token', response.data.data.access_token, { 
-          // expires: 7, // Example: expires in 7 days
-          path: '/', 
-          // secure: process.env.NODE_ENV === 'production', // Send cookie over HTTPS only in production
-          // sameSite: 'lax' // CSRF protection
-        });
-        Cookies.set('refresh_token', response.data.data.refresh_token, { 
-          // expires: 30, // Example: expires in 30 days
-          path: '/', 
-          // secure: process.env.NODE_ENV === 'production',
-          // sameSite: 'lax'
-        });
         toast({
           title: '登录成功',
           description: '即将跳转到主页面...',
@@ -63,11 +49,11 @@ export default function LoginPage() {
           variant: 'destructive',
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login error:', error);
       toast({
         title: '登录出错',
-        description: error.message || '网络请求失败，请稍后再试',
+        description: (error as Error).message || '网络请求失败，请稍后再试',
         variant: 'destructive',
       });
     }

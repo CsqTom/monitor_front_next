@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import Cookies from 'js-cookie';
+
 
 const API_BASE_URL = 'http://localhost:61301/api';
 
@@ -28,8 +28,6 @@ const clearTokenData = (): void => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    Cookies.remove('access_token', { path: '/' });
-    Cookies.remove('refresh_token', { path: '/' });
   }
 };
 
@@ -75,21 +73,21 @@ apiClient.interceptors.response.use(
         } catch (refreshError) {
           clearTokenData();
           if (typeof window !== 'undefined') window.location.href = '/login';
-          return Promise.reject(refreshError);
+          return Promise.reject(refreshError as Error); // Add type assertion
         }
       }
     }
-    return Promise.reject(error);
+    return Promise.reject(error as Error); // Add type assertion
   }
 );
 
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> { // Change any to unknown
   code: number;
   data?: T;
   msg: string;
 }
 
-const request = async <T = any>(
+const request = async <T = unknown>( // Change any to unknown
   config: AxiosRequestConfig
 ): Promise<AxiosResponse<ApiResponse<T>>> => {
   return apiClient(config);
