@@ -7,7 +7,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetClose
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Switch } from "@/components/ui/switch";
