@@ -4,10 +4,7 @@ import { redirect } from 'next/navigation'
 import { useEffect } from 'react'
 
 export default function Home() {
-  async function init() {
-    // const store = await Store.load('store.json')
-    // const currentPage = await store.get<string>('currentPage')
-    // redirect(currentPage || '/core/record')
+  async function init() { 
     redirect('/core/opt-center/record')
   }
   useEffect(() => {

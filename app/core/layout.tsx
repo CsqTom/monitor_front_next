@@ -1,10 +1,13 @@
 'use client'
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { ThemeProvider } from "@/components/theme-provider";
-import { SecondaryNavBar } from '@/components/navigation/SecondaryNavBar';
-import { getTokenData } from '@/lib/api_user'; // 引入 getTokenData
+import { SecondaryNavBar, NavItem } from '@/components/navigation/SecondaryNavBar';
+import { getTokenData, clearTokenData } from '@/lib/api_user'; 
+import { Button } from '@/components/ui/button'; 
+import { LogOut, ChevronRight } from 'lucide-react'; 
+import { navigationLinks } from '@/components/navigation/SecondaryNavBar'; // Assuming navigationLinks is exported and contains menu structure
 
 // import useSettingStore from "@/stores/setting"
 // import { initChatsDb } from "@/db/chats"
@@ -19,6 +22,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [breadcrumbs, setBreadcrumbs] = useState<string[]>([]);
+
   // const { initSettingData } = useSettingStore()
   // const { currentLocale } = useI18n()
   useEffect(() => {
@@ -30,18 +36,41 @@ export default function RootLayout({
     }
   }, [router]);
 
-  // useEffect(() => {
-  //   switch (currentLocale) {
-  //     case 'zh':
-  //       dayjs.locale(zh);
-  //       break;
-  //     case 'en':
-  //       dayjs.locale(en);
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // }, [currentLocale])
+  useEffect(() => {
+    const pathSegments = pathname.split('/').filter(Boolean); // e.g., ['core', 'system-center', 'user-management']
+    const newBreadcrumbs: string[] = [];
+
+    if (pathSegments.length >= 2 && pathSegments[0] === 'core') {
+      const groupSlug = pathSegments[1]; // e.g., 'system-center'
+      const itemSlug = pathSegments.length > 2 ? pathSegments[2] : undefined;   // e.g., 'user-management'
+
+      // Find the group by checking if any item's href within that group contains the groupSlug
+      const currentGroup = navigationLinks.find(group => 
+        group.items.some(item => item.href.includes(`/${groupSlug}/`))
+      );
+
+      if (currentGroup) {
+        newBreadcrumbs.push(currentGroup.group); // First breadcrumb: Group Name
+
+        if (itemSlug) {
+          // Find the item within that group whose href ends with the itemSlug
+          const currentItem = currentGroup.items.find(item => item.href.endsWith(`/${itemSlug}`));
+          if (currentItem) {
+            newBreadcrumbs.push(currentItem.name); // Second breadcrumb: Item Name
+          }
+        }
+      }
+    }
+    setBreadcrumbs(newBreadcrumbs);
+  }, [pathname]);
+  
+  const handleLogout = () => {
+    clearTokenData();
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user_id');
+    }
+    router.push('/login');
+  };
 
   return (
     <ThemeProvider
@@ -50,10 +79,24 @@ export default function RootLayout({
       enableSystem
       disableTransitionOnChange
     >
-      <div className="flex h-screen flex-col">
-        {/* Placeholder for TopNavBar */}
-        <div className="flex flex-1 overflow-hidden">
-          <SecondaryNavBar />
+      <div className="flex h-screen">
+        <SecondaryNavBar />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* TopNavBar */}
+          <header className="flex h-14 items-center justify-between border-b bg-background px-4 sm:px-6 shrink-0">
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              {breadcrumbs.map((crumb, index) => (
+                <span key={index} className="flex items-center">
+                  {index > 0 && <ChevronRight className="h-4 w-4 mx-1" />}
+                  {crumb}
+                </span>
+              ))}
+            </div>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              退出登录
+            </Button>
+          </header>
           <main className="flex-1 overflow-y-auto p-4">
             {children}
           </main>

@@ -5,7 +5,18 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils'; // Assuming you have a cn utility for classnames
 
 // 这里需在与app目录下的的路由相一致
-const navigationItems = [
+export interface NavItem {
+  name: string;
+  href: string;
+  subItems?: NavItem[]; // For nested navigation
+}
+
+export interface NavGroup {
+  group: string;
+  items: NavItem[];
+}
+
+export const navigationLinks: NavGroup[] = [
   {
     group: 'Opt Center',
     items: [
@@ -29,12 +40,16 @@ const navigationItems = [
   },
 ];
 
+// export function SecondaryNavBar() { // Keep the original export if NavItem is not used by it directly
+// Let's check if NavItem is used by SecondaryNavBar. It's not. So we can keep the original export.
+// The NavItem and navigationLinks are for the layout breadcrumbs.
+
 export function SecondaryNavBar() {
   const pathname = usePathname();
 
   return (
     <nav className="w-64 flex-shrink-0 border-r bg-background p-4 space-y-4">
-      {navigationItems.map((group) => (
+      {navigationLinks.map((group) => (
         <div key={group.group}>
           <h2 className="mb-2 text-lg font-semibold tracking-tight text-muted-foreground">
             {group.group}

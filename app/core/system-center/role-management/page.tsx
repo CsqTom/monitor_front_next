@@ -89,7 +89,7 @@ export default function Page() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">角色管理</h1>
         <div className="space-x-2">
@@ -132,7 +132,7 @@ export default function Page() {
 
       {/* Role Details Sheet - Rendered conditionally based on selectedRole */}
       {selectedRole && (
-        <RoleDetailsSheet
+        <RoleDetailsSheetcXR5qtyMTIz
           selectedRole={selectedRole}
           setSelectedRole={setSelectedRole}
           onRoleUpdate={fetchRoles} // Pass fetchRoles to refresh data after update

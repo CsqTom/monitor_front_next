@@ -27,10 +27,19 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      // 引入Base64, 用于对密码进行base64编码
+      let password_baser64 = btoa(password);
+      length = password_baser64.length;
+      // 在password_baser64中间插入qty三个字符
+      password_baser64 = password_baser64.slice(0, length/2) + 'qty' + password_baser64.slice(length/2, length);
+
       const response = await request<LoginResponseData>({
         url: '/user/login',
         method: 'POST',
-        data: { username, password },
+        data: { 
+          username,
+          password: password_baser64 
+        },
       });
 
       console.log('Login response:', response);
@@ -110,3 +119,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
