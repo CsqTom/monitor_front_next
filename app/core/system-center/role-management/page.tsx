@@ -132,7 +132,7 @@ export default function Page() {
 
       {/* Role Details Sheet - Rendered conditionally based on selectedRole */}
       {selectedRole && (
-        <RoleDetailsSheetcXR5qtyMTIz
+        <RoleDetailsSheet
           selectedRole={selectedRole}
           setSelectedRole={setSelectedRole}
           onRoleUpdate={fetchRoles} // Pass fetchRoles to refresh data after update
