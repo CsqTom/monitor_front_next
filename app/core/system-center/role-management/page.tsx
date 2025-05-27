@@ -18,7 +18,7 @@ import {
   SheetTrigger,
   SheetClose
 } from '@/components/ui/sheet';
-import { request, ApiResponse } from '@/lib/api_user'; // 假设 api_user.ts 在 lib 目录下
+import { request } from '@/lib/api_user'; // 假设 api_user.ts 在 lib 目录下
 import { PlusCircle, RefreshCw } from 'lucide-react'; // Updated import
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -68,8 +68,8 @@ export default function Page() {
       } else {
         setError(response.data.msg || 'Failed to fetch roles');
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while fetching roles');
+    } catch (err) {
+      setError((err as Error).message || 'An error occurred while fetching roles');
     }
     setLoading(false);
   };
