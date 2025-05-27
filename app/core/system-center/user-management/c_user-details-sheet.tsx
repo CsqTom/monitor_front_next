@@ -24,12 +24,18 @@ import {
 import {useToast} from '@/hooks/use-toast';
 import {request} from '@/lib/api_user';
 
+export interface Role {
+    id: number;
+    name: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface UserRecord {
     id: number;
     username: string;
     email: string;
-    role_id: number;
-    role_name?: string; // Optional: if the main list already provides it
+    role: Role;
     is_active: boolean;
     date_joined: string; // Assuming string format from API
     last_login: string; // Assuming string format from API

@@ -169,7 +169,7 @@ export default function Page() {
                             <TableCell>{user.id}</TableCell>
                             <TableCell>{user.username}</TableCell>
                             <TableCell>{user.email}</TableCell>
-                            <TableCell>{user.role_name || 'N/A'}</TableCell>
+                            <TableCell>{user.role.name || 'N/A'}</TableCell>
                             <TableCell>{user.is_active ? '启用' : '禁用'}</TableCell>
                             <TableCell>{new Date(user.date_joined).toLocaleString()}</TableCell>
                             <TableCell>{user.last_login ? new Date(user.last_login).toLocaleString() : "未登陆"}</TableCell>
