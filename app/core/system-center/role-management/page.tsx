@@ -3,6 +3,18 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  // AlertDialogTrigger, // Not using trigger, controlling programmatically
+} from "@/components/ui/alert-dialog"
+import { useToast } from '@/hooks/use-toast'; // For showing success/error messages
+import {
   Table,
   TableBody,
   TableCell,
@@ -12,7 +24,7 @@ import {
 } from '@/components/ui/table';
 // Removed SheetTrigger as it's not needed here when programmatically controlling Sheet visibility
 import { request } from '@/lib/api_user';
-import { PlusCircle, RefreshCw } from 'lucide-react';
+import { PlusCircle, RefreshCw, Trash2 } from 'lucide-react';
 // Removed Input, Switch, Label, useToast as they are now in child components
 
 // Import the new components
@@ -42,6 +54,9 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<RoleRecord | null>(null);
   const [isNewRoleSheetOpen, setIsNewRoleSheetOpen] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState<RoleRecord | null>(null);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const { toast } = useToast();
   // Removed states related to new role name, default configs, new role configs, loading default configs, submitting states as they are moved to child components
 
   const fetchRoles = async () => {
@@ -79,6 +94,32 @@ export default function Page() {
     setIsNewRoleSheetOpen(true);
   };
 
+  const handleDeleteRole = (role: RoleRecord) => {
+    setRoleToDelete(role);
+    setIsAlertOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!roleToDelete) return;
+    try {
+      const response = await request<ApiResponse<null>>({
+        url: '/user/user_role/delete',
+        method: 'DELETE',
+        params: { role_id: roleToDelete.id },
+      });
+      if (response.data.code === 200) {
+        toast({ title: '成功', description: '角色删除成功' });
+        fetchRoles(); // Refresh the list
+      } else {
+        toast({ title: '错误', description: response.data.msg || '删除角色失败', variant: 'destructive' });
+      }
+    } catch (err) {
+      toast({ title: '错误', description: (err as Error).message || '删除角色时发生错误', variant: 'destructive' });
+    }
+    setIsAlertOpen(false);
+    setRoleToDelete(null);
+  };
+
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen"><RefreshCw className="animate-spin h-8 w-8 mr-2" /> Loading...</div>; // Improved loading state
@@ -89,7 +130,7 @@ export default function Page() {
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto py-3">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">角色管理</h1>
         <div className="space-x-2">
@@ -121,8 +162,11 @@ export default function Page() {
               <TableCell>{new Date(role.created_at).toLocaleString()}</TableCell>
               <TableCell>{new Date(role.updated_at).toLocaleString()}</TableCell>
               <TableCell>{role.creator_id}</TableCell>
-              <TableCell>
-                <Button variant="outline" onClick={() => setSelectedRole(role)}>详情</Button>
+              <TableCell className="space-x-2">
+                <Button variant="outline" size="sm" onClick={() => setSelectedRole(role)}>详情</Button>
+                <Button variant="destructive" size="sm" onClick={() => handleDeleteRole(role)}>
+                  <Trash2 className="mr-1 h-4 w-4" /> 删除
+                </Button>
               </TableCell>
             </TableRow>
           ))}
@@ -147,6 +191,22 @@ export default function Page() {
           onRoleCreate={fetchRoles} // Pass fetchRoles to refresh data after creation
         />
       )}
+
+      {/* Confirmation Dialog for Deletion */}
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认删除</AlertDialogTitle>
+            <AlertDialogDescription>
+              您确定要删除角色 "{roleToDelete?.name}" 吗？此操作无法撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setRoleToDelete(null)}>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>确认删除</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
