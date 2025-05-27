@@ -64,7 +64,7 @@ export function NewRoleSheet({ isNewRoleSheetOpen, setIsNewRoleSheetOpen, onRole
            };
         }
       }>({ // Adjusted to match the expected structure from page.tsx
-        url: '/user/role?user_id=1',
+        url: `/user/role?user_id=${localStorage.getItem('user_id')}`,
         method: 'GET',
       });
 

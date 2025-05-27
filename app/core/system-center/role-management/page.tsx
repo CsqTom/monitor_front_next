@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/table';
 // Removed SheetTrigger as it's not needed here when programmatically controlling Sheet visibility
 import { request } from '@/lib/api_user';
-import { PlusCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2 } from 'lucide-react';
 // Removed Input, Switch, Label, useToast as they are now in child components
 
 // Import the new components
@@ -59,7 +59,7 @@ export default function Page() {
   const { toast } = useToast();
   // Removed states related to new role name, default configs, new role configs, loading default configs, submitting states as they are moved to child components
 
-  const fetchRoles = async () => {
+  const fetchRoles = async (page = 1, pageSize = 10) => {
     setLoading(true);
     setError(null);
     try {
@@ -67,14 +67,17 @@ export default function Page() {
       const response = await request<ApiResponse<RolesPageData>>({ // Adjusted to use ApiResponse
         url: '/user/roles_page',
         method: 'GET',
+        params: { page, page_size: pageSize }, // Added page and page_size params
       });
       if (response.data.code === 200 && response.data.data) {
         setRolesData(response.data.data);
       } else {
         setError(response.data.msg || 'Failed to fetch roles');
+        toast({ title: '错误', description: response.data.msg || '获取角色列表失败', variant: 'destructive' });
       }
     } catch (err) {
       setError((err as Error).message || 'An error occurred while fetching roles');
+      toast({ title: '错误', description: (err as Error).message || '获取角色列表时发生错误', variant: 'destructive' });
     }
     setLoading(false);
   };
@@ -82,11 +85,23 @@ export default function Page() {
   // Removed handlePermissionChange and handleSaveChanges as they are in RoleDetailsSheet
 
   useEffect(() => {
-    fetchRoles();
+    fetchRoles(rolesData?.current || 1); // Fetch current page or default to 1
   }, []);
 
   const handleRefresh = () => {
-    fetchRoles();
+    fetchRoles(rolesData?.current || 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (rolesData && rolesData.current > 1) {
+      fetchRoles(rolesData.current - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (rolesData && rolesData.current < rolesData.pages) {
+      fetchRoles(rolesData.current + 1);
+    }
   };
 
   // Removed fetchDefaultRoleConfigs, handleNew, handleNewRoleConfigChange, handleCreateRole as they are in NewRoleSheet
@@ -172,7 +187,34 @@ export default function Page() {
           ))}
         </TableBody>
       </Table>
-      {/* TODO: Add pagination if necessary based on rolesData.total and rolesData.size */}
+
+      {rolesData && rolesData.total > 0 && (
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            第 {rolesData.current} 页 / 共 {rolesData.pages} 页 (总计 {rolesData.total} 条)
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePreviousPage}
+              disabled={rolesData.current <= 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              上一页
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNextPage}
+              disabled={rolesData.current >= rolesData.pages}
+            >
+              下一页
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Role Details Sheet - Rendered conditionally based on selectedRole */}
       {selectedRole && (

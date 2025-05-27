@@ -22,7 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { request } from '@/lib/api_user';
-import { PlusCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { UserDetailsSheet, UserRecord } from './c_user-details-sheet'; // Placeholder for UserDetailsSheet
 import { C_newUserSheet } from './c_new-user-sheet'; // Placeholder for NewUserSheet
 
@@ -55,7 +55,7 @@ export default function Page() {
     setError(null);
     try {
       const response = await request<ApiResponse<UserPageData>>({
-        url: '/user/user_role/page',
+        url: '/user/user_role/page', // Corrected API endpoint
         method: 'GET',
         params: { page, page_size: pageSize },
       });
@@ -63,19 +63,33 @@ export default function Page() {
         setUsersData(response.data.data);
       } else {
         setError(response.data.msg || 'Failed to fetch users');
+        toast({ title: '错误', description: response.data.msg || '获取用户列表失败', variant: 'destructive' });
       }
     } catch (err) {
       setError((err as Error).message || 'An error occurred while fetching users');
+      toast({ title: '错误', description: (err as Error).message || '获取用户列表时发生错误', variant: 'destructive' });
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(usersData?.current || 1); // Fetch current page or default to 1
   }, []);
 
   const handleRefresh = () => {
-    fetchUsers();
+    fetchUsers(usersData?.current || 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (usersData && usersData.current > 1) {
+      fetchUsers(usersData.current - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (usersData && usersData.current < usersData.pages) {
+      fetchUsers(usersData.current + 1);
+    }
   };
 
   const handleNew = () => {
@@ -163,7 +177,34 @@ export default function Page() {
           ))}
         </TableBody>
       </Table>
-      {/* TODO: Add pagination if necessary based on usersData.total and usersData.size */}
+
+      {usersData && usersData.total > 0 && (
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            第 {usersData.current} 页 / 共 {usersData.pages} 页 (总计 {usersData.total} 条)
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePreviousPage}
+              disabled={usersData.current <= 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              上一页
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNextPage}
+              disabled={usersData.current >= usersData.pages}
+            >
+              下一页
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {selectedUser && (
         <UserDetailsSheet
