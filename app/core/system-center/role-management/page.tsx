@@ -28,8 +28,8 @@ import { PlusCircle, RefreshCw, Trash2 } from 'lucide-react';
 // Removed Input, Switch, Label, useToast as they are now in child components
 
 // Import the new components
-import { RoleDetailsSheet, RoleConfig, RoleRecord } from '@/components/role-management/role-details-sheet';
-import { NewRoleSheet } from '@/components/role-management/new-role-sheet';
+import { RoleDetailsSheet, RoleConfig, RoleRecord } from '@/app/core/system-center/role-management/c_role-details-sheet';
+import { NewRoleSheet } from '@/app/core/system-center/role-management/c_new-role-sheet';
 
 // Interfaces are now primarily in RoleDetailsSheet.tsx, re-declare or import if needed broadly
 // For page.tsx, we mainly need RolesPageData
