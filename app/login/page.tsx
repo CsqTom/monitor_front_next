@@ -37,6 +37,10 @@ export default function LoginPage() {
 
       if (response.data.code === 200 && response.data.data) {
         setTokenData(response.data.data.access_token, response.data.data.refresh_token);
+        // Store user_id in localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user_id', response.data.data.id.toString());
+        }
         toast({
           title: '登录成功',
           description: '即将跳转到主页面...',
