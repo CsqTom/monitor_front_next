@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SecondaryNavBar, NavItem } from '@/components/navigation/SecondaryNavBar';
 import { getTokenData, clearTokenData } from '@/lib/api_user'; 
 import { Button } from '@/components/ui/button'; 
+import { Card } from '@/components/ui/card'; // 导入 Card 组件
 import { LogOut, ChevronRight } from 'lucide-react'; 
 import { navigationLinks } from '@/components/navigation/SecondaryNavBar'; // Assuming navigationLinks is exported and contains menu structure
 
@@ -98,7 +99,9 @@ export default function RootLayout({
             </Button>
           </header>
           <main className="flex-1 overflow-y-auto p-4">
-            {children}
+            <Card className='p-4'>
+              {children}
+            </Card>
           </main>
         </div>
       </div>
