@@ -83,7 +83,7 @@ export function C_newUserSheet({ isNewUserSheetOpen, setIsNewUserSheetOpen, onUs
   }, [isNewUserSheetOpen, toast]);
 
   const handleCreateUser = async () => {
-    if (!username || !password || !selectedRoleId) {
+    if (!username || !password || !selectedRoleId) { // Removed email from validation
       toast({ title: '提示', description: '用户名、密码和角色为必填项', variant: 'destructive' });
       return;
     }
@@ -142,7 +142,7 @@ export function C_newUserSheet({ isNewUserSheetOpen, setIsNewUserSheetOpen, onUs
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="email" className="text-right">
-              邮箱
+              邮箱 (可选)
             </Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="col-span-3" />
           </div>

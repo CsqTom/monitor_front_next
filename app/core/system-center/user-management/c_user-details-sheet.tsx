@@ -104,7 +104,7 @@ export function UserDetailsSheet({selectedUser, setSelectedUser, onUserUpdate}: 
             fetchRoles();
             setUsername(selectedUser.username);
             setEmail(selectedUser.email);
-            setSelectedRoleId(String(selectedUser.role_id));
+            setSelectedRoleId(String(selectedUser.role.id)); // Corrected: use selectedUser.role.id
             setIsActive(selectedUser.is_active);
             setPassword(''); // Clear password field on open
         }
@@ -195,8 +195,16 @@ export function UserDetailsSheet({selectedUser, setSelectedUser, onUserUpdate}: 
                                className="col-span-3"/>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label className="text-right">
+                            当前角色
+                        </Label>
+                        <div className="col-span-3 text-sm py-2">
+                            {selectedUser.role.name || 'N/A'}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="role-edit" className="text-right">
-                            角色
+                            修改角色
                         </Label>
                         <Select value={selectedRoleId} onValueChange={setSelectedRoleId}>
                             <SelectTrigger className="col-span-3">
