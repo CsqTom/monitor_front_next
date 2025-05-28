@@ -2,16 +2,16 @@
 // import { Store } from '@tauri-apps/plugin-store'
 import { redirect } from 'next/navigation'
 import { useEffect } from 'react'
+import {getTokenData} from "@/lib/api_user";
+
 
 export default function Home() {
-  async function init() {
-    // const store = await Store.load('store.json')
-    // const currentPage = await store.get<string>('currentPage')
-    // redirect(currentPage || '/core/record')
-    redirect('/core/opt-center/record')
-  }
   useEffect(() => {
-    console.log('init')
-    init()
-  }, [])
+    const tokenData = getTokenData();
+    if (tokenData && tokenData.accessToken) {
+      redirect('/core/opt-center/record');
+    } else {
+      redirect('/login');
+    }
+  }, []);
 }
