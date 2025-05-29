@@ -16,11 +16,12 @@ import { UploadCloud, File as FileIcon, CheckCircle2, Loader2, List } from 'luci
 import ExistingFileDialog, { ApiFileRecord } from './existing-file-dialog'; // Import the new dialog
 
 interface ChunkFileUploaderProps {
+    suffix: string; // Added suffix
     onUploadSuccess: (fileName: string, uploadId: string, sql_id: number) => void;
     // You can add more specific props if needed, e.g., accepted file types
 }
 
-const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({ onUploadSuccess }) => {
+const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', onUploadSuccess }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploadProgress, setUploadProgress] = useState<number>(0);
     const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -233,6 +234,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({ onUploadSuccess }
                 <Input
                     id={uniqueId} // Use uniqueId for id
                     type="file"
+                    accept={suffix}
                     onChange={handleFileChange}
                     className="hidden"
                     disabled={isUploading || isCompleted}
