@@ -346,8 +346,8 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                             {/* Dynamically render upload/input components based on userDataConfigs */}
                             {userDataConfigs.map((userData) => (
                                 <div key={userData.data_para_key} className="mt-4 pt-4 border-t">
-                                    <Label className="text-sm font-medium">
-                                        参数: {userData.data_para_key} (格式: {userData.data_format},
+                                    <Label className="text-sm text-muted-foreground">
+                                        参数 {userData.data_para_key} (格式: {userData.data_format},
                                         数量: {userData.all_len})
                                     </Label>
                                     {userData.data_format === 'tif' && (

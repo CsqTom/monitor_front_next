@@ -1,6 +1,7 @@
 // components/custom/image-upload.tsx
 import React, {useState, useCallback, useEffect} from 'react';
 import ChunkFileUploader from '@/components/upload/chunk-file-uploader'; // Updated import
+import { Label } from "@/components/ui/label";
 
 export interface IDict {
     key: string;
@@ -35,19 +36,42 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({all_len, data_para_ke
         }
     }, [uploadedFiles, all_len, onUploadComplete, keyValue, data_para_key,]);
 
+    // Determine grid layout based on all_len
+    // Show 1 column by default, 2 columns on medium screens if more than 1 item, 
+    // and 3 columns on large screens if more than 2 items.
+    let gridLayoutClasses = "grid-cols-1";
+    if (all_len === 2) {
+        gridLayoutClasses = "grid-cols-1 md:grid-cols-2";
+    } else if (all_len >= 3) {
+        gridLayoutClasses = "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+    }
+    // For the success message, determine column span
+    let successMessageSpanClasses = "";
+    if (all_len === 2) {
+        successMessageSpanClasses = "md:col-span-2";
+    } else if (all_len >= 3) {
+        successMessageSpanClasses = "md:col-span-2 lg:col-span-3"; // Span all columns
+    }
+
+
     return (
-        <div className="space-y-6 p-4">
-            <h2 className="text-xl font-semibold text-center">Upload Images</h2>
+        <div className={`grid ${gridLayoutClasses} gap-6 py-4`}>
             {Array.from({length: all_len}).map((_, idx) => (
-                <div key={idx} className="container py-4 border-b last:border-b-0">
-                    <p className="text-sm text-muted-foreground mb-2">Image {idx + 1} of {all_len}</p>
+                <div key={idx}> {/* Added rounded-lg, shadow-sm, flex for better item layout */}
+                    {/* <Label className="text-base font-medium">Image {idx + 1}</Label> Adjusted Label */}
+                    {/* <p className="text-xs text-muted-foreground">Part {idx + 1} of {all_len}</p>  */}
+                    <Label className='font-medium text-base py-2'>
+                        {all_len === 2 ? (
+                            idx === 0 ? "前时相数据" : "后时相数据"
+                        ) : `Part ${idx + 1} of ${all_len}`}
+                    </Label>
                     <ChunkFileUploader
                         onUploadSuccess={(fileName, uploadId, sql_id) => handleSingleUploadSuccess(fileName, uploadId, sql_id)}/>
                 </div>
             ))}
             {uploadedFiles === all_len && (
-                <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md text-center">
-                    <p className="text-green-700 font-medium">All {all_len} images have been processed!</p>
+                <div className={`mt-6 p-4 bg-green-100 border border-green-300 rounded-md text-center ${successMessageSpanClasses}`}> {/* Adjusted colors and added span */}
+                    <p className="text-green-800 font-medium">All {all_len} images have been processed successfully!</p> {/* Adjusted colors and message */}
                 </div>
             )}
         </div>
