@@ -177,7 +177,8 @@ export default function Page() {
                                 className="space-x-2"><Button variant="outline" size="sm"
                                                               onClick={() => setSelectedUser(user)}>详情</Button><Button
                                 variant="destructive" size="sm" onClick={() => handleDeleteUser(user)}><Trash2
-                                className="mr-1 h-4 w-4"/> 删除</Button></TableCell>
+                                className="mr-1 h-4 w-4"/> 删除</Button>
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
