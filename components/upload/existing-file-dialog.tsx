@@ -64,7 +64,7 @@ const ExistingFileDialog: React.FC<ExistingFileDialogProps> = ({ open, onOpenCha
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
-    const PAGE_SIZE = 2; // Or make this configurable
+    const PAGE_SIZE = 15; // Or make this configurable
 
     const fetchFiles = useCallback(async (page: number) => {
         setIsLoading(true);
@@ -76,16 +76,17 @@ const ExistingFileDialog: React.FC<ExistingFileDialogProps> = ({ open, onOpenCha
             }
             const result: ApiFileListResponse = await response.json();
             if (result.code === 200) {
-                setFiles(result.data.records);
+                setFiles(result.data.records); // Update files only on success
                 setCurrentPage(result.data.current);
                 setTotalPages(result.data.pages);
+                setError(null); // Clear any previous error
             } else {
                 throw new Error(result.msg || 'Failed to fetch files.');
             }
         } catch (err: any) {
             setError(err.message);
             toast({ title: 'Error Fetching Files', description: err.message, variant: 'destructive' });
-            setFiles([]); // Clear files on error
+            // Do not clear files here to prevent flicker if old data is still relevant
         }
         setIsLoading(false);
     }, [toast]);
@@ -140,38 +141,41 @@ const ExistingFileDialog: React.FC<ExistingFileDialogProps> = ({ open, onOpenCha
                         Choose a previously uploaded file from the list below.
                     </DialogDescription>
                 </DialogHeader>
-                {isLoading && (
-                    <div className="flex justify-center items-center h-40">
+                {/* Conditional rendering for loading and error states, but keep table visible if files exist */}
+                {isLoading && files.length === 0 && (
+                    <div className="flex justify-center items-center flex-grow">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
                 )}
-                {error && <p className="text-destructive text-center">Error: {error}</p>}
-                {!isLoading && !error && files.length === 0 && (
-                     <p className="text-center text-muted-foreground py-4">No files found.</p>
+                {error && files.length === 0 && (
+                    <p className="text-destructive text-center flex-grow flex items-center justify-center">Error: {error}</p>
                 )}
-                {!isLoading && !error && files.length > 0 && (
+                {!isLoading && !error && files.length === 0 && (
+                     <p className="text-center text-muted-foreground py-4 flex-grow flex items-center justify-center">No files found.</p>
+                )}
+                {(files.length > 0) && (
                     <RadioGroup value={selectedFileId} onValueChange={setSelectedFileId} className="overflow-y-auto flex-grow">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[50px]">选 中</TableHead>
-                                    <TableHead>名 称</TableHead>
-                                    <TableHead>上传时间</TableHead>
-                                    <TableHead>大小(GB)</TableHead>
-                                    <TableHead>经 度</TableHead>
-                                    <TableHead>纬 度</TableHead>
-                                    <TableHead>地理位置</TableHead>
+                                    <TableHead className="w-[50px] text-center font-bold bg-gray-100">选 择</TableHead>
+                                    <TableHead className='text-center font-bold bg-gray-100'>文 件 名</TableHead>
+                                    <TableHead className='text-center font-bold bg-gray-100'>上 传 时 间</TableHead>
+                                    <TableHead className='text-center font-bold bg-gray-100'>文件大小</TableHead>
+                                    <TableHead className='text-center font-bold bg-gray-100'>经 度</TableHead>
+                                    <TableHead className='text-center font-bold bg-gray-100'>纬 度</TableHead>
+                                    <TableHead className='text-center font-bold bg-gray-100'>地 理 位 置</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {files.map((file) => (
                                     <TableRow key={file.id} onClick={() => setSelectedFileId(file.id.toString())} className="cursor-pointer hover:bg-muted/50">
-                                        <TableCell>
+                                        <TableCell className='text-center'>
                                             <RadioGroupItem value={file.id.toString()} id={`file-${file.id}`} />
                                         </TableCell>
-                                        <TableCell className="font-medium">{file.file_name}</TableCell>
-                                        <TableCell>{new Date(file.upload_time).toLocaleString()}</TableCell>
-                                        <TableCell >{file.size_gb.toFixed(4)}</TableCell>
+                                        <TableCell className="font-medium text-center">{file.file_name}</TableCell>
+                                        <TableCell className='text-center'>{new Date(file.upload_time).toLocaleString()}</TableCell>
+                                        <TableCell className='text-center'>{file.size_gb.toFixed(2)} GB</TableCell>
                                         {(() => {
                                             let otherInfoData = { longitude: 'N/A', latitude: 'N/A', address: 'N/A' };
                                             if (file.other_info) {
@@ -189,9 +193,9 @@ const ExistingFileDialog: React.FC<ExistingFileDialogProps> = ({ open, onOpenCha
                                             }
                                             return (
                                                 <>
-                                                    <TableCell>{otherInfoData.longitude}</TableCell>
-                                                    <TableCell>{otherInfoData.latitude}</TableCell>
-                                                    <TableCell>{otherInfoData.address}</TableCell>
+                                                    <TableCell className='text-center'>{otherInfoData.longitude}</TableCell>
+                                                    <TableCell className='text-center'>{otherInfoData.latitude}</TableCell>
+                                                    <TableCell className='text-center'>{otherInfoData.address}</TableCell>
                                                 </>
                                             );
                                         })()}
