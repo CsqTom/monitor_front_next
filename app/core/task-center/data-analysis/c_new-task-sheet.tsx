@@ -16,6 +16,9 @@ import {RefreshCw} from 'lucide-react';
 import {request} from '@/lib/api_user';
 import {useToast} from '@/hooks/use-toast';
 import {Card, CardContent} from "@/components/ui/card";
+import ImageUploadComponent from '@/components/upload/image-upload';
+import {IDict} from "@/components/upload/image-upload";
+import HttpInputComponent from '@/components/upload/http-input';
 
 // 定义接口
 interface ClassCode {
@@ -50,6 +53,21 @@ interface ProjectData {
     latitude: number;
     altitude: number;
     configs: ProjectAlgorithmConfig[];
+}
+
+interface UserData {
+    all_len: number;
+    data_format: string;
+    data_para_key: string;
+}
+
+interface ApiConfigs {
+    id: number;
+    name: string;
+    app_addr: string;
+    model_type: number;
+    class_code_key: string;
+    user_data: UserData[];
 }
 
 interface ApiResponse<T> {
@@ -87,6 +105,9 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
     const [algorithmSelections, setAlgorithmSelections] = useState<Record<string, AlgorithmSelection>>({});
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [userDataConfigs, setUserDataConfigs] = useState<UserData[]>([]);
+
+    const [httpUrls, setHttpUrls] = useState<Record<string, string>>({});
     const {toast} = useToast();
 
     useEffect(() => {
@@ -197,6 +218,51 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
         }
     }, [selectedAlgorithmType, projectConfigs, selectedAlgorithmCategory, selectedApiConfig]);
 
+    useEffect(() => {
+        if (isNewSheetOpen && selectedApiConfig) {
+            console.log("selectedApiConfig", selectedApiConfig);
+            const fetchApiConfig = async () => {
+                try {
+                    const response = await request<ApiResponse<ApiConfigs>>({
+                        url: '/ai_config/api_config',
+                        method: 'GET',
+                        params: {config_id: selectedApiConfig},
+                    });
+                    if (response.data.code === 200 && response.data.data) {
+                        console.log("apiConfig", response.data.data);
+                        const api_config: ApiConfigs = response.data.data;
+                        setUserDataConfigs(api_config.user_data || []);
+                        // Reset states when API config changes
+                        setHttpUrls({});
+
+                    } else {
+                        toast({
+                            title: '获取配置失败',
+                            description: response.msg,
+                            variant: 'destructive',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error fetching project configs:', error);
+                    toast({
+                        title: '获取配置失败',
+                        description: '无法连接到服务器或发生未知错误。',
+                        variant: 'destructive',
+                    });
+                }
+            };
+            fetchApiConfig().then();
+        }
+    }, [selectedApiConfig, toast]);  // Added toast to dependency array
+
+    const handleUploadComplete = (is_success: boolean, msg: string, data: IDict) => {
+        console.log("handleUploadComplete", is_success, msg, data);
+    };
+
+    const handleUrlSubmit = (dataParaKey: string, url: string) => {
+        setHttpUrls(prev => ({...prev, [dataParaKey]: url}));
+    };
+
     const handleCreate = async () => {
         // ... 原有逻辑保持不变 ...
     };
@@ -276,6 +342,30 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                                     </RadioGroup>
                                 </div>
                             )}
+
+                            {/* Dynamically render upload/input components based on userDataConfigs */}
+                            {userDataConfigs.map((userData) => (
+                                <div key={userData.data_para_key} className="mt-4 pt-4 border-t">
+                                    <Label className="text-sm font-medium">
+                                        参数: {userData.data_para_key} (格式: {userData.data_format},
+                                        数量: {userData.all_len})
+                                    </Label>
+                                    {userData.data_format === 'tif' && (
+                                        <ImageUploadComponent
+                                            all_len={userData.all_len}
+                                            data_para_key={userData.data_para_key}
+                                            onUploadComplete={(is_success, msg, data) => handleUploadComplete(is_success, msg, data)}
+                                        />
+                                    )}
+                                    {userData.data_format === 'http' && (
+                                        <HttpInputComponent
+                                            all_len={userData.all_len}
+                                            onUrlSubmit={(url) => handleUrlSubmit(userData.data_para_key, url)}
+                                        />
+                                    )}
+                                    {/* TODO: Add more conditions for other formats or all_len values if necessary */}
+                                </div>
+                            ))}
                         </CardContent>
                     </Card>
                 </div>
