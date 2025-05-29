@@ -12,7 +12,8 @@ import {
     getFileUploadStatus,
     FileUploadStatusData
 } from '@/lib/api_upload';
-import { UploadCloud, File as FileIcon, CheckCircle2, Loader2 } from 'lucide-react';
+import { UploadCloud, File as FileIcon, CheckCircle2, Loader2, List } from 'lucide-react'; // Changed ListFiles to List
+import ExistingFileDialog, { ApiFileRecord } from './existing-file-dialog'; // Import the new dialog
 
 interface ChunkFileUploaderProps {
     onUploadSuccess: (fileName: string, uploadId: string, sql_id: number) => void;
@@ -30,6 +31,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({ onUploadSuccess }
     const [lastUploadCode, setLastUploadCode] = useState<number>(0);
     const { toast } = useToast();
     const uniqueId = useId(); // Generate a unique ID
+    const [isExistingFileDialogOpen, setIsExistingFileDialogOpen] = useState(false);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
@@ -181,7 +183,25 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({ onUploadSuccess }
                 variant: 'destructive'
             });
         }
-    }, [toast]);
+    }, [toast, onUploadSuccess, lastUploadCode]); // Added onUploadSuccess and lastUploadCode to dependencies as they are used inside
+
+    const handleSelectExistingFile = (file: ApiFileRecord) => {
+        // Simulate a successful upload for an existing file
+        setSelectedFile(new File([], file.file_name)); // Create a dummy file for display purposes
+        setUploadId(file.upload_id);
+        setIsCompleted(true);
+        setUploadProgress(100);
+        setFileProcessingStatus('Selected from existing files.');
+        setError(null);
+        setIsUploading(false);
+        onUploadSuccess(file.file_name, file.upload_id, file.id);
+        toast({
+            title: 'File Selected',
+            description: `${file.file_name} selected from existing files.`,
+            variant: 'default',
+        });
+        setIsExistingFileDialogOpen(false);
+    };
 
     return (
         <div className="p-4 border rounded-lg shadow-sm bg-card text-card-foreground w-full max-w-md mx-auto">
@@ -218,24 +238,43 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({ onUploadSuccess }
                     disabled={isUploading || isCompleted}
                 />
 
-                {selectedFile && !isCompleted && (
-                    <Button
-                        onClick={handleUpload}
-                        disabled={isUploading || !selectedFile}
-                        className="w-full"
-                    >
-                        {isUploading ? `Uploading... ${uploadProgress}%` : 'Upload File'}
+                <div className="w-full space-y-2 mt-4">
+                    {selectedFile && !isCompleted && (
+                        <Button
+                            onClick={handleUpload}
+                            disabled={isUploading || !selectedFile}
+                            className="w-full"
+                        >
+                            {isUploading ? (
+                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {`Uploading... ${uploadProgress}%`}</>
+                            ) : (
+                                <><UploadCloud className="mr-2 h-4 w-4" /> Upload New File</>
+                            )}
+                        </Button>
+                    )}
+                    {!selectedFile && !isCompleted && (
+                        <Button onClick={() => document.getElementById(uniqueId)?.click()} className="w-full">
+                            <UploadCloud className="mr-2 h-4 w-4" /> Select New File
+                        </Button>
+                    )}
+                    <Button variant="outline" onClick={() => setIsExistingFileDialogOpen(true)} className="w-full" disabled={isUploading || isCompleted}>
+                        <List className="mr-2 h-4 w-4" /> Select From Existing
                     </Button>
-                )}
+                </div>
 
-                {(isUploading || (uploadProgress > 0 && uploadProgress < 100)) && (
-                    <Progress value={uploadProgress} className="w-full h-2"/>
+                {(isUploading || (uploadProgress > 0 && uploadProgress < 100 && selectedFile)) && (
+                    <Progress value={uploadProgress} className="w-full h-2 mt-2"/>
                 )}
 
                 {error && (
                     <p className="text-sm text-destructive mt-2 text-center">{error}</p>
                 )}
             </div>
+            <ExistingFileDialog 
+                open={isExistingFileDialogOpen} 
+                onOpenChange={setIsExistingFileDialogOpen} 
+                onFileSelect={handleSelectExistingFile} 
+            />
         </div>
     );
 };
