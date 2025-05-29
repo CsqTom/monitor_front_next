@@ -123,7 +123,7 @@ export function NewRoleSheet({ isNewRoleSheetOpen, setIsNewRoleSheetOpen, onRole
     setError(null);
 
     const configsToSubmit = newRoleConfigs
-      .filter(config => config.value === true)
+      // .filter(config => config.value === true) // 这里是一定选了true的，所有都提交吧，故屏掉
       .map(config => ({
         id: config.id, 
         key: config.key,
