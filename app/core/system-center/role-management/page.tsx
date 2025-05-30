@@ -167,22 +167,23 @@ export default function Page() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>名称</TableHead>
-                        <TableHead>创建时间</TableHead>
-                        <TableHead>更新时间</TableHead>
-                        <TableHead>创建者ID</TableHead>
-                        <TableHead>操作</TableHead></TableRow>
+                        <TableHead className="text-center font-bold bg-gray-100">ID</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">名称</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">创建时间</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">更新时间</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">创建者ID</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
+                    </TableRow>
                 </TableHeader>
                 <TableBody>
                     {rolesData?.records.map((role) => (
                         <TableRow key={role.id}>
-                            <TableCell>{role.id}</TableCell>
-                            <TableCell>{role.name}</TableCell>
-                            <TableCell>{new Date(role.created_at).toLocaleString()}</TableCell>
-                            <TableCell>{new Date(role.updated_at).toLocaleString()}</TableCell>
-                            <TableCell>{role.creator_id}</TableCell>
-                            <TableCell className="space-x-2">
+                            <TableCell className="text-center">{role.id}</TableCell>
+                            <TableCell className="text-center">{role.name}</TableCell>
+                            <TableCell className="text-center">{new Date(role.created_at).toLocaleString()}</TableCell>
+                            <TableCell className="text-center">{new Date(role.updated_at).toLocaleString()}</TableCell>
+                            <TableCell className="text-center">{role.creator_id}</TableCell>
+                            <TableCell className="space-x-2 text-center">
                                 <Button variant="outline" size="sm"
                                         onClick={() => setSelectedRole(role)}>详情</Button>
                                 <Button variant="destructive"
@@ -199,30 +200,48 @@ export default function Page() {
             {rolesData && rolesData.total > 0 && (
                 <div className="flex items-center justify-between space-x-2 py-4">
                     <div className="text-sm text-muted-foreground">
-                        总计 {rolesData.total} 条
+                        共 {rolesData.total} 条记录，当前第 {rolesData.current} / {rolesData.pages} 页
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <div className="text-sm text-muted-foreground">
-                            第 {rolesData.current} 页 / 共 {rolesData.pages} 页
+                    <div className="flex items-center space-x-6">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-sm">跳转到</span>
+                            <input 
+                                type="number" 
+                                min="1" 
+                                max={rolesData.pages} 
+                                className="w-16 h-8 text-center border rounded" 
+                                defaultValue={rolesData.current}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        const page = parseInt((e.target as HTMLInputElement).value);
+                                        if (page >= 1 && page <= rolesData.pages) {
+                                            fetchRoles(page);
+                                        }
+                                    }
+                                }}
+                            />
+                            <span className="text-sm">页</span>
                         </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handlePreviousPage}
-                            disabled={rolesData.current <= 1}
-                        >
-                            <ChevronLeft className="h-4 w-4 mr-1"/>
-                            上一页
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleNextPage}
-                            disabled={rolesData.current >= rolesData.pages}
-                        >
-                            下一页
-                            <ChevronRight className="h-4 w-4 ml-1"/>
-                        </Button>
+                        <div className="flex items-center space-x-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handlePreviousPage}
+                                disabled={rolesData.current <= 1}
+                            >
+                                <ChevronLeft className="h-4 w-4 mr-1"/>
+                                上一页
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleNextPage}
+                                disabled={rolesData.current >= rolesData.pages}
+                            >
+                                下一页
+                                <ChevronRight className="h-4 w-4 ml-1"/>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             )}

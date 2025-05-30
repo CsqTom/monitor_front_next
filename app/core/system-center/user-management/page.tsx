@@ -41,7 +41,7 @@ interface ApiResponse<T> {
 }
 
 export default function Page() {
-    const [usersData, setUsersData] = useState<UserPageData | null>(null);
+    const [pageUserData, setPageUserData] = useState<UserPageData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedUser, setSelectedUser] = useState<UserRecord | null>(null);
@@ -60,7 +60,7 @@ export default function Page() {
                 params: {page, page_size: pageSize},
             });
             if (response.data.code === 200 && response.data.data) {
-                setUsersData(response.data.data);
+                setPageUserData(response.data.data);
             } else {
                 setError(response.data.msg || 'Failed to fetch users');
                 toast({title: '错误', description: response.data.msg || '获取用户列表失败', variant: 'destructive'});
@@ -77,22 +77,22 @@ export default function Page() {
     };
 
     useEffect(() => {
-        fetchUsers(usersData?.current || 1); // Fetch current page or default to 1
+        fetchUsers(pageUserData?.current || 1); // Fetch current page or default to 1
     }, []);
 
     const handleRefresh = () => {
-        fetchUsers(usersData?.current || 1);
+        fetchUsers(pageUserData?.current || 1);
     };
 
     const handlePreviousPage = () => {
-        if (usersData && usersData.current > 1) {
-            fetchUsers(usersData.current - 1);
+        if (pageUserData && pageUserData.current > 1) {
+            fetchUsers(pageUserData.current - 1);
         }
     };
 
     const handleNextPage = () => {
-        if (usersData && usersData.current < usersData.pages) {
-            fetchUsers(usersData.current + 1);
+        if (pageUserData && pageUsersData.current < pageUserData.pages) {
+            fetchUsers(pageUserData.current + 1);
         }
     };
 
@@ -153,28 +153,29 @@ export default function Page() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>用户名</TableHead>
-                        <TableHead>邮箱</TableHead>
-                        <TableHead>角色</TableHead>
-                        <TableHead>状态</TableHead>
-                        <TableHead>创建时间</TableHead>
-                        <TableHead>上次登陆</TableHead>
-                        <TableHead>操作</TableHead></TableRow>
+                        <TableHead className="text-center font-bold bg-gray-100">ID</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">用户名</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">邮箱</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">角色</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">状态</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">创建时间</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">更新时间</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
+                    </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {usersData?.records.map((user) => (
+                    {pageUserData?.records.map((user) => (
                         <TableRow
                             key={user.id}>
-                            <TableCell>{user.id}</TableCell>
-                            <TableCell>{user.username}</TableCell>
-                            <TableCell>{user.email || 'N/A'}</TableCell>
-                            <TableCell>{user.role.name || 'N/A'}</TableCell>
-                            <TableCell>{user.is_active ? '启用' : '禁用'}</TableCell>
-                            <TableCell>{new Date(user.date_joined).toLocaleString()}</TableCell>
-                            <TableCell>{user.last_login ? new Date(user.last_login).toLocaleString() : 'N/A'}</TableCell>
+                            <TableCell className="text-center">{user.id}</TableCell>
+                            <TableCell className="text-center">{user.username}</TableCell>
+                            <TableCell className="text-center">{user.email || 'N/A'}</TableCell>
+                            <TableCell className="text-center">{user.role.name || 'N/A'}</TableCell>
+                            <TableCell className="text-center">{user.is_active ? '启用' : '禁用'}</TableCell>
+                            <TableCell className="text-center">{new Date(user.date_joined).toLocaleString()}</TableCell>
+                            <TableCell className="text-center">{user.last_login ? new Date(user.last_login).toLocaleString() : 'N/A'}</TableCell>
                             <TableCell
-                                className="space-x-2"><Button variant="outline" size="sm"
+                                className="space-x-2 text-center"><Button variant="outline" size="sm"
                                                               onClick={() => setSelectedUser(user)}>详情</Button><Button
                                 variant="destructive" size="sm" onClick={() => handleDeleteUser(user)}><Trash2
                                 className="mr-1 h-4 w-4"/> 删除</Button>
@@ -184,33 +185,51 @@ export default function Page() {
                 </TableBody>
             </Table>
 
-            {usersData && usersData.total > 0 && (
+            {pageUserData && pageUserData.total > 0 && (
                 <div className="flex items-center justify-between space-x-2 py-4">
                     <div className="text-sm text-muted-foreground">
-                        总计 {usersData.total} 条
+                        共 {pageUserData.total} 条记录，当前第 {pageUserData.current} / {pageUserData.pages} 页
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <div className="text-sm text-muted-foreground">
-                            第 {usersData.current} 页 / 共 {usersData.pages} 页
+                    <div className="flex items-center space-x-6">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-sm">跳转到</span>
+                            <input 
+                                type="number" 
+                                min="1" 
+                                max={pageUserData.pages} 
+                                className="w-16 h-8 text-center border rounded" 
+                                defaultValue={pageUserData.current}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        const page = parseInt((e.target as HTMLInputElement).value);
+                                        if (page >= 1 && page <= pageUserData.pages) {
+                                            handleRefresh(page);
+                                        }
+                                    }
+                                }}
+                            />
+                            <span className="text-sm">页</span>
                         </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handlePreviousPage}
-                            disabled={usersData.current <= 1}
-                        >
-                            <ChevronLeft className="h-4 w-4 mr-1"/>
-                            上一页
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleNextPage}
-                            disabled={usersData.current >= usersData.pages}
-                        >
-                            下一页
-                            <ChevronRight className="h-4 w-4 ml-1"/>
-                        </Button>
+                        <div className="flex items-center space-x-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRefresh(pageUserData.current - 1)}
+                                disabled={pageUserData.current <= 1}
+                            >
+                                <ChevronLeft className="h-4 w-4 mr-1"/>
+                                上一页
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRefresh(pageUserData.current + 1)}
+                                disabled={pageUserData.current >= pageUserData.pages}
+                            >
+                                下一页
+                                <ChevronRight className="h-4 w-4 ml-1"/>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             )}

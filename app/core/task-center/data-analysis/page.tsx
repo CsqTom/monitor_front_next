@@ -16,10 +16,10 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from "@/components/ui/alert-dialog";
-import {C_newUserSheet} from "@/app/core/system-center/user-management/c_new-user-sheet";
 import {NewTaskSheet} from "@/app/core/task-center/data-analysis/c_new-task-sheet";
-import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
-import { Progress } from "@/components/ui/progress";
+import {ChevronLeft, ChevronRight, CheckCircle2, XCircle, Loader2} from 'lucide-react';
+import {Progress} from "@/components/ui/progress";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 
 interface TaskData {
     id: number
@@ -145,7 +145,7 @@ export default function Page() {
                         const response = await request<ApiResponse<TaskData>>({
                             url: '/task/get',
                             method: 'GET',
-                            params: { task_id: task.task_id },
+                            params: {task_id: task.task_id},
                         });
                         if (response.data.code === 200 && response.data.data) {
                             const updatedTask = response.data.data;
@@ -154,7 +154,7 @@ export default function Page() {
                                 return {
                                     ...prevData,
                                     records: prevData.records.map(t =>
-                                        t.id === updatedTask.id ? { ...t, ...updatedTask } : t
+                                        t.id === updatedTask.id ? {...t, ...updatedTask} : t
                                     ),
                                 };
                             });
@@ -188,43 +188,67 @@ export default function Page() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>任务ID</TableHead>
-                        <TableHead>任务类型</TableHead>
-                        <TableHead>名称</TableHead>
-                        <TableHead>进度</TableHead>
-                        <TableHead>状态</TableHead>
-                        <TableHead>创建时间</TableHead>
-                        <TableHead>更新时间</TableHead>
-                        <TableHead>消息</TableHead>
-                        <TableHead>操作</TableHead>
+                        <TableHead className='text-center font-bold bg-gray-100'>任务ID</TableHead>
+                        <TableHead className='text-center font-bold bg-gray-100'>任务类型</TableHead>
+                        <TableHead className='text-center font-bold bg-gray-100'>名称</TableHead>
+                        <TableHead className='text-center font-bold bg-gray-100'>进度</TableHead>
+                        <TableHead className='text-center font-bold bg-gray-100'>状态</TableHead>
+                        <TableHead className='text-center font-bold bg-gray-100'>创建时间</TableHead>
+                        <TableHead className='text-center font-bold bg-gray-100'>更新时间</TableHead>
+                        <TableHead className='text-center font-bold bg-gray-100'>消息</TableHead>
+                        <TableHead className='text-center font-bold bg-gray-100'>操作</TableHead>
                     </TableRow>
                 </TableHeader>
 
                 <TableBody>
                     {pageTaskData?.records.map((task) => (
                         <TableRow key={task.id}> {/* 使用 task.id 作为 key prop */}
-                            <TableCell>{task.task_id}</TableCell>
-                            <TableCell>{task_type_to_name(task.task_type)}</TableCell>
-                            <TableCell>{task.name ? task.name.trim() : "N/A"}</TableCell>
-                            <TableCell>
+                            <TableCell className='text-center'>{task.task_id}</TableCell>
+                            <TableCell className='text-center'>{task_type_to_name(task.task_type)}</TableCell>
+                            <TableCell className='text-center'>{task.name ? task.name.trim() : "N/A"}</TableCell>
+                            <TableCell className='text-center'>
                                 {task.status >= 201 && task.status <= 299 ? (
-                                    <div className="flex items-center">
-                                        <Progress value={task.percent} className="w-[60%] mr-2" />
+                                    <div className="flex items-center justify-center">
+                                        <Progress value={task.percent} className="w-[60%] mr-2"/>
                                         <span>{task.percent}%</span>
                                     </div>
                                 ) : task.status === 200 ? (
-                                    <CheckCircle2 className="text-green-500" />
+                                    <div className="flex justify-center">
+                                        <CheckCircle2 className="text-green-500"/>
+                                    </div>
                                 ) : (
-                                    <XCircle className="text-red-500" />
+                                    <div className="flex justify-center">
+                                        <XCircle className="text-red-500"/>
+                                    </div>
                                 )}
                             </TableCell>
-                            <TableCell>{task.status ? task.status : "未完成"}</TableCell>
-                            <TableCell>{task.create_time}</TableCell>
-                            <TableCell>{task.update_time}</TableCell>
-                            <TableCell>{task.msg ? task.msg.trim() : "N/A"}</TableCell>
-                            <TableCell className="space-x-2">
+                            <TableCell className='text-center'>{task.status ? task.status : "未完成"}</TableCell>
+                            <TableCell className='text-center'>{task.create_time}</TableCell>
+                            <TableCell className='text-center'>{task.update_time}</TableCell>
+                            <TableCell className='text-center'>
+                                {task.msg && task.msg.trim() ? (
+                                    task.msg.trim().length > 30 ? (
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger className="truncate max-w-xs block text-center mx-auto">
+                                                    {`${task.msg.trim().substring(0, 30)}...`}
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{task.msg.trim()}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    ) : (
+                                        <span className="text-center block">{task.msg.trim()}</span>
+                                    )
+                                ) : (
+                                    "N/A"
+                                )}
+                            </TableCell>
+                            <TableCell className="text-center space-x-2">
                                 <Button variant="outline" size="sm" onClick={() => setSelectedUser(task)}>详情</Button>
-                                <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(task)}><Trash2 className="mr-1 h-4 w-4"/> 删除</Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(task)}><Trash2
+                                    className="mr-1 h-4 w-4"/> 删除</Button>
                             </TableCell>
                         </TableRow>
                     ))}
@@ -237,25 +261,46 @@ export default function Page() {
                     <div className="text-sm text-muted-foreground">
                         共 {pageTaskData.total} 条记录，当前第 {pageTaskData.current} / {pageTaskData.pages} 页
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRefresh(pageTaskData.current - 1)}
-                            disabled={pageTaskData.current <= 1}
-                        >
-                            <ChevronLeft className="h-4 w-4 mr-1"/>
-                            上一页
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRefresh(pageTaskData.current + 1)}
-                            disabled={pageTaskData.current >= pageTaskData.pages}
-                        >
-                            下一页
-                            <ChevronRight className="h-4 w-4 ml-1"/>
-                        </Button>
+                    <div className="flex items-center space-x-6">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-sm">跳转到</span>
+                            <input 
+                                type="number" 
+                                min="1" 
+                                max={pageTaskData.pages} 
+                                className="w-16 h-8 text-center border rounded" 
+                                defaultValue={pageTaskData.current}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        const page = parseInt((e.target as HTMLInputElement).value);
+                                        if (page >= 1 && page <= pageTaskData.pages) {
+                                            handleRefresh(page);
+                                        }
+                                    }
+                                }}
+                            />
+                            <span className="text-sm">页</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRefresh(pageTaskData.current - 1)}
+                                disabled={pageTaskData.current <= 1}
+                            >
+                                <ChevronLeft className="h-4 w-4 mr-1"/>
+                                上一页
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRefresh(pageTaskData.current + 1)}
+                                disabled={pageTaskData.current >= pageTaskData.pages}
+                            >
+                                下一页
+                                <ChevronRight className="h-4 w-4 ml-1"/>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             )}
