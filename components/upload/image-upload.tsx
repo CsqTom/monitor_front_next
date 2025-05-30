@@ -28,11 +28,13 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({all_len, data_para_ke
 
     useEffect(() => {
         if (uploadedFiles === all_len) {
-            setIsUploadFinished(true);
-            onUploadComplete(true, 'All images processed!', {
-                key: data_para_key,
-                value: keyValue
-            });
+            if (!isUploadFinished) {
+                setIsUploadFinished(true);
+                onUploadComplete(true, 'All images processed!', {
+                    key: data_para_key,
+                    value: keyValue
+                });
+            }
         }
     }, [uploadedFiles, all_len, onUploadComplete, keyValue, data_para_key,]);
 

@@ -9,10 +9,8 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import {Input} from '@/components/ui/input';
-import {Switch} from "@/components/ui/switch";
 import {Label} from "@/components/ui/label";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group"
-import {RefreshCw} from 'lucide-react';
 import {request} from '@/lib/api_user';
 import {useToast} from '@/hooks/use-toast';
 import {Card, CardContent} from "@/components/ui/card";
@@ -80,6 +78,11 @@ interface ApiResponse<T> {
     }
 }
 
+interface JustApiResponse {
+    code: number;
+    msg: string;
+}
+
 interface NewSheetProps {
     isNewSheetOpen: boolean;
     setIsNewSheetOpen: (isOpen: boolean) => void;
@@ -108,6 +111,7 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
     const [userDataConfigs, setUserDataConfigs] = useState<UserData[]>([]);
 
     const [httpUrls, setHttpUrls] = useState<Record<string, string>>({});
+    const [imageInfo, setImageInfo] = useState<Record<string, string>>({});
     const {toast} = useToast();
 
     useEffect(() => {
@@ -257,6 +261,34 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
 
     const handleUploadComplete = (is_success: boolean, msg: string, data: IDict) => {
         console.log("handleUploadComplete", is_success, msg, data);
+        if (is_success && data && data.key && data.value) {
+            // 将上传的文件信息存储到imageInfo中
+            // data 的格式为 {key: 'file_path', value: '44,45'}
+            // 我们需要将 file_path 作为 imageInfo 的键，并将 44,45 作为值
+            // 但考虑到 userData.data_para_key 才是真正的键，这里假设 data.key 总是 'file_path'
+            // 并且 ImageUploadComponent 应该传递 data_para_key
+            // 为了兼容，我们暂时先用一个固定的键，或者如果 ImageUploadComponent 能把 data_para_key 传过来就更好了
+            // 假设 ImageUploadComponent 的 data 结构是 { data_para_key: 'actual_key', file_path: 'value'}
+            // 根据用户描述，data是 {key: 'file_path', value: '44,45'}
+            // 这意味着 ImageUploadComponent 并没有传递 data_para_key
+            // 我们需要找到 ImageUploadComponent 实例，看它是在哪个 userDataConfig 下渲染的
+            // 暂时先假设 ImageUploadComponent 总是对应第一个需要上传图片的 userDataConfig
+            const imageUserData = userDataConfigs.find(ud => ud.data_format === 'tif');
+            if (imageUserData) {
+                 setImageInfo(prev => ({
+                    ...prev,
+                    [imageUserData.data_para_key]: data.value
+                }));
+            } else {
+                // 如果没有找到对应的 userDataConfig，这会是个问题
+                // 暂时先用 data.key 作为键，但这可能不符合预期
+                setImageInfo(prev => ({
+                    ...prev,
+                    [data.key]: data.value
+                }));
+            }
+            console.log("imageInfo", imageInfo);
+        }
     };
 
     const handleUrlSubmit = (dataParaKey: string, url: string) => {
@@ -264,7 +296,113 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
     };
 
     const handleCreate = async () => {
-        // ... 原有逻辑保持不变 ...
+        // 验证所有必填项
+        if (!taskName.trim()) {
+            toast({
+                title: '验证失败',
+                description: '请输入任务名称',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        if (!selectedAlgorithmType) {
+            toast({
+                title: '验证失败',
+                description: '请选择算法类型',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        if (!selectedApiConfig) {
+            toast({
+                title: '验证失败',
+                description: '请选择算法API',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        // 验证所有必需的数据输入
+        for (const userData of userDataConfigs) {
+            if (userData.data_format === 'tif') {
+                if (!imageInfo[userData.data_para_key]) {
+                    toast({
+                        title: '验证失败',
+                        description: `请上传${userData.data_para_key}参数的图片文件`,
+                        variant: 'destructive',
+                    });
+                    return;
+                }
+            } else if (userData.data_format === 'http') {
+                if (!httpUrls[userData.data_para_key]) {
+                    toast({
+                        title: '验证失败',
+                        description: `请输入${userData.data_para_key}参数的HTTP地址`,
+                        variant: 'destructive',
+                    });
+                    return;
+                }
+            }
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            // 构建请求参数
+            const requestData = {
+                project_id: 1,
+                ai_config_id: parseInt(selectedApiConfig),
+                task_name: taskName,
+                image_info: imageInfo, // 直接使用 imageInfo，它应该是 { data_para_key: "file_ids" } 的形式
+                class_codes: {
+                    model_sign: "building_change"
+                }
+            };
+
+            console.log('创建任务请求参数:', requestData);
+
+            const response = await request<ApiResponse<ProjectData>>({
+                url: '/task/add_ai_task',
+                method: 'POST',
+                data: requestData,
+            });
+
+            if (response.data.code === 200) {
+                toast({
+                    title: '创建成功',
+                    description: '任务已成功创建',
+                });
+                
+                // 重置表单
+                setTaskName('');
+                setSelectedAlgorithmType('');
+                setSelectedAlgorithmCategory('');
+                setSelectedApiConfig('');
+                setImageInfo({});
+                setHttpUrls({});
+                
+                // 关闭弹窗并刷新列表
+                setIsNewSheetOpen(false);
+                onCreate();
+            } else {
+                toast({
+                    title: '创建失败',
+                    description: response.msg || '创建任务时发生错误',
+                    variant: 'destructive',
+                });
+            }
+        } catch (error) {
+            console.error('创建任务失败:', error);
+            toast({
+                title: '创建失败',
+                description: '无法连接到服务器或发生未知错误',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (

@@ -158,6 +158,8 @@ export default function Page() {
                         <TableHead>名称</TableHead>
                         <TableHead>进度</TableHead>
                         <TableHead>状态</TableHead>
+                        <TableHead>创建时间</TableHead>
+                        <TableHead>更新时间</TableHead>
                         <TableHead>消息</TableHead>
                         <TableHead>操作</TableHead>
                     </TableRow>
@@ -165,18 +167,18 @@ export default function Page() {
 
                 <TableBody>
                     {pageTaskData?.records.map((task) => (
-                        <TableRow>
+                        <TableRow key={task.id}> {/* 使用 task.id 作为 key prop */}
                             <TableCell>{task.task_id}</TableCell>
                             <TableCell>{task_type_to_name(task.task_type)}</TableCell>
-                            <TableCell>{task.name}</TableCell>
-                            <TableCell>{task.percent}</TableCell>
-                            <TableCell>{task.status}</TableCell>
-                            <TableCell>{task.msg}</TableCell>
-                            <TableCell
-                                className="space-x-2"><Button variant="outline" size="sm"
-                                                              onClick={() => setSelectedUser(task)}>详情</Button><Button
-                                variant="destructive" size="sm" onClick={() => handleDeleteUser(task)}><Trash2
-                                className="mr-1 h-4 w-4"/> 删除</Button>
+                            <TableCell>{task.name ? task.name.trim() : "N/A"}</TableCell>
+                            <TableCell>{task.percent? task.percent + "%" : "N/A"}</TableCell>
+                            <TableCell>{task.status ? task.status : "未完成"}</TableCell>
+                            <TableCell>{task.create_time}</TableCell>
+                            <TableCell>{task.update_time}</TableCell>
+                            <TableCell>{task.msg ? task.msg.trim() : "N/A"}</TableCell>
+                            <TableCell className="space-x-2">
+                                <Button variant="outline" size="sm" onClick={() => setSelectedUser(task)}>详情</Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(task)}><Trash2 className="mr-1 h-4 w-4"/> 删除</Button>
                             </TableCell>
                         </TableRow>
                     ))}
