@@ -20,7 +20,7 @@ export interface PaginationProps {
   className?: string
 }
 
-export function ShadcnPagination({
+export function QPagination({
   current,
   pages,
   total,

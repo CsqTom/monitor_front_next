@@ -26,7 +26,7 @@ import {
 import {request} from '@/lib/api_user';
 import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2} from 'lucide-react';
 // Removed Input, Switch, Label, useToast as they are now in child components
-import {ShadcnPagination} from '@/components/ui/pagination';
+import {QPagination} from '@/components/ui/pagination';
 
 // Import the new components
 import {RoleDetailsSheet, RoleConfig, RoleRecord} from '@/app/core/system-center/role-management/c_role-details-sheet';
@@ -187,7 +187,7 @@ export default function Page() {
             </Table>
 
             {rolesData && rolesData.total > 0 && (
-                <ShadcnPagination
+                <QPagination
                     current={rolesData.current}
                     pages={rolesData.pages}
                     total={rolesData.total}

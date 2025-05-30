@@ -25,7 +25,7 @@ import {request} from '@/lib/api_user';
 import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2} from 'lucide-react';
 import {UserDetailsSheet, UserRecord} from './c_user-details-sheet'; // Placeholder for UserDetailsSheet
 import {C_newUserSheet} from './c_new-user-sheet'; // Placeholder for NewUserSheet
-import {ShadcnPagination} from '@/components/ui/pagination';
+import {QPagination} from '@/components/ui/pagination';
 
 interface UserPageData {
     records: UserRecord[];
@@ -175,7 +175,7 @@ export default function Page() {
             </Table>
 
             {pageUserData && pageUserData.total > 0 && (
-                <ShadcnPagination
+                <QPagination
                     current={pageUserData.current}
                     pages={pageUserData.pages}
                     total={pageUserData.total}

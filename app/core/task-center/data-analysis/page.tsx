@@ -4,7 +4,6 @@ import {Button} from "@/components/ui/button";
 import {PlusCircle, RefreshCw, Trash2} from "lucide-react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {useToast} from '@/hooks/use-toast';
-import {UserRecord} from "@/app/core/system-center/user-management/c_user-details-sheet";
 import {useEffect, useState} from "react";
 import {ApiResponse, request} from "@/lib/api_user";
 import {
@@ -20,7 +19,7 @@ import {NewTaskSheet} from "@/app/core/task-center/data-analysis/c_new-task-shee
 import {ChevronLeft, ChevronRight, CheckCircle2, XCircle, Loader2} from 'lucide-react';
 import {Progress} from "@/components/ui/progress";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
-import {ShadcnPagination} from "@/components/ui/pagination";
+import {QPagination} from "@/components/ui/pagination";
 
 interface TaskData {
     id: number
@@ -258,7 +257,7 @@ export default function Page() {
 
             {/* 分页组件 */}
             {pageTaskData && pageTaskData.total > 0 && (
-                <ShadcnPagination
+                <QPagination
                     current={pageTaskData.current}
                     pages={pageTaskData.pages}
                     total={pageTaskData.total}
