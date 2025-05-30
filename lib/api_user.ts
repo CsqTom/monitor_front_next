@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 
-const API_BASE_URL = 'http://localhost:61301/api';
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`;
 
 interface TokenData {
   accessToken: string | null;
@@ -93,5 +93,5 @@ const request = async <T = unknown>( // Change any to unknown
   return apiClient(config);
 };
 
-export { request, getTokenData, setTokenData, clearTokenData, API_BASE_URL };
+export { request, getTokenData, setTokenData, clearTokenData }; // Removed API_BASE_URL from export as it's now internal
 export type { ApiResponse };

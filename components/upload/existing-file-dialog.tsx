@@ -70,7 +70,7 @@ const ExistingFileDialog: React.FC<ExistingFileDialogProps> = ({ open, onOpenCha
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(`http://localhost:61301/api/image_data/page?page=${page}&page_size=${PAGE_SIZE}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/image_data/page?page=${page}&page_size=${PAGE_SIZE}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

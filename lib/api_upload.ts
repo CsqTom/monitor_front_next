@@ -1,6 +1,6 @@
 // lib/api_upload.ts
 
-const API_BASE_URL = 'http://localhost:61301/api/image_data';
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/image_data`;
 
 export interface InitUploadResponse {
   upload_id: string;
