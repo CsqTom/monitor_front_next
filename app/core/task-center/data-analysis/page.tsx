@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import {C_newUserSheet} from "@/app/core/system-center/user-management/c_new-user-sheet";
 import {NewTaskSheet} from "@/app/core/task-center/data-analysis/c_new-task-sheet";
+import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
 
 interface TaskData {
     id: number
@@ -134,6 +136,39 @@ export default function Page() {
         }); //(/ Fetch current page or default to 1
     }, []);
 
+    // 定时更新处理中的任务状态
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            pageTaskData?.records.forEach(async (task) => {
+                if (task.status >= 201 && task.status <= 299) {
+                    try {
+                        const response = await request<ApiResponse<TaskData>>({
+                            url: '/task/get',
+                            method: 'GET',
+                            params: { task_id: task.task_id },
+                        });
+                        if (response.data.code === 200 && response.data.data) {
+                            const updatedTask = response.data.data;
+                            setPageTaskData(prevData => {
+                                if (!prevData) return null;
+                                return {
+                                    ...prevData,
+                                    records: prevData.records.map(t =>
+                                        t.id === updatedTask.id ? { ...t, ...updatedTask } : t
+                                    ),
+                                };
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Failed to fetch status for task ${task.task_id}:`, error);
+                    }
+                }
+            });
+        }, 5000); // 每5秒查询一次
+
+        return () => clearInterval(intervalId); // 组件卸载时清除定时器
+    }, [pageTaskData]);
+
     // 写界面
     return (
         <div>
@@ -171,7 +206,18 @@ export default function Page() {
                             <TableCell>{task.task_id}</TableCell>
                             <TableCell>{task_type_to_name(task.task_type)}</TableCell>
                             <TableCell>{task.name ? task.name.trim() : "N/A"}</TableCell>
-                            <TableCell>{task.percent? task.percent + "%" : "N/A"}</TableCell>
+                            <TableCell>
+                                {task.status >= 201 && task.status <= 299 ? (
+                                    <div className="flex items-center">
+                                        <Progress value={task.percent} className="w-[60%] mr-2" />
+                                        <span>{task.percent}%</span>
+                                    </div>
+                                ) : task.status === 200 ? (
+                                    <CheckCircle2 className="text-green-500" />
+                                ) : (
+                                    <XCircle className="text-red-500" />
+                                )}
+                            </TableCell>
                             <TableCell>{task.status ? task.status : "未完成"}</TableCell>
                             <TableCell>{task.create_time}</TableCell>
                             <TableCell>{task.update_time}</TableCell>
@@ -184,6 +230,35 @@ export default function Page() {
                     ))}
                 </TableBody>
             </Table>
+
+            {/* 分页组件 */}
+            {pageTaskData && pageTaskData.total > 0 && (
+                <div className="flex items-center justify-between space-x-2 py-4">
+                    <div className="text-sm text-muted-foreground">
+                        共 {pageTaskData.total} 条记录，当前第 {pageTaskData.current} / {pageTaskData.pages} 页
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRefresh(pageTaskData.current - 1)}
+                            disabled={pageTaskData.current <= 1}
+                        >
+                            <ChevronLeft className="h-4 w-4 mr-1"/>
+                            上一页
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRefresh(pageTaskData.current + 1)}
+                            disabled={pageTaskData.current >= pageTaskData.pages}
+                        >
+                            下一页
+                            <ChevronRight className="h-4 w-4 ml-1"/>
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             {isNewSheetOpen && (
                 <NewTaskSheet
