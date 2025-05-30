@@ -20,6 +20,7 @@ import {NewTaskSheet} from "@/app/core/task-center/data-analysis/c_new-task-shee
 import {ChevronLeft, ChevronRight, CheckCircle2, XCircle, Loader2} from 'lucide-react';
 import {Progress} from "@/components/ui/progress";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
+import {ShadcnPagination} from "@/components/ui/pagination";
 
 interface TaskData {
     id: number
@@ -257,52 +258,12 @@ export default function Page() {
 
             {/* 分页组件 */}
             {pageTaskData && pageTaskData.total > 0 && (
-                <div className="flex items-center justify-between space-x-2 py-4">
-                    <div className="text-sm text-muted-foreground">
-                        共 {pageTaskData.total} 条记录，当前第 {pageTaskData.current} / {pageTaskData.pages} 页
-                    </div>
-                    <div className="flex items-center space-x-6">
-                        <div className="flex items-center space-x-2">
-                            <span className="text-sm">跳转到</span>
-                            <input 
-                                type="number" 
-                                min="1" 
-                                max={pageTaskData.pages} 
-                                className="w-16 h-8 text-center border rounded" 
-                                defaultValue={pageTaskData.current}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        const page = parseInt((e.target as HTMLInputElement).value);
-                                        if (page >= 1 && page <= pageTaskData.pages) {
-                                            handleRefresh(page);
-                                        }
-                                    }
-                                }}
-                            />
-                            <span className="text-sm">页</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleRefresh(pageTaskData.current - 1)}
-                                disabled={pageTaskData.current <= 1}
-                            >
-                                <ChevronLeft className="h-4 w-4 mr-1"/>
-                                上一页
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleRefresh(pageTaskData.current + 1)}
-                                disabled={pageTaskData.current >= pageTaskData.pages}
-                            >
-                                下一页
-                                <ChevronRight className="h-4 w-4 ml-1"/>
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+                <ShadcnPagination
+                    current={pageTaskData.current}
+                    pages={pageTaskData.pages}
+                    total={pageTaskData.total}
+                    onPageChange={(page) => handleRefresh(page)}
+                />
             )}
 
             {isNewSheetOpen && (
@@ -319,7 +280,7 @@ export default function Page() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>确认删除</AlertDialogTitle>
                         <AlertDialogDescription>
-                            确定要删除任务 “{toDelete?.name}” 吗？此操作无法撤销。
+                            确定要删除任务 "{toDelete?.name}" 吗？此操作无法撤销。
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

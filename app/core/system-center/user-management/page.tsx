@@ -25,6 +25,7 @@ import {request} from '@/lib/api_user';
 import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2} from 'lucide-react';
 import {UserDetailsSheet, UserRecord} from './c_user-details-sheet'; // Placeholder for UserDetailsSheet
 import {C_newUserSheet} from './c_new-user-sheet'; // Placeholder for NewUserSheet
+import {ShadcnPagination} from '@/components/ui/pagination';
 
 interface UserPageData {
     records: UserRecord[];
@@ -80,20 +81,8 @@ export default function Page() {
         fetchUsers(pageUserData?.current || 1); // Fetch current page or default to 1
     }, []);
 
-    const handleRefresh = () => {
-        fetchUsers(pageUserData?.current || 1);
-    };
-
-    const handlePreviousPage = () => {
-        if (pageUserData && pageUserData.current > 1) {
-            fetchUsers(pageUserData.current - 1);
-        }
-    };
-
-    const handleNextPage = () => {
-        if (pageUserData && pageUsersData.current < pageUserData.pages) {
-            fetchUsers(pageUserData.current + 1);
-        }
+    const handleRefresh = (page = pageUserData?.current || 1) => {
+        fetchUsers(page);
     };
 
     const handleNew = () => {
@@ -133,7 +122,7 @@ export default function Page() {
 
     if (error) {
         return <div className="container mx-auto py-10 text-center text-red-500">Error: {error} <Button
-            onClick={handleRefresh} variant="outline" className="ml-2">Retry</Button></div>;
+            onClick={() => handleRefresh()} variant="outline" className="ml-2">Retry</Button></div>;
     }
 
     return (
@@ -144,7 +133,7 @@ export default function Page() {
                     <Button onClick={handleNew} variant="outline">
                         <PlusCircle className="mr-2 h-4 w-4"/> 新建用户
                     </Button>
-                    <Button onClick={handleRefresh} variant="outline">
+                    <Button onClick={() => handleRefresh()} variant="outline">
                         <RefreshCw className="mr-2 h-4 w-4"/> 刷新
                     </Button>
                 </div>
@@ -186,59 +175,19 @@ export default function Page() {
             </Table>
 
             {pageUserData && pageUserData.total > 0 && (
-                <div className="flex items-center justify-between space-x-2 py-4">
-                    <div className="text-sm text-muted-foreground">
-                        共 {pageUserData.total} 条记录，当前第 {pageUserData.current} / {pageUserData.pages} 页
-                    </div>
-                    <div className="flex items-center space-x-6">
-                        <div className="flex items-center space-x-2">
-                            <span className="text-sm">跳转到</span>
-                            <input 
-                                type="number" 
-                                min="1" 
-                                max={pageUserData.pages} 
-                                className="w-16 h-8 text-center border rounded" 
-                                defaultValue={pageUserData.current}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        const page = parseInt((e.target as HTMLInputElement).value);
-                                        if (page >= 1 && page <= pageUserData.pages) {
-                                            handleRefresh(page);
-                                        }
-                                    }
-                                }}
-                            />
-                            <span className="text-sm">页</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleRefresh(pageUserData.current - 1)}
-                                disabled={pageUserData.current <= 1}
-                            >
-                                <ChevronLeft className="h-4 w-4 mr-1"/>
-                                上一页
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleRefresh(pageUserData.current + 1)}
-                                disabled={pageUserData.current >= pageUserData.pages}
-                            >
-                                下一页
-                                <ChevronRight className="h-4 w-4 ml-1"/>
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+                <ShadcnPagination
+                    current={pageUserData.current}
+                    pages={pageUserData.pages}
+                    total={pageUserData.total}
+                    onPageChange={(page) => handleRefresh(page)}
+                />
             )}
 
             {selectedUser && (
                 <UserDetailsSheet
                     selectedUser={selectedUser}
                     setSelectedUser={setSelectedUser}
-                    onUserUpdate={fetchUsers}
+                    onUserUpdate={handleRefresh}
                 />
             )}
 
@@ -246,7 +195,7 @@ export default function Page() {
                 <C_newUserSheet
                     isNewUserSheetOpen={isNewUserSheetOpen}
                     setIsNewUserSheetOpen={setIsNewUserSheetOpen}
-                    onUserCreate={fetchUsers}
+                    onUserCreate={handleRefresh}
                 />
             )}
 
@@ -255,7 +204,7 @@ export default function Page() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>确认删除</AlertDialogTitle>
                         <AlertDialogDescription>
-                            确定要删除用户 “{userToDelete?.username}” 吗？此操作无法撤销。
+                            确定要删除用户 "{userToDelete?.username}" 吗？此操作无法撤销。
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

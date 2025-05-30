@@ -26,6 +26,7 @@ import {
 import {request} from '@/lib/api_user';
 import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2} from 'lucide-react';
 // Removed Input, Switch, Label, useToast as they are now in child components
+import {ShadcnPagination} from '@/components/ui/pagination';
 
 // Import the new components
 import {RoleDetailsSheet, RoleConfig, RoleRecord} from '@/app/core/system-center/role-management/c_role-details-sheet';
@@ -92,20 +93,8 @@ export default function Page() {
         fetchRoles(rolesData?.current || 1); // Fetch current page or default to 1
     }, []);
 
-    const handleRefresh = () => {
-        fetchRoles(rolesData?.current || 1);
-    };
-
-    const handlePreviousPage = () => {
-        if (rolesData && rolesData.current > 1) {
-            fetchRoles(rolesData.current - 1);
-        }
-    };
-
-    const handleNextPage = () => {
-        if (rolesData && rolesData.current < rolesData.pages) {
-            fetchRoles(rolesData.current + 1);
-        }
+    const handleRefresh = (page = rolesData?.current || 1) => {
+        fetchRoles(page);
     };
 
     // Removed fetchDefaultRoleConfigs, handleNew, handleNewRoleConfigChange, handleCreateRole as they are in NewRoleSheet
@@ -147,7 +136,7 @@ export default function Page() {
 
     if (error) {
         return <div className="container mx-auto py-10 text-center text-red-500">Error: {error} <Button
-            onClick={handleRefresh} variant="outline" className="ml-2">Retry</Button></div>;
+            onClick={() => handleRefresh()} variant="outline" className="ml-2">Retry</Button></div>;
     }
 
     return (
@@ -158,7 +147,7 @@ export default function Page() {
                     <Button onClick={handleNew} variant="outline">
                         <PlusCircle className="mr-2 h-4 w-4"/> 新建角色
                     </Button>
-                    <Button onClick={handleRefresh} variant="outline">
+                    <Button onClick={() => handleRefresh()} variant="outline">
                         <RefreshCw className="mr-2 h-4 w-4"/> 刷新
                     </Button>
                 </div>
@@ -198,52 +187,12 @@ export default function Page() {
             </Table>
 
             {rolesData && rolesData.total > 0 && (
-                <div className="flex items-center justify-between space-x-2 py-4">
-                    <div className="text-sm text-muted-foreground">
-                        共 {rolesData.total} 条记录，当前第 {rolesData.current} / {rolesData.pages} 页
-                    </div>
-                    <div className="flex items-center space-x-6">
-                        <div className="flex items-center space-x-2">
-                            <span className="text-sm">跳转到</span>
-                            <input 
-                                type="number" 
-                                min="1" 
-                                max={rolesData.pages} 
-                                className="w-16 h-8 text-center border rounded" 
-                                defaultValue={rolesData.current}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        const page = parseInt((e.target as HTMLInputElement).value);
-                                        if (page >= 1 && page <= rolesData.pages) {
-                                            fetchRoles(page);
-                                        }
-                                    }
-                                }}
-                            />
-                            <span className="text-sm">页</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handlePreviousPage}
-                                disabled={rolesData.current <= 1}
-                            >
-                                <ChevronLeft className="h-4 w-4 mr-1"/>
-                                上一页
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleNextPage}
-                                disabled={rolesData.current >= rolesData.pages}
-                            >
-                                下一页
-                                <ChevronRight className="h-4 w-4 ml-1"/>
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+                <ShadcnPagination
+                    current={rolesData.current}
+                    pages={rolesData.pages}
+                    total={rolesData.total}
+                    onPageChange={(page) => handleRefresh(page)}
+                />
             )}
 
             {/* Role Details Sheet - Rendered conditionally based on selectedRole */}
@@ -251,7 +200,7 @@ export default function Page() {
                 <RoleDetailsSheet
                     selectedRole={selectedRole}
                     setSelectedRole={setSelectedRole}
-                    onRoleUpdate={fetchRoles} // Pass fetchRoles to refresh data after update
+                    onRoleUpdate={handleRefresh} // Pass fetchRoles to refresh data after update
                 />
             )}
 
@@ -260,7 +209,7 @@ export default function Page() {
                 <NewRoleSheet
                     isNewRoleSheetOpen={isNewRoleSheetOpen}
                     setIsNewRoleSheetOpen={setIsNewRoleSheetOpen}
-                    onRoleCreate={fetchRoles} // Pass fetchRoles to refresh data after creation
+                    onRoleCreate={handleRefresh} // Pass fetchRoles to refresh data after creation
                 />
             )}
 
