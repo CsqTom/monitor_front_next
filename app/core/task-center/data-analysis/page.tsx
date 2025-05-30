@@ -16,10 +16,11 @@ import {
     AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import {NewTaskSheet} from "@/app/core/task-center/data-analysis/c_new-task-sheet";
-import {ChevronLeft, ChevronRight, CheckCircle2, XCircle, Loader2} from 'lucide-react';
+import {ChevronLeft, ChevronRight, CheckCircle2, XCircle, Loader2, Eye} from 'lucide-react';
 import {Progress} from "@/components/ui/progress";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {QPagination} from "@/components/ui/pagination";
+import CTaskDetailChangeDetection from "./c-task-detail-change-detection";
 
 interface TaskData {
     id: number
@@ -52,6 +53,8 @@ export default function Page() {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [toDelete, setToDelete] = useState<TaskData | null>(null);
     const [isNewSheetOpen, setIsNewSheetOpen] = useState(false);
+    const [isChangeDetailOpen, setIsChangeDetailOpen] = useState(false);
+    const [selectedTaskForDetail, setSelectedTaskForDetail] = useState<TaskData | null>(null);
 
     // 从后端获取数据
     const handleRefresh = async (page: number, pageSize: number = 10, is_show_success: boolean = false) => {
@@ -121,9 +124,10 @@ export default function Page() {
         }
     }
 
-    const setSelectedUser = (task: TaskData) => {
-        console.log(task);
-    }
+    const handleViewChangeDetectionDetail = (task: TaskData) => {
+        setSelectedTaskForDetail(task);
+        setIsChangeDetailOpen(true);
+    };
 
     const handleNew = () => {
         setIsNewSheetOpen(true);
@@ -245,8 +249,14 @@ export default function Page() {
                                     "N/A"
                                 )}
                             </TableCell>
-                            <TableCell className="text-center space-x-2">
-                                <Button variant="outline" size="sm" onClick={() => setSelectedUser(task)}>详情</Button>
+                            <TableCell className="text-center space-x-1">
+                                {task.task_type === 0 ? (
+                                    <Button variant="outline" size="sm" onClick={() => handleViewChangeDetectionDetail(task)}>
+                                        <Eye className="mr-1 h-4 w-4"/> 查看
+                                    </Button>
+                                ) : (
+                                    <Button variant="outline" size="sm" onClick={() => setSelectedUser(task)}>详情</Button>
+                                )}
                                 <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(task)}><Trash2
                                     className="mr-1 h-4 w-4"/> 删除</Button>
                             </TableCell>
@@ -289,6 +299,21 @@ export default function Page() {
                 </AlertDialogContent>
             </AlertDialog>
 
+            {/*变化检测详情对话框*/}
+            {selectedTaskForDetail && isChangeDetailOpen && (
+                <CTaskDetailChangeDetection
+                    taskId={selectedTaskForDetail.task_id}
+                    taskName={selectedTaskForDetail.name}
+                    taskStatus={selectedTaskForDetail.status.toString()} // 您可能希望将状态码映射为更易读的文本
+                    createdAt={selectedTaskForDetail.create_time}
+                    updatedAt={selectedTaskForDetail.update_time}
+                    isOpen={isChangeDetailOpen}
+                    onClose={() => {
+                        setIsChangeDetailOpen(false);
+                        setSelectedTaskForDetail(null);
+                    }}
+                />
+            )}
         </div>
     );
 }

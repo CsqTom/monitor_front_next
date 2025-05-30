@@ -33,6 +33,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
     const { toast } = useToast();
     const uniqueId = useId(); // Generate a unique ID
     const [isExistingFileDialogOpen, setIsExistingFileDialogOpen] = useState(false);
+    let lastToastTime = new Date().getTime();
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
@@ -82,6 +83,16 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
                     progress = 95;  // 后面还有一些流程要处理，故这里先设为95  
                 }
                 setUploadProgress(progress);
+                if (progress < 90) {
+                    // 进行时间间隔检查，防止频繁触发toast
+                    const curTime = new Date().getTime();
+                    
+                    if (curTime - lastToastTime < 3000) {
+                        continue;
+                    }
+                }
+                lastToastTime = new Date().getTime();
+
                 toast({
                     title: `Uploading chunk ${i + 1}/${totalChunks}`,
                     description: `Progress: ${progress}%`
