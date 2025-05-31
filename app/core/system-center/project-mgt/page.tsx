@@ -24,7 +24,9 @@ import {
 } from '@/components/ui/table';
 import {PlusCircle, RefreshCw, Trash2, Edit} from 'lucide-react';
 import {QPagination} from '@/components/ui/pagination';
-import { ProjectEditSheet } from './c-project-edit-sheet';
+import { ProjectEditSheet } from './c-edit-project-sheet';
+import { NewProjectSheet } from './c-new-project-sheet';
+import { projectApi } from '@/lib/api_project';
 
 interface ClassCode {
     id: number;
@@ -81,6 +83,7 @@ export default function Page() {
     const [selectedProject, setSelectedProject] = useState<ProjectRecord | null>(null);
     const [projectToDelete, setProjectToDelete] = useState<ProjectRecord | null>(null);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [newProjectOpen, setNewProjectOpen] = useState(false);
     const {toast} = useToast();
 
     const fetchProjects = async (page = 1, pageSize = 10) => {
@@ -126,7 +129,7 @@ export default function Page() {
     };
 
     const handleNew = () => {
-        toast({title: '提示', description: '新建项目功能待开发'});
+        setNewProjectOpen(true);
     };
 
     const handleEdit = (project: ProjectRecord) => {
@@ -141,14 +144,7 @@ export default function Page() {
     const confirmDelete = async () => {
         if (!projectToDelete) return;
         try {
-            const response = await fetch(`http://localhost:61301/api/project/delete?project_id=${projectToDelete.id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            
-            const data: ApiResponse<null> = await response.json();
+            const data = await projectApi.deleteProject(projectToDelete.id);
             
             if (data.code === 200) {
                 toast({title: '成功', description: '项目删除成功'});
@@ -258,6 +254,13 @@ export default function Page() {
                 selectedProject={selectedProject}
                 setSelectedProject={setSelectedProject}
                 onProjectUpdate={fetchProjects}
+            />
+
+            {/* 新建项目组件 */}
+            <NewProjectSheet
+                open={newProjectOpen}
+                setOpen={setNewProjectOpen}
+                onProjectCreate={fetchProjects}
             />
         </div>
     );

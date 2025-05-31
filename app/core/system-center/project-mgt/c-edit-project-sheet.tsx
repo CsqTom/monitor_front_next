@@ -16,53 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { RefreshCw, Save } from 'lucide-react';
 import { ProjectRecord } from './page';
-
-interface ClassCode {
-    id: number;
-    name: string;
-    class_code: string;
-    position: number;
-}
-
-interface ApiConfig {
-    id: number;
-    name: string;
-    app_addr: string;
-    model_type: number;
-    is_delete: boolean;
-    class_code_key: string;
-}
-
-interface Config {
-    id: number;
-    name: string;
-    class_codes?: ClassCode[];
-    api_configs: ApiConfig[];
-}
-
-interface ProjectDetail {
-    id: number;
-    name: string;
-    logo_path: string;
-    is_delete: boolean;
-    longitude: number;
-    latitude: number;
-    altitude: number;
-    configs: Config[];
-}
-
-interface ModelTypeConfig {
-    id: number;
-    name: string;
-    class_codes: ClassCode[];
-    api_configs: ApiConfig[];
-}
-
-interface ApiResponse<T> {
-    code: number;
-    msg: string;
-    data: T;
-}
+import { projectApi, ProjectDetail, ModelTypeConfig, UpdateProjectRequest } from '@/lib/api_project';
 
 interface ProjectEditSheetProps {
     selectedProject: ProjectRecord | null;
@@ -90,18 +44,7 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
     const fetchProjectDetail = async (projectId: number) => {
         setLoading(true);
         try {
-            const response = await fetch(`http://localhost:61301/api/project/all_configs?project_id=${projectId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data: ApiResponse<ProjectDetail> = await response.json();
+            const data = await projectApi.getProjectDetail(projectId);
             
             if (data.code === 200 && data.data) {
                 setProjectDetail(data.data);
@@ -142,18 +85,7 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
     // 获取模型类型配置列表
     const fetchModelTypeConfigs = async () => {
         try {
-            const response = await fetch('http://localhost:61301/api/ai_config/model_type_list_more', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data: ApiResponse<ModelTypeConfig[]> = await response.json();
+            const data = await projectApi.getModelTypeConfigs();
             
             if (data.code === 200 && data.data) {
                 setModelTypeConfigs(data.data);
@@ -171,7 +103,7 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
         
         setSaving(true);
         try {
-            const updateData = {
+            const updateData: UpdateProjectRequest = {
                 project_id: selectedProject.id,
                 name: formData.name,
                 logo_path: formData.logo_path,
@@ -182,19 +114,7 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
                 class_code_config_ids: selectedClassCodes,
             };
             
-            const response = await fetch('http://localhost:61301/api/project/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updateData),
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data: ApiResponse<null> = await response.json();
+            const data = await projectApi.updateProject(updateData);
             
             if (data.code === 200) {
                 toast({ title: '成功', description: '项目更新成功' });
@@ -236,7 +156,7 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
 
     return (
         <Sheet open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
-            <SheetContent className="w-[600px] sm:w-[800px] overflow-y-auto p-6">
+            <SheetContent className="w-[600px] sm:w-[800px] overflow-y-auto p-3">
                 <SheetHeader>
                     <SheetTitle>编辑项目</SheetTitle>
                     <SheetDescription>
