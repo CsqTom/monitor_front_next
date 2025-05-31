@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RefreshCw } from 'lucide-react';
-import { request } from '@/lib/api_user';
+import { request } from '@/lib/api_client';
 import { useToast } from '@/hooks/use-toast';
 
 // Define interfaces here or import from a shared types file

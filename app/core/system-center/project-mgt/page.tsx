@@ -152,14 +152,9 @@ export default function Page() {
     const confirmDelete = async () => {
         if (!projectToDelete) return;
         try {
-            const data = await projectApi.deleteProject(projectToDelete.id);
-            
-            if (data.code === 200) {
-                toast({title: '成功', description: '项目删除成功'});
-                fetchProjects();
-            } else {
-                toast({title: '错误', description: data.msg || '删除项目失败', variant: 'destructive'});
-            }
+            await projectApi.deleteProject(projectToDelete.id);
+            toast({title: '成功', description: '项目删除成功'});
+            fetchProjects();
         } catch (err) {
             toast({title: '错误', description: (err as Error).message || '删除项目时发生错误', variant: 'destructive'});
         }

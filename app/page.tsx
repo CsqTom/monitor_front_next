@@ -2,7 +2,7 @@
 // import { Store } from '@tauri-apps/plugin-store'
 import { redirect } from 'next/navigation'
 import { useEffect } from 'react'
-import { getTokenData } from '@/lib/api_user';
+import { getTokenData } from '@/lib/api_client';
 
 export default function Home() {
   useEffect(() => {

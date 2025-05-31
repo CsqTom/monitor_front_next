@@ -11,7 +11,7 @@ import {
 import {Input} from '@/components/ui/input';
 import {Label} from "@/components/ui/label";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group"
-import {request} from '@/lib/api_user';
+import {request} from '@/lib/api_client';
 import {useToast} from '@/hooks/use-toast';
 import {Card, CardContent} from "@/components/ui/card";
 import ImageUploadComponent from '@/components/upload/image-upload';

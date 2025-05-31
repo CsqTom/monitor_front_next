@@ -5,7 +5,7 @@ import {PlusCircle, RefreshCw, Trash2} from "lucide-react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {useToast} from '@/hooks/use-toast';
 import {useEffect, useState} from "react";
-import {ApiResponse, request} from "@/lib/api_user";
+import {ApiResponse, request} from "@/lib/api_client";
 import {
     AlertDialog,
     AlertDialogAction,

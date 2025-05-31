@@ -1,4 +1,4 @@
-import { request, type ApiResponse as BaseApiResponse } from './api_user';
+import { apiRequest, request, type ApiResponse } from './api_client';
 
 // 项目相关接口类型定义
 export interface ClassCode {
@@ -72,48 +72,53 @@ export interface UpdateProjectRequest {
 // 项目API函数
 export const projectApi = {
     // 获取项目详情
-    getProjectDetail: async (projectId: number): Promise<ApiResponse<ProjectDetail>> => {
-        const response = await request<ProjectDetail>({
+    getProjectDetail: async (projectId: number): Promise<ProjectDetail> => {
+        return apiRequest<ProjectDetail>({
             url: `/project/all_configs?project_id=${projectId}`,
             method: 'GET',
         });
-        return response.data;
     },
 
     // 获取模型类型配置列表
-    getModelTypeConfigs: async (): Promise<ApiResponse<ModelTypeConfig[]>> => {
-        const response = await request<ModelTypeConfig[]>({
+    getModelTypeConfigs: async (): Promise<ModelTypeConfig[]> => {
+        return apiRequest<ModelTypeConfig[]>({
             url: '/ai_config/model_type_list_more',
             method: 'GET',
         });
-        return response.data;
     },
 
     // 创建项目
-    createProject: async (data: CreateProjectRequest): Promise<ApiResponse<null>> => {
-        const response = await request<null>({
+    createProject: async (data: CreateProjectRequest): Promise<void> => {
+        await apiRequest<void>({
             url: '/project/create',
             method: 'POST',
             data,
         });
-        return response.data;
     },
 
     // 更新项目
-    updateProject: async (data: UpdateProjectRequest): Promise<ApiResponse<null>> => {
-        const response = await request<null>({
+    updateProject: async (data: UpdateProjectRequest): Promise<void> => {
+        await apiRequest<void>({
             url: '/project/update',
             method: 'POST',
             data,
         });
-        return response.data;
     },
 
     // 删除项目
-    deleteProject: async (projectId: number): Promise<ApiResponse<null>> => {
-        const response = await request<null>({
+    deleteProject: async (projectId: number): Promise<void> => {
+        await apiRequest<void>({
             url: `/project/delete?project_id=${projectId}`,
             method: 'GET',
+        });
+    },
+
+    // 获取项目列表（兼容旧版本API调用）
+    getProjectList: async (page: number = 1, pageSize: number = 10): Promise<any> => {
+        const response = await request<any>({
+            url: '/project/list',
+            method: 'GET',
+            params: { page, pageSize },
         });
         return response.data;
     },

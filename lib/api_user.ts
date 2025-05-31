@@ -1,97 +1,88 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { apiRequest, getTokenData, setTokenData, clearTokenData, type ApiResponse } from './api_client';
 
-
-const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`;
-
-interface TokenData {
-  accessToken: string | null;
-  refreshToken: string | null;
+// 用户相关接口类型定义
+export interface LoginRequest {
+  username: string;
+  password: string;
 }
 
-const getTokenData = (): TokenData => {
-  if (typeof window === 'undefined') {
-    return { accessToken: null, refreshToken: null };
-  }
-  const accessToken = localStorage.getItem('access_token');
-  const refreshToken = localStorage.getItem('refresh_token');
-  return { accessToken, refreshToken };
-};
-
-const setTokenData = (accessToken: string, refreshToken: string): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
-  }
-};
-
-const clearTokenData = (): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-  }
-};
-
-const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-apiClient.interceptors.request.use(
-  (config) => {
-    const { accessToken } = getTokenData();
-    if (accessToken && config.headers) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      const { refreshToken } = getTokenData();
-      if (refreshToken) {
-        try {
-          const response = await axios.post(`${API_BASE_URL}/user/refresh_token`, { refresh_token: refreshToken });
-          const { access_token, refresh_token } = response.data.data;
-          setTokenData(access_token, refresh_token);
-          if (apiClient.defaults.headers.common) {
-            apiClient.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-          }
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${access_token}`;
-          }
-          return apiClient(originalRequest);
-        } catch (refreshError) {
-          clearTokenData();
-          if (typeof window !== 'undefined') window.location.href = '/login';
-          return Promise.reject(refreshError as Error); // Add type assertion
-        }
-      }
-    }
-    return Promise.reject(error as Error); // Add type assertion
-  }
-);
-
-interface ApiResponse<T = unknown> { // Change any to unknown
-  code: number;
-  data?: T;
-  msg: string;
+export interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  user_info: {
+    id: number;
+    username: string;
+    email?: string;
+    role?: string;
+  };
 }
 
-const request = async <T = unknown>( // Change any to unknown
-  config: AxiosRequestConfig
-): Promise<AxiosResponse<ApiResponse<T>>> => {
-  return apiClient(config);
+export interface UserProfile {
+  id: number;
+  username: string;
+  email?: string;
+  role?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface UpdateProfileRequest {
+  username?: string;
+  email?: string;
+  old_password?: string;
+  new_password?: string;
+}
+
+// 用户API函数
+export const userApi = {
+  // 用户登录
+  login: async (data: LoginRequest): Promise<LoginResponse> => {
+    return apiRequest<LoginResponse>({
+      url: '/user/login',
+      method: 'POST',
+      data,
+    });
+  },
+
+  // 获取用户信息
+  getProfile: async (): Promise<UserProfile> => {
+    return apiRequest<UserProfile>({
+      url: '/user/profile',
+      method: 'GET',
+    });
+  },
+
+  // 更新用户信息
+  updateProfile: async (data: UpdateProfileRequest): Promise<UserProfile> => {
+    return apiRequest<UserProfile>({
+      url: '/user/profile',
+      method: 'PUT',
+      data,
+    });
+  },
+
+  // 用户登出
+  logout: async (): Promise<void> => {
+    try {
+      await apiRequest<void>({
+        url: '/user/logout',
+        method: 'POST',
+      });
+    } finally {
+      clearTokenData();
+    }
+  },
+
+  // 刷新token
+  refreshToken: async (refreshToken: string): Promise<LoginResponse> => {
+    return apiRequest<LoginResponse>({
+      url: '/user/refresh_token',
+      method: 'POST',
+      data: { refresh_token: refreshToken },
+    });
+  },
 };
 
-export { request, getTokenData, setTokenData, clearTokenData }; // Removed API_BASE_URL from export as it's now internal
+// 导出token相关工具函数
+export { getTokenData, setTokenData, clearTokenData };
 export type { ApiResponse };

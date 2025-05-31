@@ -22,7 +22,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {useToast} from '@/hooks/use-toast';
-import {request} from '@/lib/api_user';
+import {request} from '@/lib/api_client';
 
 export interface Role {
     id: number;

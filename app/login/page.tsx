@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast'; // Assuming you have a toast hook
-import { request, setTokenData } from '@/lib/api_user';
+import { setTokenData } from '@/lib/api_client';
+import { userApi } from '@/lib/api_user';
 
 interface LoginResponseData {
   id: number;
@@ -33,35 +34,23 @@ export default function LoginPage() {
       // 在password_baser64中间插入qty三个字符
       password_baser64 = password_baser64.slice(0, length/2) + 'qty' + password_baser64.slice(length/2, length);
 
-      const response = await request<LoginResponseData>({
-        url: '/user/login',
-        method: 'POST',
-        data: { 
-          username,
-          password: password_baser64 
-        },
+      const loginData = await userApi.login({
+        username,
+        password: password_baser64
       });
 
-      console.log('Login response:', response);
+      console.log('Login response:', loginData);
 
-      if (response.data.code === 200 && response.data.data) {
-        setTokenData(response.data.data.access_token, response.data.data.refresh_token);
-        // Store user_id in localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('user_id', response.data.data.id.toString());
-        }
-        toast({
-          title: '登录成功',
-          description: '即将跳转到主页面...',
-        });
-        router.push('/core');
-      } else {
-        toast({
-          title: '登录失败',
-          description: response.data.msg || '用户名或密码错误',
-          variant: 'destructive',
-        });
+      setTokenData(loginData.access_token, loginData.refresh_token);
+      // Store user_id in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user_id', loginData.user_info.id.toString());
       }
+      toast({
+        title: '登录成功',
+        description: '即将跳转到主页面...',
+      });
+      router.push('/core');
     } catch (error) {
       console.error('Login error:', error);
       toast({

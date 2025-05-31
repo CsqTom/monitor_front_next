@@ -1,5 +1,7 @@
 // lib/api_upload.ts
 
+import { apiRequest, request } from './api_client';
+
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/image_data`;
 
 export interface InitUploadResponse {

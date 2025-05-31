@@ -43,12 +43,7 @@ export function NewProjectSheet({ open, setOpen, onProjectCreate }: NewProjectSh
         setLoading(true);
         try {
             const data = await projectApi.getModelTypeConfigs();
-            
-            if (data.code === 200 && data.data) {
-                setModelTypeConfigs(data.data);
-            } else {
-                toast({ title: '错误', description: data.msg || '获取配置列表失败', variant: 'destructive' });
-            }
+            setModelTypeConfigs(data);
         } catch (err) {
             toast({ title: '错误', description: (err as Error).message || '获取配置列表时发生错误', variant: 'destructive' });
         }
@@ -74,15 +69,10 @@ export function NewProjectSheet({ open, setOpen, onProjectCreate }: NewProjectSh
                 class_code_config_ids: selectedClassCodes,
             };
             
-            const data = await projectApi.createProject(createData);
-            
-            if (data.code === 200) {
-                toast({ title: '成功', description: '项目创建成功' });
-                onProjectCreate();
-                handleClose();
-            } else {
-                toast({ title: '错误', description: data.msg || '创建项目失败', variant: 'destructive' });
-            }
+            await projectApi.createProject(createData);
+            toast({ title: '成功', description: '项目创建成功' });
+            onProjectCreate();
+            handleClose();
         } catch (err) {
             toast({ title: '错误', description: (err as Error).message || '创建项目时发生错误', variant: 'destructive' });
         }

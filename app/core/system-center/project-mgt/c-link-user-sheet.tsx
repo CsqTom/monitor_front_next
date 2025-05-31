@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronRight, ChevronLeft, Users, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { request, type ApiResponse as BaseApiResponse } from '@/lib/api_user';
+import { request, type ApiResponse } from '@/lib/api_client';
 import { ProjectRecord } from './page';
 
 interface User {

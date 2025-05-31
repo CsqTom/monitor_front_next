@@ -46,36 +46,32 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
         try {
             const data = await projectApi.getProjectDetail(projectId);
             
-            if (data.code === 200 && data.data) {
-                setProjectDetail(data.data);
-                setFormData({
-                    name: data.data.name,
-                    logo_path: data.data.logo_path,
-                    longitude: data.data.longitude,
-                    latitude: data.data.latitude,
-                    altitude: data.data.altitude,
+            setProjectDetail(data);
+            setFormData({
+                name: data.name,
+                logo_path: data.logo_path,
+                longitude: data.longitude,
+                latitude: data.latitude,
+                altitude: data.altitude,
+            });
+            
+            // 提取已选择的配置
+            const apiConfigIds: number[] = [];
+            const classCodeIds: number[] = [];
+            
+            data.configs.forEach(config => {
+                config.api_configs.forEach(apiConfig => {
+                    apiConfigIds.push(apiConfig.id);
                 });
-                
-                // 提取已选择的配置
-                const apiConfigIds: number[] = [];
-                const classCodeIds: number[] = [];
-                
-                data.data.configs.forEach(config => {
-                    config.api_configs.forEach(apiConfig => {
-                        apiConfigIds.push(apiConfig.id);
+                if (config.class_codes) {
+                    config.class_codes.forEach(classCode => {
+                        classCodeIds.push(classCode.id);
                     });
-                    if (config.class_codes) {
-                        config.class_codes.forEach(classCode => {
-                            classCodeIds.push(classCode.id);
-                        });
-                    }
-                });
-                
-                setSelectedApiConfigs(apiConfigIds);
-                setSelectedClassCodes(classCodeIds);
-            } else {
-                toast({ title: '错误', description: data.msg || '获取项目详情失败', variant: 'destructive' });
-            }
+                }
+            });
+            
+            setSelectedApiConfigs(apiConfigIds);
+            setSelectedClassCodes(classCodeIds);
         } catch (err) {
             toast({ title: '错误', description: (err as Error).message || '获取项目详情时发生错误', variant: 'destructive' });
         }
@@ -86,12 +82,7 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
     const fetchModelTypeConfigs = async () => {
         try {
             const data = await projectApi.getModelTypeConfigs();
-            
-            if (data.code === 200 && data.data) {
-                setModelTypeConfigs(data.data);
-            } else {
-                toast({ title: '错误', description: data.msg || '获取配置列表失败', variant: 'destructive' });
-            }
+            setModelTypeConfigs(data);
         } catch (err) {
             toast({ title: '错误', description: (err as Error).message || '获取配置列表时发生错误', variant: 'destructive' });
         }
@@ -114,15 +105,10 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
                 class_code_config_ids: selectedClassCodes,
             };
             
-            const data = await projectApi.updateProject(updateData);
-            
-            if (data.code === 200) {
-                toast({ title: '成功', description: '项目更新成功' });
-                onProjectUpdate();
-                setSelectedProject(null);
-            } else {
-                toast({ title: '错误', description: data.msg || '更新项目失败', variant: 'destructive' });
-            }
+            await projectApi.updateProject(updateData);
+            toast({ title: '成功', description: '项目更新成功' });
+            onProjectUpdate();
+            setSelectedProject(null);
         } catch (err) {
             toast({ title: '错误', description: (err as Error).message || '更新项目时发生错误', variant: 'destructive' });
         }

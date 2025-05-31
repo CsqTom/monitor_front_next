@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ThemeProvider } from "@/components/theme-provider";
 import { SecondaryNavBar, NavItem } from '@/app/core/c-secondary-nav-bar';
-import { getTokenData, clearTokenData } from '@/lib/api_user'; 
+import { getTokenData, clearTokenData } from '@/lib/api_client'; 
 import { Button } from '@/components/ui/button'; 
 import { Card } from '@/components/ui/card'; // 导入 Card 组件
 import { LogOut, ChevronRight } from 'lucide-react'; 
