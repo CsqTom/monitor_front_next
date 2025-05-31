@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/table';
 import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2, Edit} from 'lucide-react';
 import {QPagination} from '@/components/ui/pagination';
+import { ProjectEditSheet } from './c_project-edit-sheet';
 
 interface ClassCode {
     id: number;
@@ -86,7 +87,7 @@ export default function Page() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`http://localhost:61301/api/project/page?page=${page}&page_size=${pageSize}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user/project_users/page?page=${page}&page_size=${pageSize}&user_id=1`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -130,7 +131,6 @@ export default function Page() {
 
     const handleEdit = (project: ProjectRecord) => {
         setSelectedProject(project);
-        toast({title: '提示', description: '编辑项目功能待开发'});
     };
 
     const handleDeleteProject = (project: ProjectRecord) => {
@@ -252,6 +252,13 @@ export default function Page() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* 项目编辑组件 */}
+            <ProjectEditSheet
+                selectedProject={selectedProject}
+                setSelectedProject={setSelectedProject}
+                onProjectUpdate={fetchProjects}
+            />
         </div>
     );
 }
