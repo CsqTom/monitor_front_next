@@ -236,7 +236,7 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
 
     return (
         <Sheet open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
-            <SheetContent className="w-[600px] sm:w-[800px] overflow-y-auto">
+            <SheetContent className="w-[600px] sm:w-[800px] overflow-y-auto p-6">
                 <SheetHeader>
                     <SheetTitle>编辑项目</SheetTitle>
                     <SheetDescription>

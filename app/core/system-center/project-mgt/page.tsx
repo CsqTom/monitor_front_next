@@ -22,9 +22,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2, Edit} from 'lucide-react';
+import {PlusCircle, RefreshCw, Trash2, Edit} from 'lucide-react';
 import {QPagination} from '@/components/ui/pagination';
-import { ProjectEditSheet } from './c_project-edit-sheet';
+import { ProjectEditSheet } from './c-project-edit-sheet';
 
 interface ClassCode {
     id: number;
@@ -49,7 +49,7 @@ interface Config {
     api_configs: ApiConfig[];
 }
 
-interface ProjectRecord {
+export interface ProjectRecord {
     id: number;
     name: string;
     logo_path: string;
