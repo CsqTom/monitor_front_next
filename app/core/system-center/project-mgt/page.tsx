@@ -22,10 +22,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {PlusCircle, RefreshCw, Trash2, Edit} from 'lucide-react';
+import {PlusCircle, RefreshCw, Trash2, Edit, Users} from 'lucide-react';
 import {QPagination} from '@/components/ui/pagination';
 import { ProjectEditSheet } from './c-edit-project-sheet';
 import { NewProjectSheet } from './c-new-project-sheet';
+import { LinkUserSheet } from './c-link-user-sheet';
 import { projectApi } from '@/lib/api_project';
 
 interface ClassCode {
@@ -84,6 +85,8 @@ export default function Page() {
     const [projectToDelete, setProjectToDelete] = useState<ProjectRecord | null>(null);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [newProjectOpen, setNewProjectOpen] = useState(false);
+    const [userLinkProject, setUserLinkProject] = useState<ProjectRecord | null>(null);
+    const [userLinkOpen, setUserLinkOpen] = useState(false);
     const {toast} = useToast();
 
     const fetchProjects = async (page = 1, pageSize = 10) => {
@@ -134,6 +137,11 @@ export default function Page() {
 
     const handleEdit = (project: ProjectRecord) => {
         setSelectedProject(project);
+    };
+
+    const handleUserLink = (project: ProjectRecord) => {
+        setUserLinkProject(project);
+        setUserLinkOpen(true);
     };
 
     const handleDeleteProject = (project: ProjectRecord) => {
@@ -216,6 +224,9 @@ export default function Page() {
                                 <Button variant="outline" size="sm" onClick={() => handleEdit(project)}>
                                     <Edit className="mr-1 h-4 w-4"/> 编辑
                                 </Button>
+                                <Button variant="secondary" size="sm" onClick={() => handleUserLink(project)}>
+                                    <Users className="mr-1 h-4 w-4"/> 用户关联
+                                </Button>
                                 <Button variant="destructive" size="sm" onClick={() => handleDeleteProject(project)}>
                                     <Trash2 className="mr-1 h-4 w-4"/> 删除
                                 </Button>
@@ -261,6 +272,14 @@ export default function Page() {
                 open={newProjectOpen}
                 setOpen={setNewProjectOpen}
                 onProjectCreate={fetchProjects}
+            />
+
+            {/* 用户关联对话框 */}
+            <LinkUserSheet
+                open={userLinkOpen}
+                setOpen={setUserLinkOpen}
+                project={userLinkProject}
+                onUserLinkUpdate={fetchProjects}
             />
         </div>
     );
