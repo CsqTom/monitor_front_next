@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/table';
 import {request} from '@/lib/api_user';
 import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2} from 'lucide-react';
-import {UserDetailsSheet, UserRecord} from './c_user-details-sheet'; // Placeholder for UserDetailsSheet
+import {UserDetailsSheet, UserRecord} from './c_user-edit-sheet'; // Placeholder for UserDetailsSheet
 import {C_newUserSheet} from './c_new-user-sheet'; // Placeholder for NewUserSheet
 import {QPagination} from '@/components/ui/pagination';
 
@@ -165,7 +165,7 @@ export default function Page() {
                             <TableCell className="text-center">{user.last_login ? new Date(user.last_login).toLocaleString() : 'N/A'}</TableCell>
                             <TableCell
                                 className="space-x-2 text-center"><Button variant="outline" size="sm"
-                                                              onClick={() => setSelectedUser(user)}>详情</Button><Button
+                                                              onClick={() => setSelectedUser(user)}>编辑</Button><Button
                                 variant="destructive" size="sm" onClick={() => handleDeleteUser(user)}><Trash2
                                 className="mr-1 h-4 w-4"/> 删除</Button>
                             </TableCell>

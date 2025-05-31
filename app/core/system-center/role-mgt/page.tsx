@@ -29,8 +29,8 @@ import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2} from 'lucide-r
 import {QPagination} from '@/components/ui/pagination';
 
 // Import the new components
-import {RoleDetailsSheet, RoleConfig, RoleRecord} from '@/app/core/system-center/role-management/c_role-details-sheet';
-import {NewRoleSheet} from '@/app/core/system-center/role-management/c_new-role-sheet';
+import {RoleEditSheet, RoleConfig, RoleRecord} from '@/app/core/system-center/role-mgt/c_role-edit-sheet';
+import {NewRoleSheet} from '@/app/core/system-center/role-mgt/c_new-role-sheet';
 
 // Interfaces are now primarily in RoleDetailsSheet.tsx, re-declare or import if needed broadly
 // For page.tsx, we mainly need RolesPageData
@@ -174,7 +174,7 @@ export default function Page() {
                             <TableCell className="text-center">{role.creator_id}</TableCell>
                             <TableCell className="space-x-2 text-center">
                                 <Button variant="outline" size="sm"
-                                        onClick={() => setSelectedRole(role)}>详情</Button>
+                                        onClick={() => setSelectedRole(role)}>编辑</Button>
                                 <Button variant="destructive"
                                         size="sm"
                                         onClick={() => handleDeleteRole(role)}><Trash2
@@ -197,7 +197,7 @@ export default function Page() {
 
             {/* Role Details Sheet - Rendered conditionally based on selectedRole */}
             {selectedRole && (
-                <RoleDetailsSheet
+                <RoleEditSheet
                     selectedRole={selectedRole}
                     setSelectedRole={setSelectedRole}
                     onRoleUpdate={handleRefresh} // Pass fetchRoles to refresh data after update

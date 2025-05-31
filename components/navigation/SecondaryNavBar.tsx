@@ -18,24 +18,26 @@ export interface NavGroup {
 
 export const navigationLinks: NavGroup[] = [
   {
-    group: 'Opt Center',
+    group: '运维中心',
     items: [
-      { name: 'Record', href: '/core/opt-center/record' },
+      { name: 'Api管理', href: '/core/opt-center/api-mgt' },
+      { name: '项目管理', href: '/core/opt-center/project-mgt' },
     ],
   },
   {
-    group: 'Task Center',
+    group: '任务中心',
     items: [
-      { name: 'Data Analysis', href: '/core/task-center/data-analysis' },
-      { name: 'Flight Result', href: '/core/task-center/flight-result' },
-      { name: 'Flight Task', href: '/core/task-center/flight-task' },
+      { name: '数据分析', href: '/core/task-center/data-analysis' },
+      { name: '飞行计划', href: '/core/task-center/flight-result' },
+      { name: '飞行任务', href: '/core/task-center/flight-task' },
     ],
   },
   {
-    group: 'System Center',
+    group: '系统中心',
     items: [
-      { name: 'User Management', href: '/core/system-center/user-management' },
-      { name: 'Role Management', href: '/core/system-center/role-management' },
+      { name: '角色管理', href: '/core/system-center/role-mgt' },
+      { name: '用户管理', href: '/core/system-center/user-mgt' },
+      { name: '项目管理', href: '/core/system-center/project-mgt' },
     ],
   },
 ];

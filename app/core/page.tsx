@@ -9,7 +9,7 @@ export default function Home() {
   useEffect(() => {
     const tokenData = getTokenData();
     if (tokenData && tokenData.accessToken) {
-      redirect('/core/opt-center/record');
+      redirect('/core/task-center/data-analysis');
     } else {
       redirect('/login');
     }

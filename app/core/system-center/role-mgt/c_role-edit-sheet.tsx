@@ -41,13 +41,13 @@ interface ApiResponse<T> {
   data: T;
 }
 
-interface RoleDetailsSheetProps {
+interface RoleEditSheetProps {
   selectedRole: RoleRecord | null;
   setSelectedRole: (role: RoleRecord | null) => void;
   onRoleUpdate: () => void; // Callback to refresh roles list
 }
 
-export function RoleDetailsSheet({ selectedRole, setSelectedRole, onRoleUpdate }: RoleDetailsSheetProps) {
+export function RoleEditSheet({ selectedRole, setSelectedRole, onRoleUpdate }: RoleEditSheetProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentRoleDetails, setCurrentRoleDetails] = useState<RoleRecord | null>(null);
   const { toast } = useToast();
