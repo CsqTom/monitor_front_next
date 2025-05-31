@@ -22,9 +22,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import {request} from '@/lib/api_user';
-import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2} from 'lucide-react';
-import {UserDetailsSheet, UserRecord} from './c_user-edit-sheet'; // Placeholder for UserDetailsSheet
-import {C_newUserSheet} from './c_new-user-sheet'; // Placeholder for NewUserSheet
+import {PlusCircle, RefreshCw, Trash2} from 'lucide-react';
+import {UserDetailsSheet, UserRecord} from './c-edit-user-sheet'; // Placeholder for UserDetailsSheet
+import {C_newUserSheet} from './c-new-user-sheet'; // Placeholder for NewUserSheet
 import {QPagination} from '@/components/ui/pagination';
 
 interface UserPageData {

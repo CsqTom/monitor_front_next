@@ -22,15 +22,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-// Removed SheetTrigger as it's not needed here when programmatically controlling Sheet visibility
 import {request} from '@/lib/api_user';
-import {ChevronLeft, ChevronRight, PlusCircle, RefreshCw, Trash2} from 'lucide-react';
-// Removed Input, Switch, Label, useToast as they are now in child components
+import {PlusCircle, RefreshCw, Trash2} from 'lucide-react';
 import {QPagination} from '@/components/ui/pagination';
-
-// Import the new components
-import {RoleEditSheet, RoleConfig, RoleRecord} from '@/app/core/system-center/role-mgt/c_role-edit-sheet';
-import {NewRoleSheet} from '@/app/core/system-center/role-mgt/c_new-role-sheet';
+import {RoleEditSheet, RoleRecord} from './c-edit-role-sheet';
+import {NewRoleSheet} from './c-new-role-sheet';
 
 // Interfaces are now primarily in RoleDetailsSheet.tsx, re-declare or import if needed broadly
 // For page.tsx, we mainly need RolesPageData

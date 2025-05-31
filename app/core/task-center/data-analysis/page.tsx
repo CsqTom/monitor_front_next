@@ -15,12 +15,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from "@/components/ui/alert-dialog";
-import {NewTaskSheet} from "@/app/core/task-center/data-analysis/c_new-task-sheet";
-import {ChevronLeft, ChevronRight, CheckCircle2, XCircle, Loader2, Eye} from 'lucide-react';
+import {CheckCircle2, XCircle, Loader2, Eye} from 'lucide-react';
 import {Progress} from "@/components/ui/progress";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {QPagination} from "@/components/ui/pagination";
-import CTaskDetailChangeDetection from "./c-task-detail-change-detection";
+import {NewTaskSheet} from "./c-new-task-sheet";
+import CTaskDetailChangeDetection from "./c-edit-task-change-detection";
 
 interface TaskData {
     id: number
