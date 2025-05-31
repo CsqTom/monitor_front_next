@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ThemeProvider } from "@/components/theme-provider";
-import { SecondaryNavBar, NavItem } from '@/components/navigation/SecondaryNavBar';
+import { SecondaryNavBar, NavItem } from '@/app/core/c-secondary-nav-bar';
 import { getTokenData, clearTokenData } from '@/lib/api_user'; 
 import { Button } from '@/components/ui/button'; 
 import { Card } from '@/components/ui/card'; // 导入 Card 组件
 import { LogOut, ChevronRight } from 'lucide-react'; 
-import { navigationLinks } from '@/components/navigation/SecondaryNavBar'; // Assuming navigationLinks is exported and contains menu structure
+import { navigationLinks } from '@/app/core/c-secondary-nav-bar'; // Assuming navigationLinks is exported and contains menu structure
 
 // import useSettingStore from "@/stores/setting"
 // import { initChatsDb } from "@/db/chats"
