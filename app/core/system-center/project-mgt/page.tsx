@@ -93,7 +93,8 @@ export default function Page() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user/project_users/page?page=${page}&page_size=${pageSize}&user_id=1`, {
+            const param = `?page=${page}&page_size=${pageSize}&user_id=${localStorage.getItem('user_id')}`
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user/project_users/page${param}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

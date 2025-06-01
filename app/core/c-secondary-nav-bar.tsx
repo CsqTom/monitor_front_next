@@ -86,6 +86,7 @@ export function SecondaryNavBar() {
       });
       
       setProjectInfo(data);
+      localStorage.setItem('project_id', data.id.toString());
     } catch (error) {
       console.error('Failed to fetch project info:', error);
     } finally {
