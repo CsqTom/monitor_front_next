@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { RefreshCw, Save } from 'lucide-react';
 import { ProjectRecord } from './page';
 import { projectApi, ProjectDetail, ModelTypeConfig, UpdateProjectRequest } from '@/lib/api_project';
+import { triggerProjectInfoUpdate } from '@/app/core/c-secondary-nav-bar';
 
 interface ProjectEditSheetProps {
     selectedProject: ProjectRecord | null;
@@ -108,6 +109,8 @@ export function ProjectEditSheet({ selectedProject, setSelectedProject, onProjec
             await projectApi.updateProject(updateData);
             toast({ title: '成功', description: '项目更新成功' });
             onProjectUpdate();
+            // 触发导航栏项目信息更新
+            triggerProjectInfoUpdate();
             setSelectedProject(null);
         } catch (err) {
             toast({ title: '错误', description: (err as Error).message || '更新项目时发生错误', variant: 'destructive' });

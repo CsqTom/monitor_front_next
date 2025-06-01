@@ -25,7 +25,8 @@ import {
 import {PlusCircle, RefreshCw, MoveDiagonal2, Edit, Users} from 'lucide-react';
 import {QPagination} from '@/components/ui/pagination';
 import { ProjectEditSheet } from './c-edit-project-sheet';
-import { projectApi } from '@/lib/api_project';
+import { projectApi, SetDefaultProject } from '@/lib/api_project';
+import { triggerProjectInfoUpdate } from '@/app/core/c-secondary-nav-bar';
 
 interface ClassCode {
     id: number;
@@ -80,8 +81,6 @@ export default function Page() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedProject, setSelectedProject] = useState<ProjectRecord | null>(null);
-    const [projectToDelete, setProjectToDelete] = useState<ProjectRecord | null>(null);
-    const [isAlertOpen, setIsAlertOpen] = useState(false);
     const {toast} = useToast();
 
     const fetchProjects = async (page = 1, pageSize = 10) => {
@@ -124,37 +123,29 @@ export default function Page() {
 
     const handleRefresh = (page = pageProjectData?.current || 1) => {
         fetchProjects(page);
-    };
-
-    const handleNew = () => {
-        setNewProjectOpen(true);
+        // 触发导航栏项目信息更新
+        triggerProjectInfoUpdate();
     };
 
     const handleEdit = (project: ProjectRecord) => {
         setSelectedProject(project);
     };
 
-    const handleUserLink = (project: ProjectRecord) => {
-        // setUserLinkProject(project);
-        // setUserLinkOpen(true);
-    };
-
-    const handleDeleteProject = (project: ProjectRecord) => {
-        setProjectToDelete(project);
-        setIsAlertOpen(true);
-    };
-
-    const confirmDelete = async () => {
-        if (!projectToDelete) return;
+    const  handleDefaultProject = async (project: ProjectRecord) => {
         try {
-            await projectApi.deleteProject(projectToDelete.id);
-            toast({title: '成功', description: '项目删除成功'});
+            const user_id = localStorage.getItem('user_id');
+            const data: SetDefaultProject = {
+                id: user_id ? parseInt(user_id) : 1,
+                project_id: project.id,
+            };
+            await projectApi.setDelaultProject(data);  // 需要await, 等待接口返回
+            toast({title: '成功', description: '项目设置成功'});
             fetchProjects();
+            // 触发导航栏项目信息更新
+            triggerProjectInfoUpdate();
         } catch (err) {
-            toast({title: '错误', description: (err as Error).message || '删除项目时发生错误', variant: 'destructive'});
+            toast({title: '错误', description: (err as Error).message || '更改项目时发生错误', variant: 'destructive'});
         }
-        setIsAlertOpen(false);
-        setProjectToDelete(null);
     };
 
     const renderConfigs = (configs: Config[]) => {
@@ -211,7 +202,7 @@ export default function Page() {
                                 <Button variant="outline" size="sm" onClick={() => handleEdit(project)}>
                                     <Edit className="mr-1 h-4 w-4"/> 编辑
                                 </Button>
-                                <Button variant="destructive" size="sm" onClick={() => handleDeleteProject(project)}>
+                                <Button variant="destructive" size="sm" onClick={() => handleDefaultProject(project)}>
                                     <MoveDiagonal2 className="mr-1 h-4 w-4"/> 默认项目
                                 </Button>
                             </TableCell>
@@ -228,21 +219,6 @@ export default function Page() {
                     onPageChange={(page) => handleRefresh(page)}
                 />
             )}
-
-            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>确认删除</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            您确定要删除项目 "{projectToDelete?.name}" 吗？此操作无法撤销。
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>取消</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete}>删除</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
 
             {/* 项目编辑组件 */}
             <ProjectEditSheet

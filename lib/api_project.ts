@@ -69,6 +69,11 @@ export interface UpdateProjectRequest {
     class_code_config_ids: number[];
 }
 
+export interface SetDefaultProject {
+    id: number;  // user_id
+    project_id: number;
+}
+
 // 项目API函数
 export const projectApi = {
     // 获取项目详情
@@ -121,5 +126,14 @@ export const projectApi = {
             params: { page, pageSize },
         });
         return response.data;
+    },
+
+    // 删除项目
+    setDelaultProject: async (data: SetDefaultProject): Promise<void> => {
+        await apiRequest<void>({
+            url: '/user/set_default_project',
+            method: 'POST',
+            data,
+        });
     },
 };
