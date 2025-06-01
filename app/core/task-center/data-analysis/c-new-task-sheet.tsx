@@ -121,7 +121,7 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                     const response = await request<ApiResponse<ProjectData>>({
                         url: '/project/all_configs',
                         method: 'GET',
-                        params: {project_id: 1},
+                        params: {project_id: localStorage.getItem('project_id')},
                     });
                     if (response.data.code === 200 && response.data.data) {
                         const configs = response.data.data.configs;
@@ -352,7 +352,7 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
         try {
             // 构建请求参数
             const requestData = {
-                project_id: 1,
+                project_id: localStorage.getItem('project_id') || 1,
                 ai_config_id: parseInt(selectedApiConfig),
                 task_name: taskName,
                 image_info: imageInfo, // 直接使用 imageInfo，它应该是 { data_para_key: "file_ids" } 的形式
