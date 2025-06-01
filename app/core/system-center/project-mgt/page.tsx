@@ -219,7 +219,7 @@ export default function Page() {
                                 <Button variant="outline" size="sm" onClick={() => handleEdit(project)}>
                                     <Edit className="mr-1 h-4 w-4"/> 编辑
                                 </Button>
-                                <Button variant="secondary" size="sm" onClick={() => handleUserLink(project)}>
+                                <Button variant="outline" size="sm" onClick={() => handleUserLink(project)}>
                                     <Users className="mr-1 h-4 w-4"/> 用户关联
                                 </Button>
                                 <Button variant="destructive" size="sm" onClick={() => handleDeleteProject(project)}>
