@@ -62,7 +62,7 @@ export default function Page() {
             const response = await request<PagTaskData>({
                 url: '/task/all_page', // Replace with actual delete endpoint
                 method: 'GET',
-                params: {page, pageSize, task_type: "0,1,2,3,4", project_id: localStorage.getItem("project_id")},
+                params: {page, pageSize, task_type: "0,1,2,3,4", project_id: localStorage.getItem("project_id") || 0},
             });
             if (response.data.code === 200) {
                 if (is_show_success) {

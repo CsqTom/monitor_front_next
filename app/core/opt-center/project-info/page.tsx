@@ -163,6 +163,10 @@ export default function Page() {
             onClick={() => handleRefresh()} variant="outline" className="ml-2">Retry</Button></div>;
     }
 
+    const isHttpUrl = (url: string) => {
+        return url.startsWith('http://') || url.startsWith('https://');
+    };
+
     return (
         <div className="container mx-auto py-3">
             <div className="flex justify-between items-center mb-6">
@@ -193,7 +197,9 @@ export default function Page() {
                         <TableRow key={project.id}>
                             <TableCell className="text-center">{project.id}</TableCell>
                             <TableCell className="text-center">{project.name}</TableCell>
-                            <TableCell className="text-center">{project.logo_path || 'N/A'}</TableCell>
+                            <TableCell className="text-center flex justify-center items-center">{project.logo_path && isHttpUrl(project.logo_path) ? 
+                                <img src={project.logo_path} alt={project.name} width="30" height="30" /> : project.logo_path || 'N/A'}
+                            </TableCell>
                             <TableCell className="text-center">{project.longitude}</TableCell>
                             <TableCell className="text-center">{project.latitude}</TableCell>
                             <TableCell className="text-center">{project.altitude}</TableCell>
