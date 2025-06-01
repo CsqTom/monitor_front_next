@@ -20,7 +20,7 @@ import {Progress} from "@/components/ui/progress";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {QPagination} from "@/components/ui/pagination";
 import {NewTaskSheet} from "./c-new-task-sheet";
-import CTaskDetailChangeDetection from "./c-edit-task-change-detection";
+import CTaskDetailChangeDetection from "./c-task-change-detection";
 
 interface TaskData {
     id: number

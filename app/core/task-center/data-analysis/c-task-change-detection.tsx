@@ -16,6 +16,7 @@ interface TaskData {
   center_lon: number;
   extent: [number, number, number, number];
   json_file_path: string;
+  address: string;
 }
 
 interface ApiResponse {
@@ -47,6 +48,7 @@ const CTaskDetailChangeDetection: React.FC<ChangeDetectionTaskDetailProps> = ({
   const [taskDetails, setTaskDetails] = useState<TaskData[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [address, setAddress] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -73,6 +75,7 @@ const CTaskDetailChangeDetection: React.FC<ChangeDetectionTaskDetailProps> = ({
             const result: ApiResponse = await response.json();
             if (result.code === 200) {
               setTaskDetails(result.data);
+              setAddress(result.data[0].address);
             } else {
               throw new Error(result.msg || 'Failed to fetch task details');
             }
@@ -110,15 +113,16 @@ const CTaskDetailChangeDetection: React.FC<ChangeDetectionTaskDetailProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 border-b">
+        <div className="pl-6 pr-6 pb-3 grid grid-cols-1 md:grid-cols-3 gap-4 border-b">
           <div><span className="font-semibold">任务ID:</span> {taskId || 'N/A'}</div>
           <div><span className="font-semibold">任务名称:</span> {taskName || 'N/A'}</div>
           <div><span className="font-semibold">任务状态:</span> {taskStatus || 'N/A'}</div>
           <div><span className="font-semibold">创建时间:</span> {createdAt || 'N/A'}</div>
           <div><span className="font-semibold">更新时间:</span> {updatedAt || 'N/A'}</div>
+          <div><span className="font-semibold">中心地址:</span> {address || 'N/A'}</div>
         </div>
 
-        <div className="flex-grow p-6 overflow-hidden">
+        <div className="flex-grow overflow-hidden">
           {loading && <p>加载地图数据中...</p>}
           {error && <p className="text-red-500">加载地图数据失败: {error}</p>}
           {!loading && !error && taskDetails && (
@@ -133,7 +137,7 @@ const CTaskDetailChangeDetection: React.FC<ChangeDetectionTaskDetailProps> = ({
           {!loading && !error && !taskDetails && isOpen && <p>未能加载任务影像详情。</p>}
         </div>
 
-        <DialogFooter className="p-6 pt-0 border-t">
+        <DialogFooter className="p-6 pt-3 border-t">
           <Button variant="outline" onClick={onClose}>关闭</Button>
         </DialogFooter>
       </DialogContent>

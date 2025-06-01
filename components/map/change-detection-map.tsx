@@ -256,15 +256,15 @@ const ChangeDetectionMap: React.FC<ChangeDetectionMapProps> = ({ beforeImage, af
 
     const baseLayers = loadBaseLayers();
 
-    const newAfterLayer = createGeoServerLayer(afterImage, 10086);
-    afterLayerRef.current = newAfterLayer;
-
-    const newBeforeLayer = createGeoServerLayer(beforeImage, 10087);
+    const newBeforeLayer = createGeoServerLayer(beforeImage, 10086);
     beforeLayerRef.current = newBeforeLayer;
+
+    const newAfterLayer = createGeoServerLayer(afterImage, 10087);
+    afterLayerRef.current = newAfterLayer;
 
     const map = new Map({
       target: mapContainerRef.current,
-      layers: [...baseLayers, newAfterLayer, newBeforeLayer],
+      layers: [...baseLayers, newBeforeLayer, newAfterLayer,],
       controls: defaultControls({
         zoom: false,
         rotate: false,
@@ -387,6 +387,23 @@ const ChangeDetectionMap: React.FC<ChangeDetectionMapProps> = ({ beforeImage, af
     };
   }, [beforeImage, afterImage, updateMapView]); // updateMapView is a dependency
 
+  const formatStoreName = (name?: string) => {
+    if (!name) return '';
+    
+    // 匹配 yyyymmddhhmmssfff 格式的时间戳（总长度17位）
+    const timestampRegex = /^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]){2}\d{3}/;
+    const match = name.match(timestampRegex);
+    
+    // 如果匹配到时间戳则截断，否则使用原字符串
+    let processed = match && match[0].length === 17 ? name.slice(17) : name;
+    
+    // 截断处理（保留前20个字符）
+    const maxLength = 20;
+    return processed.length > maxLength 
+      ? `${processed.substring(0, maxLength)}...`
+      : processed;
+  };
+
   return (
     <div className="relative w-full h-full">
       <div ref={mapContainerRef} className="w-full h-full" />
@@ -406,12 +423,12 @@ const ChangeDetectionMap: React.FC<ChangeDetectionMapProps> = ({ beforeImage, af
       
       {/* 左侧标签 - 后时相 */}
       <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-lg shadow-lg text-sm font-medium z-10">
-        后时相
+        {formatStoreName(beforeImage?.store_name)}
       </div>
       
       {/* 右侧标签 - 前时相 */}
       <div className="absolute top-4 right-4 bg-white/90 px-3 py-1 rounded-lg shadow-lg text-sm font-medium z-10">
-        前时相
+      {formatStoreName(afterImage?.store_name)}
       </div>
       
       {/* 底部说明 */}
