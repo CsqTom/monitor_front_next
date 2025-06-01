@@ -27,6 +27,8 @@ const clearTokenData = (): void => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('project_id');
   }
 };
 
