@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { ModelType, ClassCode } from '../page';
 import { CEditClassCodeSheet } from './c-edit-class-code-sheet';
 import { CNewClassCodeSheet } from './c-new-class-code-sheet';
+import { apiRequest } from '@/lib/api_client';
 
 interface CClassCodeTableProps {
   modelType: ModelType;
@@ -16,6 +17,7 @@ interface CClassCodeTableProps {
 }
 
 export function CClassCodeTable({ modelType, onUpdate }: CClassCodeTableProps) {
+  const { toast } = useToast();
   const [isNewSheetOpen, setIsNewSheetOpen] = useState(false);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [selectedClassCode, setSelectedClassCode] = useState<ClassCode | null>(null);
@@ -36,13 +38,19 @@ export function CClassCodeTable({ modelType, onUpdate }: CClassCodeTableProps) {
     if (!deleteTarget) return;
     
     try {
-      // TODO: 实现删除算法类别的API调用
-      toast.success('算法类别删除成功');
+      // 删除算法类别的API调用
+      await apiRequest({
+        url: '/ai_config/delete_class_code',
+        method: 'GET', 
+        params:{class_code_id: deleteTarget.id}
+      })
+
+      toast({ title: '成功', description: '算法类别删除成功' });
       setIsDeleteDialogOpen(false);
       setDeleteTarget(null);
       onUpdate();
     } catch (error) {
-      toast.error('删除算法类别失败');
+      toast({ title: '失败', description: (error as Error).message || '删除算法类别失败', variant: 'destructive' });
       console.error('Error deleting class code:', error);
     }
   };
@@ -126,16 +134,6 @@ export function CClassCodeTable({ modelType, onUpdate }: CClassCodeTableProps) {
         onSuccess={handleCreateSuccess}
       />
       
-      {selectedClassCode && (
-        <CEditClassCodeSheet
-          isOpen={isEditSheetOpen}
-          setIsOpen={setIsEditSheetOpen}
-          classCode={selectedClassCode}
-          modelTypeId={modelType.id}
-          onSuccess={handleEditSuccess}
-        />
-      )}
-
       {/* 编辑算法类别Sheet */}
       {selectedClassCode && (
         <CEditClassCodeSheet

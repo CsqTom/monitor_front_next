@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { ModelType, ApiConfig } from '../page';
 import { CEditApiConfigSheet } from './c-edit-api-config-sheet';
 import { CNewApiConfigSheet } from './c-new-api-config-sheet';
@@ -16,6 +16,7 @@ interface CApiConfigTableProps {
 }
 
 export function CApiConfigTable({ modelType, onUpdate }: CApiConfigTableProps) {
+  const { toast } = useToast();
   const [isNewSheetOpen, setIsNewSheetOpen] = useState(false);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [selectedApiConfig, setSelectedApiConfig] = useState<ApiConfig | null>(null);
@@ -37,12 +38,12 @@ export function CApiConfigTable({ modelType, onUpdate }: CApiConfigTableProps) {
     
     try {
       // TODO: 实现删除算法接口的API调用
-      toast.success('算法接口删除成功');
+      toast({ title: '成功', description: '算法接口删除成功' });
       setIsDeleteDialogOpen(false);
       setDeleteTarget(null);
       onUpdate();
     } catch (error) {
-      toast.error('删除算法接口失败');
+      toast({ title: '失败', description: (error as Error).message || '删除算法接口失败', variant: 'destructive' });
       console.error('Error deleting api config:', error);
     }
   };

@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { ApiConfig } from '../page';
 
 interface CEditApiConfigSheetProps {
@@ -21,6 +21,7 @@ export function CEditApiConfigSheet({
   apiConfig, 
   onSuccess 
 }: CEditApiConfigSheetProps) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     app_addr: '',
@@ -40,17 +41,17 @@ export function CEditApiConfigSheet({
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      toast.error('请输入算法接口名称');
+      toast({ title: '提示', description: '请输入算法接口名称', variant: 'destructive' });
       return;
     }
     
     if (!formData.app_addr.trim()) {
-      toast.error('请输入接口地址');
+      toast({ title: '提示', description: '请输入接口地址', variant: 'destructive' });
       return;
     }
     
     if (!formData.class_code_key.trim()) {
-      toast.error('请输入类别代码键');
+      toast({ title: '提示', description: '请输入类别代码键', variant: 'destructive' });
       return;
     }
 
@@ -63,10 +64,10 @@ export function CEditApiConfigSheet({
       //   data: formData
       // });
       
-      toast.success('算法接口更新成功');
+      toast({ title: '成功', description: '算法接口更新成功' });
       onSuccess();
     } catch (error) {
-      toast.error('更新算法接口失败');
+      toast({ title: '失败', description: (error as Error).message || '更新算法接口失败', variant: 'destructive' });
       console.error('Error updating api config:', error);
     } finally {
       setIsSubmitting(false);

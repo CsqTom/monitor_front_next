@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/api_client';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { Plus } from 'lucide-react';
 import { CAlgorithmSidebar } from './c-algorithm-sidebar';
 import { CAlgorithmTabs } from './c-algorithm-tabs';
@@ -38,6 +38,7 @@ export default function ApiMgtPage() {
   const [loading, setLoading] = useState(true);
   const [selectedModelType, setSelectedModelType] = useState<ModelType | null>(null);
   const [isNewModelTypeSheetOpen, setIsNewModelTypeSheetOpen] = useState(false);
+  const {toast} = useToast();
 
   useEffect(() => {
     fetchModelTypes();
@@ -54,12 +55,12 @@ export default function ApiMgtPage() {
     try {
       setLoading(true);
       const response = await apiRequest<ModelType[]>({
-        url: 'http://localhost:61301/api/ai_config/model_type_list_more',
+        url: '/ai_config/model_type_list_more',
         method: 'GET'
       });
       setModelTypes(response);
     } catch (error) {
-      toast.error('获取数据失败');
+      toast({title: '失败', description: (error as Error).message || '获取数据失败', variant: 'destructive'})
       console.error('Error fetching model types:', error);
     } finally {
       setLoading(false);
@@ -73,35 +74,55 @@ export default function ApiMgtPage() {
   const handleModelTypeCreate = async (name: string) => {
     try {
       // TODO: 实现新增算法大类的API调用
-      toast.success('算法大类创建成功');
+      toast({title: '成功', description: '算法大类创建成功'});
       await fetchModelTypes();
     } catch (error) {
-      toast.error('创建算法大类失败');
+      toast({title: '失败', description: (error as Error).message || '算法大类创建失败', variant: 'destructive'})
       console.error('Error creating model type:', error);
     }
   };
 
   const handleClassCodeUpdate = async () => {
-    // 刷新数据
-    await fetchModelTypes();
-    // 更新选中的算法大类数据
-    if (selectedModelType) {
-      const updatedModelType = modelTypes.find(mt => mt.id === selectedModelType.id);
-      if (updatedModelType) {
-        setSelectedModelType(updatedModelType);
+    try {
+      // 刷新数据
+      const response = await apiRequest<ModelType[]>({
+        url: '/ai_config/model_type_list_more',
+        method: 'GET'
+      });
+      setModelTypes(response);
+      
+      // 更新选中的算法大类数据
+      if (selectedModelType) {
+        const updatedModelType = response.find(mt => mt.id === selectedModelType.id);
+        if (updatedModelType) {
+          setSelectedModelType(updatedModelType);
+        }
       }
+    } catch (error) {
+      toast({title: '失败', description: (error as Error).message || '获取数据失败', variant: 'destructive'})
+      console.error('Error fetching model types:', error);
     }
   };
 
   const handleApiConfigUpdate = async () => {
-    // 刷新数据
-    await fetchModelTypes();
-    // 更新选中的算法大类数据
-    if (selectedModelType) {
-      const updatedModelType = modelTypes.find(mt => mt.id === selectedModelType.id);
-      if (updatedModelType) {
-        setSelectedModelType(updatedModelType);
+    try {
+      // 刷新数据
+      const response = await apiRequest<ModelType[]>({
+        url: '/ai_config/model_type_list_more',
+        method: 'GET'
+      });
+      setModelTypes(response);
+      
+      // 更新选中的算法大类数据
+      if (selectedModelType) {
+        const updatedModelType = response.find(mt => mt.id === selectedModelType.id);
+        if (updatedModelType) {
+          setSelectedModelType(updatedModelType);
+        }
       }
+    } catch (error) {
+      toast({title: '失败', description: (error as Error).message || '获取数据失败', variant: 'destructive'})
+      console.error('Error fetching model types:', error);
     }
   };
 

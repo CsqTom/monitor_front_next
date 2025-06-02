@@ -5,7 +5,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/api_client';
 
 interface CNewClassCodeSheetProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export function CNewClassCodeSheet({
   modelTypeId, 
   onSuccess 
 }: CNewClassCodeSheetProps) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     class_code: '',
@@ -29,32 +31,32 @@ export function CNewClassCodeSheet({
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      toast.error('请输入算法类别名称');
+      toast({ title: '提示', description: '请输入算法类别名称', variant: 'destructive' });
       return;
     }
     
     if (!formData.class_code.trim()) {
-      toast.error('请输入类别代码');
+      toast({ title: '提示', description: '请输入类别代码', variant: 'destructive' });
       return;
     }
 
     try {
       setIsSubmitting(true);
-      // TODO: 实现新增算法类别的API调用
-      // await apiRequest({
-      //   url: '/api/ai_config/class_code',
-      //   method: 'POST',
-      //   data: {
-      //     ...formData,
-      //     model_type_id: modelTypeId
-      //   }
-      // });
+      // 新增算法类别的API调用
+      await apiRequest({
+        url: '/ai_config/create_class_code',
+        method: 'POST',
+        data: {
+          ...formData,
+          model_type_id: modelTypeId
+        }
+      });
       
-      toast.success('算法类别创建成功');
+      toast({ title: '成功', description: '算法类别创建成功' });
       setFormData({ name: '', class_code: '', position: 0 });
       onSuccess();
     } catch (error) {
-      toast.error('创建算法类别失败');
+      toast({ title: '失败', description: (error as Error).message || '创建算法类别失败', variant: 'destructive' });
       console.error('Error creating class code:', error);
     } finally {
       setIsSubmitting(false);

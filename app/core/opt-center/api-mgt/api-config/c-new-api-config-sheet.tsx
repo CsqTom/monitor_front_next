@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 interface CNewApiConfigSheetProps {
   isOpen: boolean;
@@ -20,6 +20,7 @@ export function CNewApiConfigSheet({
   modelTypeId, 
   onSuccess 
 }: CNewApiConfigSheetProps) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     app_addr: '',
@@ -29,17 +30,17 @@ export function CNewApiConfigSheet({
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      toast.error('请输入算法接口名称');
+      toast({ title: '提示', description: '请输入算法接口名称', variant: 'destructive' });
       return;
     }
     
     if (!formData.app_addr.trim()) {
-      toast.error('请输入接口地址');
+      toast({ title: '提示', description: '请输入接口地址', variant: 'destructive' });
       return;
     }
     
     if (!formData.class_code_key.trim()) {
-      toast.error('请输入类别代码键');
+      toast({ title: '提示', description: '请输入类别代码键', variant: 'destructive' });
       return;
     }
 
@@ -56,11 +57,11 @@ export function CNewApiConfigSheet({
       //   }
       // });
       
-      toast.success('算法接口创建成功');
+      toast({ title: '成功', description: '算法接口创建成功' });
       setFormData({ name: '', app_addr: '', class_code_key: '' });
       onSuccess();
     } catch (error) {
-      toast.error('创建算法接口失败');
+      toast({ title: '失败', description: (error as Error).message || '创建算法接口失败', variant: 'destructive' });
       console.error('Error creating api config:', error);
     } finally {
       setIsSubmitting(false);

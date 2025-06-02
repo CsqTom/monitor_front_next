@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 interface CNewModelTypeSheetProps {
   isOpen: boolean;
@@ -18,12 +18,13 @@ export function CNewModelTypeSheet({
   setIsOpen, 
   onModelTypeCreate 
 }: CNewModelTypeSheetProps) {
+  const { toast } = useToast();
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      toast.error('请输入算法大类名称');
+      toast({ title: '提示', description: '请输入算法大类名称', variant: 'destructive' });
       return;
     }
 

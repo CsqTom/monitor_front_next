@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { ClassCode } from '../page';
 
 interface CEditClassCodeSheetProps {
@@ -23,6 +23,7 @@ export function CEditClassCodeSheet({
   modelTypeId, 
   onSuccess 
 }: CEditClassCodeSheetProps) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     class_code: '',
@@ -42,12 +43,12 @@ export function CEditClassCodeSheet({
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      toast.error('请输入算法类别名称');
+      toast({ title: '提示', description: '请输入算法类别名称', variant: 'destructive' });
       return;
     }
     
     if (!formData.class_code.trim()) {
-      toast.error('请输入类别代码');
+      toast({ title: '提示', description: '请输入类别代码', variant: 'destructive' });
       return;
     }
 
@@ -63,10 +64,10 @@ export function CEditClassCodeSheet({
       //   }
       // });
       
-      toast.success('算法类别更新成功');
+      toast({ title: '成功', description: '算法类别更新成功' });
       onSuccess();
     } catch (error) {
-      toast.error('更新算法类别失败');
+      toast({ title: '失败', description: (error as Error).message || '更新算法类别失败', variant: 'destructive' });
       console.error('Error updating class code:', error);
     } finally {
       setIsSubmitting(false);
