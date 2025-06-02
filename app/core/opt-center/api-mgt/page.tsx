@@ -67,6 +67,28 @@ export default function ApiMgtPage() {
     }
   };
 
+  const handleRefresh = async () => {
+    try {
+      // 刷新数据
+      const response = await apiRequest<ModelType[]>({
+        url: '/ai_config/model_type_list_more',
+        method: 'GET'
+      });
+      setModelTypes(response);
+      
+      // 更新选中的算法大类数据
+      if (selectedModelType) {
+        const updatedModelType = response.find(mt => mt.id === selectedModelType.id);
+        if (updatedModelType) {
+          setSelectedModelType(updatedModelType);
+        }
+      }
+    } catch (error) {
+      toast({title: '失败', description: (error as Error).message || '获取数据失败', variant: 'destructive'})
+      console.error('Error fetching model types:', error);
+    }
+  };
+
   const handleModelTypeSelect = (modelType: ModelType) => {
     setSelectedModelType(modelType);
   };
@@ -83,47 +105,11 @@ export default function ApiMgtPage() {
   };
 
   const handleClassCodeUpdate = async () => {
-    try {
-      // 刷新数据
-      const response = await apiRequest<ModelType[]>({
-        url: '/ai_config/model_type_list_more',
-        method: 'GET'
-      });
-      setModelTypes(response);
-      
-      // 更新选中的算法大类数据
-      if (selectedModelType) {
-        const updatedModelType = response.find(mt => mt.id === selectedModelType.id);
-        if (updatedModelType) {
-          setSelectedModelType(updatedModelType);
-        }
-      }
-    } catch (error) {
-      toast({title: '失败', description: (error as Error).message || '获取数据失败', variant: 'destructive'})
-      console.error('Error fetching model types:', error);
-    }
+    await handleRefresh();
   };
 
   const handleApiConfigUpdate = async () => {
-    try {
-      // 刷新数据
-      const response = await apiRequest<ModelType[]>({
-        url: '/ai_config/model_type_list_more',
-        method: 'GET'
-      });
-      setModelTypes(response);
-      
-      // 更新选中的算法大类数据
-      if (selectedModelType) {
-        const updatedModelType = response.find(mt => mt.id === selectedModelType.id);
-        if (updatedModelType) {
-          setSelectedModelType(updatedModelType);
-        }
-      }
-    } catch (error) {
-      toast({title: '失败', description: (error as Error).message || '获取数据失败', variant: 'destructive'})
-      console.error('Error fetching model types:', error);
-    }
+    await handleRefresh();
   };
 
   if (loading) {
