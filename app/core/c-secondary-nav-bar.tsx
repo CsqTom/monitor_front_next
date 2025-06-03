@@ -65,16 +65,16 @@ export const navigationLinks: NavGroup[] = [
     group: '任务中心',
     items: [
       { name: '数据分析', href: '/core/task-center/data-analysis', key: 'task-data-analysis' },
-      { name: '飞行计划', href: '/core/task-center/flight-result', key: 'task-flight_plan' },
+      { name: '飞行计划', href: '/core/task-center/flight-plan', key: 'task-flight_plan' },
       { name: '飞行任务', href: '/core/task-center/flight-task', key: 'task-flight_task' },
     ],
   },
   {
-    group: '系统中心',
+    group: '用户中心',
     items: [
       { name: '角色管理', href: '/core/system-center/role-mgt', key: 'sys-role_config' },
       { name: '用户管理', href: '/core/system-center/user-mgt', key: 'sys-user_mgt' },
-      { name: '项目管理', href: '/core/system-center/project-mgt', key: 'sys-project_mgt' },
+      { name: '项目&用户', href: '/core/system-center/project-mgt', key: 'sys-project_mgt' },
     ],
   },
 ];
@@ -157,7 +157,7 @@ export function SecondaryNavBar() {
     fetchProjectInfo();
     fetchUserRole();
     
-    // 注册更新回调
+    // 注册更新回调, 更新用户当前项目信息，显示在左上角
     projectInfoUpdateCallbacks.push(fetchProjectInfo);
     
     // 清理函数
