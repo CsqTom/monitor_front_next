@@ -22,9 +22,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {PlusCircle, RefreshCw, MoveDiagonal2, Edit, Users} from 'lucide-react';
+import {PlusCircle, RefreshCw, MoveDiagonal2, Edit, Users, Plane} from 'lucide-react';
 import {QPagination} from '@/components/ui/pagination';
 import { ProjectEditSheet } from './c-edit-project-sheet';
+import { EditDroneProjectSheet } from './c-edit-drone-project-sheet';
 import { projectApi, SetDefaultProject } from '@/lib/api_project';
 import { triggerProjectInfoUpdate } from '@/app/core/c-secondary-nav-bar';
 
@@ -81,6 +82,7 @@ export default function Page() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedProject, setSelectedProject] = useState<ProjectRecord | null>(null);
+    const [selectedDroneProject, setSelectedDroneProject] = useState<number | null>(null);
     const {toast} = useToast();
 
     const fetchProjects = async (page = 1, pageSize = 10) => {
@@ -167,6 +169,10 @@ export default function Page() {
         return url.startsWith('http://') || url.startsWith('https://');
     };
 
+    const handleEditDroneProject = (projectId: number) => {
+        setSelectedDroneProject(projectId);
+    };
+
     return (
         <div className="container mx-auto py-3">
             <div className="flex justify-between items-center mb-6">
@@ -209,6 +215,9 @@ export default function Page() {
                                 <Button variant="outline" size="sm" onClick={() => handleEdit(project)}>
                                     <Edit className="mr-1 h-4 w-4"/> 编辑
                                 </Button>
+                                <Button variant="outline" size="sm" onClick={() => handleEditDroneProject(project.id)}>
+                                    <Plane className="mr-1 h-4 w-4"/> 飞行平台
+                                </Button>
                                 <Button variant="destructive" size="sm" onClick={() => handleDefaultProject(project)}>
                                     <MoveDiagonal2 className="mr-1 h-4 w-4"/> 默认项目
                                 </Button>
@@ -232,6 +241,14 @@ export default function Page() {
                 selectedProject={selectedProject}
                 setSelectedProject={setSelectedProject}
                 onProjectUpdate={fetchProjects}
+            />
+
+            {/* 飞行平台信息编辑组件 */}
+            <EditDroneProjectSheet
+                projectId={selectedDroneProject}
+                isOpen={selectedDroneProject !== null}
+                onClose={() => setSelectedDroneProject(null)}
+                onSave={fetchProjects}
             />
 
         </div>
