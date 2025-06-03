@@ -231,7 +231,7 @@ export function CEditApiConfigSheet({
 
   return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent className="sm:max-w-[630px] p-3 overflow-y-auto">
+        <SheetContent className="sm:max-w-[650px] p-3 overflow-y-auto">
           <SheetHeader>
             <SheetTitle>编辑算法接口</SheetTitle>
             <SheetDescription>
@@ -277,24 +277,14 @@ export function CEditApiConfigSheet({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">请求参数</h3>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleAddParameter}
-                    disabled={isSubmitting}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    添加
-                  </Button>
                 </div>
                 
                 <div className="border rounded-lg">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-center font-bold bg-gray-100 w-40">参数名</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100 w-40">默认值</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">参数名</TableHead>
+                        <TableHead className="text-center font-bold bg-gray-100">默认值</TableHead>
                         <TableHead className="text-center font-bold bg-gray-100">数据配置</TableHead>
                         <TableHead className="text-center font-bold bg-gray-100">类别配置</TableHead>
                         <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
@@ -335,6 +325,7 @@ export function CEditApiConfigSheet({
                           </TableCell>
                           <TableCell className="text-center">
                             <Button
+                              type="button"
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteParameter(index)}
@@ -347,6 +338,19 @@ export function CEditApiConfigSheet({
                       ))}
                     </TableBody>
                   </Table>
+                  <div className="flex justify-center mb-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAddParameter}
+                      disabled={isSubmitting}
+                      className='w-47 h-9'
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      添加参数
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -370,13 +374,13 @@ export function CEditApiConfigSheet({
                             <TableCell className="text-center">
                               {data.data_para_key}
                             </TableCell>
-                            <TableCell className="text-center flex items-center justify-center">
+                            <TableCell className="text-center">
                               <Input
                                 type="number"
                                 value={data.all_len}
                                 onChange={(e) => handleUserDataChange(index, 'all_len', parseInt(e.target.value) || 0)}
                                 disabled={isSubmitting}
-                                className="w-20"
+                                className="w-20 mx-auto"
                               />
                             </TableCell>
                             <TableCell className="text-center">
@@ -397,14 +401,14 @@ export function CEditApiConfigSheet({
                               </Select>
                             </TableCell>
                             <TableCell className="text-center">
-                              {/* <Button
+                              <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeleteUserData(index)}
                                 disabled={isSubmitting}
                               >
                                 <Trash2 className="h-4 w-4 text-red-500" />
-                              </Button> */}
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))}
