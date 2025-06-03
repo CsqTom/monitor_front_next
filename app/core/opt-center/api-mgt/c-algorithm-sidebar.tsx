@@ -1,26 +1,61 @@
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import { ModelType } from './page';
+import { CNewModelTypeSheet } from './c-new-model-type-sheet';
+import { apiRequest } from '@/lib/api_client';
+import { useToast } from '@/hooks/use-toast';
 
 interface CAlgorithmSidebarProps {
   modelTypes: ModelType[];
   selectedModelType: ModelType | null;
   onModelTypeSelect: (modelType: ModelType) => void;
+  onModelTypeCreate?: () => void;
 }
 
 export function CAlgorithmSidebar({ 
   modelTypes, 
   selectedModelType, 
-  onModelTypeSelect 
+  onModelTypeSelect,
+  onModelTypeCreate
 }: CAlgorithmSidebarProps) {
+  const [isNewModelTypeSheetOpen, setIsNewModelTypeSheetOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleModelTypeCreate = async (name: string) => {
+    try {
+      await apiRequest({
+        url: '/ai_config/create_model_type',
+        method: 'POST',
+        data: { name }
+      });
+      toast({ title: '成功', description: '算法大类创建成功' });
+      onModelTypeCreate?.();
+    } catch (error) {
+      toast({ title: '失败', description: (error as Error).message || '算法大类创建失败', variant: 'destructive' });
+      throw error;
+    }
+  };
+
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="text-lg">算法大类</CardTitle>
-      </CardHeader>
+    <>
+      <Card className="h-full">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">算法大类</CardTitle>
+            <Button 
+              size="sm"
+              onClick={() => setIsNewModelTypeSheetOpen(true)}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-3 w-3" />
+              新增
+            </Button>
+          </div>
+        </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-1">
           {modelTypes.map((modelType) => (
@@ -47,5 +82,13 @@ export function CAlgorithmSidebar({
         )}
       </CardContent>
     </Card>
+
+    {/* 新增算法大类Sheet */}
+    <CNewModelTypeSheet
+      isOpen={isNewModelTypeSheetOpen}
+      setIsOpen={setIsNewModelTypeSheetOpen}
+      onModelTypeCreate={handleModelTypeCreate}
+    />
+    </>
   );
 }

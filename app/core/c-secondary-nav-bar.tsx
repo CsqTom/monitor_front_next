@@ -57,7 +57,7 @@ export const navigationLinks: NavGroup[] = [
   {
     group: '运维中心',
     items: [
-      { name: 'Api管理', href: '/core/opt-center/api-mgt', key: 'opt-ai_api_config' },
+      { name: 'api管理', href: '/core/opt-center/api-mgt', key: 'opt-ai_api_config' },
       { name: '项目管理', href: '/core/opt-center/project-info', key: 'opt-project_info' },
     ],
   },

@@ -5,10 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/api_client';
 import { useToast } from '@/hooks/use-toast';
-import { Plus } from 'lucide-react';
 import { CAlgorithmSidebar } from './c-algorithm-sidebar';
 import { CAlgorithmTabs } from './c-algorithm-tabs';
-import { CNewModelTypeSheet } from './c-new-model-type-sheet';
 
 interface ClassCode {
   id: number;
@@ -37,7 +35,6 @@ export default function ApiMgtPage() {
   const [modelTypes, setModelTypes] = useState<ModelType[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedModelType, setSelectedModelType] = useState<ModelType | null>(null);
-  const [isNewModelTypeSheetOpen, setIsNewModelTypeSheetOpen] = useState(false);
   const {toast} = useToast();
 
   useEffect(() => {
@@ -93,15 +90,8 @@ export default function ApiMgtPage() {
     setSelectedModelType(modelType);
   };
 
-  const handleModelTypeCreate = async (name: string) => {
-    try {
-      // TODO: 实现新增算法大类的API调用
-      toast({title: '成功', description: '算法大类创建成功'});
-      await fetchModelTypes();
-    } catch (error) {
-      toast({title: '失败', description: (error as Error).message || '算法大类创建失败', variant: 'destructive'})
-      console.error('Error creating model type:', error);
-    }
+  const handleModelTypeCreate = async () => {
+    await fetchModelTypes();
   };
 
   const handleClassCodeUpdate = async () => {
@@ -124,13 +114,6 @@ export default function ApiMgtPage() {
     <div className="p-3 space-y-3">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">API管理</h1>
-        <Button 
-          onClick={() => setIsNewModelTypeSheetOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          新增算法大类
-        </Button>
       </div>
 
       <div className="flex gap-3 h-[calc(100vh-200px)]">
@@ -140,6 +123,7 @@ export default function ApiMgtPage() {
             modelTypes={modelTypes}
             selectedModelType={selectedModelType}
             onModelTypeSelect={handleModelTypeSelect}
+            onModelTypeCreate={handleModelTypeCreate}
           />
         </div>
 
@@ -162,13 +146,6 @@ export default function ApiMgtPage() {
           )}
         </div>
       </div>
-
-      {/* 新增算法大类Sheet */}
-      <CNewModelTypeSheet
-        isOpen={isNewModelTypeSheetOpen}
-        setIsOpen={setIsNewModelTypeSheetOpen}
-        onModelTypeCreate={handleModelTypeCreate}
-      />
     </div>
   );
 }
