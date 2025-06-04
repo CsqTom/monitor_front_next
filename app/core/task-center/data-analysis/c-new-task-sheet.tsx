@@ -347,9 +347,26 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
             }
         }
 
+        if (!localStorage.getItem('project_id')) {
+            toast({
+                title: '验证失败',
+                description: '当前无默认项目',
+                variant: 'destructive',
+            });
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
+            // 获取选中API配置的class_code_key
+            const selectedApiConfigObj = availableApiConfigs.find(config => config.id === parseInt(selectedApiConfig));
+            const classCodeKey = selectedApiConfigObj?.class_code_key || 'model_sign';
+            
+            // 获取选中算法类别的class_code
+            const selectedCategoryObj = availableCategories.find(category => category.class_code === selectedAlgorithmCategory);
+            const classCodeValue = selectedCategoryObj?.class_code || 'building_change';
+            
             // 构建请求参数
             const requestData = {
                 project_id: localStorage.getItem('project_id') || 1,
@@ -357,7 +374,7 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                 task_name: taskName,
                 image_info: imageInfo, // 直接使用 imageInfo，它应该是 { data_para_key: "file_ids" } 的形式
                 class_codes: {
-                    model_sign: "building_change"
+                    [classCodeKey]: classCodeValue
                 }
             };
 
