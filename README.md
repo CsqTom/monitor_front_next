@@ -21,34 +21,15 @@ pnpm dlx shadcn@latest add button
 
 ## API 客户端使用说明
 
-项目中的 `lib/api_client.ts` 提供了两种API调用范式，适用于不同的使用场景。
+原始方法：fetch 或 axios()
+封装方法：项目中的 `lib/api_client.ts` 提供了两种API调用范式，适用于不同的使用场景。
 
 ### 1. 直接使用 `request` 函数
 
 适用于需要完整控制HTTP响应的场景，返回完整的API响应对象。
 
 ```typescript
-import { request, type ApiResponse } from '@/lib/api_client';
-
-// 示例：获取用户列表
-const getUserList = async () => {
-  try {
-    const response: ApiResponse<User[]> = await request({
-      url: '/user/list',
-      method: 'GET',
-      params: { page: 1, size: 10 }
-    });
-    
-    if (response.code === 200) {
-      console.log('用户列表:', response.data);
-      console.log('总数:', response.total);
-    } else {
-      console.error('请求失败:', response.msg);
-    }
-  } catch (error) {
-    console.error('网络错误:', error);
-  }
-};
+import { request } from '@/lib/api_client';
 ```
 
 ### 2. 使用 `apiRequest` 函数（推荐）
@@ -101,3 +82,24 @@ setTokenData({
 clearTokenData();
 ```
 
+### 全局变量与事件
+- 使用localStorage存储全局变量
+- 使用window.addEventListener监听全局拉伸事件
+- 全局的callback也可以作业子页调父页的方法。
+
+### 样式
+```
+相关文件：
+tailwind.configs.js
+globals.css
+table-style.css
+animations.css
+```
+
+### 换主题
+```
+相关文件：
+header-theme-goggle.tsx
+mode-toggle.tsx
+theme-provider.tsx
+```

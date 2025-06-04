@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ModelType } from './page';
 import { CClassCodeTable } from './class-code/class-code-table';
 import { CApiConfigTable } from './api-config/api-config-table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface CAlgorithmTabsProps {
   selectedModelType: ModelType;
@@ -27,44 +27,40 @@ export function CAlgorithmTabs({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">{selectedModelType.name}</h2>
-          <div className="text-sm text-gray-500">ID: {selectedModelType.id}</div>
-        </div>
-        
-        {/* Tab 切换按钮 */}
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-          <Button
-            variant={activeTab === 'class_codes' ? 'default' : 'ghost'}
-            size="sm"
-            className="flex w-50"
-            onClick={() => setActiveTab('class_codes')}
-          >
-            算法类别 ({selectedModelType.class_codes.length})
-          </Button>
-          <Button
-            variant={activeTab === 'api_configs' ? 'default' : 'ghost'}
-            size="sm"
-            className="flex w-50"
-            onClick={() => setActiveTab('api_configs')}
-          >
-            算法接口 ({selectedModelType.api_configs.length})
-          </Button>
+          <div className="text-sm text-muted-foreground">ID: {selectedModelType.id}</div>
         </div>
       </CardHeader>
       
       <CardContent className="flex-1 overflow-hidden">
-        {activeTab === 'class_codes' && (
-          <CClassCodeTable
-            modelType={selectedModelType}
-            onUpdate={onClassCodeUpdate}
-          />
-        )}
-        
-        {activeTab === 'api_configs' && (
-          <CApiConfigTable
-            modelType={selectedModelType}
-            onUpdate={onApiConfigUpdate}
-          />
-        )}
+        <Tabs 
+          defaultValue="class_codes" 
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as TabType)}
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="class_codes">
+              算法类别 ({selectedModelType.class_codes.length})
+            </TabsTrigger>
+            <TabsTrigger value="api_configs">
+              算法接口 ({selectedModelType.api_configs.length})
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="class_codes" className="mt-0">
+            <CClassCodeTable
+              modelType={selectedModelType}
+              onUpdate={onClassCodeUpdate}
+            />
+          </TabsContent>
+          
+          <TabsContent value="api_configs" className="mt-0">
+            <CApiConfigTable
+              modelType={selectedModelType}
+              onUpdate={onApiConfigUpdate}
+            />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

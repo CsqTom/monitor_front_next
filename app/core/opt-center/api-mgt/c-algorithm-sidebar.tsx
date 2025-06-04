@@ -66,7 +66,7 @@ export function CAlgorithmSidebar({
               className={cn(
                 'w-full justify-start px-4 py-2 h-auto text-left group flex rounded-md text-sm font-medium',
                 selectedModelType?.id === modelType.id 
-                  ? 'bg-primary/10 text-primary' 
+                  ? 'bg-gray-100 dark:bg-accent  text-foreground' 
                   : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               )}
               onClick={() => onModelTypeSelect(modelType)}
