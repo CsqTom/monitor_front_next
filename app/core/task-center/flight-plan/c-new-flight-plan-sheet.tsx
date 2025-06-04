@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -37,6 +37,8 @@ import {
   WaylinePrecisionType 
 } from './new-plan-params';
 import {DeviceObjectRsp, Drone, WayLineListRsp, WayLine} from "./new-plan-rsp";
+import { TimePicker } from '@/components/ui/time-picker';
+import { AlgorithmSelector, AlgorithmSelectionResult } from '@/components/task/algorithm-selector';
 
 // 定义接口
 interface ClassCode {
@@ -75,12 +77,17 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
   
   // 表单数据
   const [name, setName] = useState('');
-  const [modelTypeId, setModelTypeId] = useState<number>(1); // 默认值
-  const [selectedClassCode, setSelectedClassCode] = useState<string>('building_change'); // 默认值
   const [waylineUuid, setWaylineUuid] = useState<string>('');
   const [droneSn, setDroneSn] = useState<string>('');
   const [timeZone, setTimeZone] = useState<string>('Asia/Shanghai'); // 默认值
   const [rthAltitude, setRthAltitude] = useState<number>(10); // 默认值
+  
+  // 算法选择
+  const [algorithmSelection, setAlgorithmSelection] = useState<AlgorithmSelectionResult>({
+    algorithmType: null,
+    algorithmCategory: null,
+    algorithmApi: null
+  });
   
   // 新增参数
   const [taskType, setTaskType] = useState<string>('immediate'); // 默认立即执行
@@ -102,12 +109,13 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
   const [selectedDaysOfMonth, setSelectedDaysOfMonth] = useState<number[]>([1]); // 默认每月1号
   
   // 选项数据
-  const [classCodes, setClassCodes] = useState<ClassCode[]>([
-    { id: 1, name: '违建', class_code: 'building_change', position: 1 },
-    { id: 2, name: '林业', class_code: 'forestry_change', position: 2 }
-  ]);
   const [droneList, setDroneList] = useState<Drone[]>([]);
   const [waylineList, setWaylineList] = useState<WayLine[]>([]);
+  
+  // 处理算法选择变化
+  const handleAlgorithmSelectionChange = useCallback((selection: AlgorithmSelectionResult) => {
+    setAlgorithmSelection(selection);
+  }, []);
   
   // 获取无人机列表
   useEffect(() => {
@@ -196,6 +204,33 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       return;
     }
     
+    if (!algorithmSelection.algorithmType) {
+      toast({
+        title: '验证失败',
+        description: '请选择算法类型',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!algorithmSelection.algorithmCategory) {
+      toast({
+        title: '验证失败',
+        description: '请选择算法类别',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!algorithmSelection.algorithmApi) {
+      toast({
+        title: '验证失败',
+        description: '请选择算法API',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     if (!waylineUuid) {
       toast({
         title: '验证失败',
@@ -228,11 +263,15 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
         return;
       }
       
+      // 获取选中API配置的class_code_key和算法类别的class_code
+      const classCodeKey = algorithmSelection.algorithmApi?.classCodeKey || 'model_sign';
+      const classCodeValue = algorithmSelection.algorithmCategory?.classCode || 'building_change';
+      
       // 构建基础请求数据
       let requestData: any = {
         project_id: parseInt(projectId),
-        e_model_type_id: modelTypeId,
-        e_class_code_dict: { model_sign: selectedClassCode },
+        e_model_type_id: algorithmSelection.algorithmType?.id || 1,
+        e_class_code_dict: { [classCodeKey]: classCodeValue },
         e_rule_dict: { file_path: "1" },
         name: name,
         wayline_uuid: waylineUuid,
@@ -281,12 +320,12 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       }
       
       // 发送请求
-      await apiRequest({
-        url: '/drone/plan',
-        method: 'POST',
-        data: requestData,
-      });
-
+      // await apiRequest({
+      //   url: '/drone/plan',
+      //   method: 'POST',
+      //   data: requestData,
+      // });
+      
       console.log('requestData:', requestData);
       
       toast({
@@ -296,8 +335,11 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       
       // 重置表单
       setName('');
-      setModelTypeId(1);
-      setSelectedClassCode('building_change');
+      setAlgorithmSelection({
+        algorithmType: null,
+        algorithmCategory: null,
+        algorithmApi: null
+      });
       
       // 关闭弹窗并刷新列表
       onClose();
@@ -336,23 +378,8 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
           </div>
           
           <div className="space-y-2">
-            <Label>* 模型类型</Label>
-            <Card>
-              <CardContent className="pt-6">
-                <RadioGroup
-                  value={selectedClassCode}
-                  onValueChange={setSelectedClassCode}
-                  className="flex space-x-4"
-                >
-                  {classCodes.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
-                      <RadioGroupItem value={item.class_code} id={`class-${item.id}`} />
-                      <Label htmlFor={`class-${item.id}`}>{item.name}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </CardContent>
-            </Card>
+            <Label>* 算法配置</Label>
+            <AlgorithmSelector onSelectionChange={handleAlgorithmSelectionChange} />
           </div>
           
           <div className="space-y-2">
