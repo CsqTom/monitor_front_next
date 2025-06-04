@@ -6,9 +6,10 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SecondaryNavBar, NavItem } from '@/app/core/c-secondary-nav-bar';
 import { getTokenData, clearTokenData } from '@/lib/api_client'; 
 import { Button } from '@/components/ui/button'; 
-import { Card } from '@/components/ui/card'; // 导入 Card 组件
+import { Card } from '@/components/ui/card'; 
 import { LogOut, ChevronRight } from 'lucide-react'; 
-import { navigationLinks } from '@/app/core/c-secondary-nav-bar'; // Assuming navigationLinks is exported and contains menu structure
+import { navigationLinks } from '@/app/core/c-secondary-nav-bar'; 
+import { HeaderThemeToggle } from '@/components/header-theme-toggle'; // 导入顶部导航栏主题切换组件
 
 // import useSettingStore from "@/stores/setting"
 // import { initChatsDb } from "@/db/chats"
@@ -93,10 +94,13 @@ export default function RootLayout({
                 </span>
               ))}
             </div>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              退出登录
-            </Button>
+            <div className="flex items-center space-x-3">
+              <HeaderThemeToggle />
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                退出登录
+              </Button>
+            </div>
           </header>
           <main className="flex-1 overflow-y-auto p-4">
             <Card className='p-4'>
