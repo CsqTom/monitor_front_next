@@ -262,7 +262,7 @@ export function CNewApiConfigSheet({
               
             </div>
             
-            {apiParameters.length > 0 && (
+            {(
               <div className="border rounded-lg">
                 <Table>
                   <TableHeader>
@@ -322,7 +322,7 @@ export function CNewApiConfigSheet({
                     ))}
                   </TableBody>
                 </Table>
-                <div className="flex justify-center mb-2">
+                <div className="flex justify-center mb-2 mt-1">
                   <Button
                     type="button"
                     variant="outline"
