@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Eye } from 'lucide-react';
+import { RefreshCw, Eye, Plus } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/api_client';
 import { QPagination } from '@/components/ui/pagination';
 import { FlightPlanDetailSheet, FlightPlan } from './c-flight-plan-detail-sheet';
+import { NewFlightPlanSheet } from './c-new-flight-plan-sheet';
 
 // 分页数据结构
 interface FlightPlanPageData {
@@ -23,6 +24,7 @@ export default function Page() {
   const [pageData, setPageData] = useState<FlightPlanPageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
+  const [isNewPlanSheetOpen, setIsNewPlanSheetOpen] = useState(false);
   const [selectedFlightPlan, setSelectedFlightPlan] = useState<FlightPlan | null>(null);
 
   // 从后端获取数据
@@ -153,10 +155,16 @@ export default function Page() {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">飞行计划列表</h1>
-        <Button onClick={handleRefresh} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          刷新
-        </Button>
+        <div className="flex space-x-2">
+          <Button onClick={() => setIsNewPlanSheetOpen(true)} variant="default" size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            新建计划
+          </Button>
+          <Button onClick={handleRefresh} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            刷新
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-md border">
@@ -231,6 +239,12 @@ export default function Page() {
         isOpen={isDetailSheetOpen}
         onClose={() => setIsDetailSheetOpen(false)}
         flightPlan={selectedFlightPlan}
+      />
+      
+      <NewFlightPlanSheet
+        isOpen={isNewPlanSheetOpen}
+        onClose={() => setIsNewPlanSheetOpen(false)}
+        onSuccess={handleRefresh}
       />
     </div>
   );
