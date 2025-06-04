@@ -8,6 +8,7 @@ import { ModelType } from './page';
 import { CNewModelTypeSheet } from './c-new-model-type-sheet';
 import { apiRequest } from '@/lib/api_client';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface CAlgorithmSidebarProps {
   modelTypes: ModelType[];
@@ -56,19 +57,27 @@ export function CAlgorithmSidebar({
             </Button>
           </div>
         </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="px-3">
         <div className="space-y-1">
           {modelTypes.map((modelType) => (
             <Button
               key={modelType.id}
-              variant={selectedModelType?.id === modelType.id ? "default" : "ghost"}
-              className="w-full justify-start px-4 py-3 h-auto text-left"
+              variant="ghost"
+              className={cn(
+                'w-full justify-start px-4 py-2 h-auto text-left group flex rounded-md text-sm font-medium',
+                selectedModelType?.id === modelType.id 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+              )}
               onClick={() => onModelTypeSelect(modelType)}
             >
-              <div className="flex flex-col items-start">
-                <div className="font-medium">{modelType.name}</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  类别: {modelType.class_codes.length} | 接口: {modelType.api_configs.length}
+              <div className="flex items-center w-full">
+                {/* <AlignJustify className="w-4 h-4 mr-2" /> */}
+                <div className="flex flex-col items-start">
+                  <div className="font-medium">{modelType.name}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    类别: {modelType.class_codes.length} | 接口: {modelType.api_configs.length}
+                  </div>
                 </div>
               </div>
             </Button>

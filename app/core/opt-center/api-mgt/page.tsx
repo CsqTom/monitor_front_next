@@ -121,7 +121,7 @@ export default function ApiMgtPage() {
 
       <div className="flex gap-3 h-[calc(100vh-200px)]">
         {/* 左侧栏 - 算法大类 */}
-        <div className="w-60 flex-shrink-0">
+        <div className="w-55 flex-shrink-0">
           <CAlgorithmSidebar
             modelTypes={modelTypes}
             selectedModelType={selectedModelType}
