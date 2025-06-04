@@ -37,7 +37,6 @@ import {
   WaylinePrecisionType 
 } from './new-plan-params';
 import {DeviceObjectRsp, Drone, WayLineListRsp, WayLine} from "./new-plan-rsp";
-import { TimePicker } from '@/components/ui/time-picker';
 import { AlgorithmSelector, AlgorithmSelectionResult } from '@/components/task/algorithm-selector';
 
 // 定义接口
@@ -173,7 +172,7 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       if (!projectId) return;
       
       // 这里假设有一个获取航线列表的API
-      const data:WayLineListRsp[] = await apiRequest<WayLineListRsp[]>({
+      const data = await apiRequest<WayLineListRsp>({
         url: '/drone/way_line',
         method: 'GET',
         params: { project_id: projectId },

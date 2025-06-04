@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useToast } from '@/hooks/use-toast';
-import { request } from '@/lib/api_client';
+import { apiRequest, request } from '@/lib/api_client';
 
 interface NewUserSheetProps {
   isNewUserSheetOpen: boolean;
@@ -58,14 +58,12 @@ export function C_newUserSheet({ isNewUserSheetOpen, setIsNewUserSheetOpen, onUs
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await request<RolesListResponse>({
+        const response = await apiRequest<Role[]>({
           url: '/user/roles_list',
           method: 'GET',
         });
-        if (response.data.code === 200 && response.data.data) {
-          setRoles(response.data.data);
-        } else {
-          toast({ title: '错误', description: response.data.msg || '获取角色列表失败', variant: 'destructive' });
+        if (response) {
+          setRoles(response);
         }
       } catch (error) {
         toast({ title: '错误', description: (error as Error).message || '获取角色列表时发生错误', variant: 'destructive' });

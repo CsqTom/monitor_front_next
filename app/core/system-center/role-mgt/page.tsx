@@ -22,7 +22,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {request} from '@/lib/api_client';
+import {apiRequest, request} from '@/lib/api_client';
 import {PlusCircle, RefreshCw, Trash2} from 'lucide-react';
 import {QPagination} from '@/components/ui/pagination';
 import {RoleEditSheet, RoleRecord} from './c-edit-role-sheet';
@@ -63,16 +63,13 @@ export default function Page() {
         setError(null);
         try {
             // Ensure the request generic type matches the expected structure from API
-            const response = await request<ApiResponse<RolesPageData>>({ // Adjusted to use ApiResponse
+            const response = await apiRequest<RolesPageData>({ // Adjusted to use ApiResponse
                 url: '/user/roles_page',
                 method: 'GET',
                 params: {page, page_size: pageSize}, // Added page and page_size params
             });
-            if (response.data.code === 200 && response.data.data) {
-                setRolesData(response.data.data);
-            } else {
-                setError(response.data.msg || 'Failed to fetch roles');
-                toast({title: '错误', description: response.data.msg || '获取角色列表失败', variant: 'destructive'});
+            if (response) {
+                setRolesData(response);
             }
         } catch (err) {
             setError((err as Error).message || 'An error occurred while fetching roles');

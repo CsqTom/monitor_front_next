@@ -21,7 +21,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {request} from '@/lib/api_client';
+import {apiRequest, request} from '@/lib/api_client';
 import {PlusCircle, RefreshCw, Trash2} from 'lucide-react';
 import {UserDetailsSheet, UserRecord} from './c-edit-user-sheet'; // Placeholder for UserDetailsSheet
 import {C_newUserSheet} from './c-new-user-sheet'; // Placeholder for NewUserSheet
@@ -57,16 +57,13 @@ export default function Page() {
         setLoading(true);
         setError(null);
         try {
-            const response = await request<ApiResponse<UserPageData>>({
+            const response = await apiRequest<UserPageData>({
                 url: '/user/user_role/page', // Corrected API endpoint
                 method: 'GET',
                 params: {page, page_size: pageSize},
             });
-            if (response.data.code === 200 && response.data.data) {
-                setPageUserData(response.data.data);
-            } else {
-                setError(response.data.msg || 'Failed to fetch users');
-                toast({title: '错误', description: response.data.msg || '获取用户列表失败', variant: 'destructive'});
+            if (response) {
+                setPageUserData(response);
             }
         } catch (err) {
             setError((err as Error).message || 'An error occurred while fetching users');

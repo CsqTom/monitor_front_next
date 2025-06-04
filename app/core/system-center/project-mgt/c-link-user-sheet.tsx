@@ -13,10 +13,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronRight, ChevronLeft, Users, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { request, type ApiResponse } from '@/lib/api_client';
+import { request, apiRequest } from '@/lib/api_client';
 import { ProjectRecord } from './page';
 
-interface User {
+interface UserInfo {
     id: number;
     username: string;
     email?: string;
@@ -39,9 +39,9 @@ interface LinkUserSheetProps {
 }
 
 export function LinkUserSheet({ open, setOpen, project, onUserLinkUpdate }: LinkUserSheetProps) {
-    const [allUsers, setAllUsers] = useState<User[]>([]);
-    const [linkedUsers, setLinkedUsers] = useState<User[]>([]);
-    const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+    const [allUsers, setAllUsers] = useState<UserInfo[]>([]);
+    const [linkedUsers, setLinkedUsers] = useState<UserInfo[]>([]);
+    const [availableUsers, setAvailableUsers] = useState<UserInfo[]>([]);
     const [selectedAvailable, setSelectedAvailable] = useState<number[]>([]);
     const [selectedLinked, setSelectedLinked] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
@@ -50,19 +50,13 @@ export function LinkUserSheet({ open, setOpen, project, onUserLinkUpdate }: Link
     // 获取所有用户列表
     const fetchAllUsers = async () => {
         try {
-            const response = await request<User[]>({
+            const response = await apiRequest<UserInfo[]>({
                 url: '/user/last_list?limit=100',
                 method: 'GET',
             });
             
-            if (response.data.code === 200) {
-                setAllUsers(response.data.data);
-            } else {
-                toast({
-                    title: '错误',
-                    description: response.data.msg || '获取用户列表失败',
-                    variant: 'destructive'
-                });
+            if (response) {
+                setAllUsers(response);
             }
         } catch (error) {
             toast({
@@ -78,19 +72,13 @@ export function LinkUserSheet({ open, setOpen, project, onUserLinkUpdate }: Link
         if (!project) return;
         
         try {
-            const response = await request<User[]>({
+            const response = await apiRequest<UserInfo[]>({
                 url: `/user/project_users_list?project_id=${project.id}`,
                 method: 'GET',
             });
             
-            if (response.data.code === 0) {
-                setLinkedUsers(response.data.data);
-            } else {
-                toast({
-                    title: '错误',
-                    description: response.data.msg || '获取项目用户关联失败',
-                    variant: 'destructive'
-                });
+            if (response) {
+                setLinkedUsers(response);
             }
         } catch (error) {
             toast({

@@ -103,3 +103,12 @@ header-theme-goggle.tsx
 mode-toggle.tsx
 theme-provider.tsx
 ```
+
+### build
+```
+如果报错：uncaughtException [Error: kill EPERM] { errno: -4048, code: 'EPERM', syscall: 'kill' }
+可以执行：set NODE_OPTIONS=--max-old-space-size=4096  
+
+pnpm build
+pnpm tauri build
+```

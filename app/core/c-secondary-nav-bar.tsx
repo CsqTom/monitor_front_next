@@ -17,7 +17,7 @@ interface ProjectInfo {
   altitude: number;
 }
 
-interface RoleConfig {
+export interface RoleConfig {
   id: number;
   role: number;
   name: string;
@@ -26,7 +26,7 @@ interface RoleConfig {
   type_str: string;
 }
 
-interface UserRoleData {
+export interface UserRoleData {
   user: {
     id: number;
     username: string;
@@ -131,7 +131,7 @@ export function SecondaryNavBar() {
         return;
       }
       
-      const data: UserRoleData = await apiRequest<{ data: UserRoleData }>({
+      const data = await apiRequest<UserRoleData>({
         url: `/user/role?user_id=${userId}`,
         method: 'GET'
       });

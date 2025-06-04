@@ -98,12 +98,6 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                 // Reset states when API config changes
                 setHttpUrls({});
                 setImageInfo({});
-            } else {
-                toast({
-                    title: '获取配置失败',
-                    description: response.msg,
-                    variant: 'destructive',
-                });
             }
         } catch (error) {
             console.error('Error fetching project configs:', error);
@@ -251,13 +245,13 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
 
             console.log('创建任务请求参数:', requestData);
 
-            const response = await request<ApiResponse<ProjectData>>({
+            const response = await apiRequest<ProjectData>({
                 url: '/task/add_ai_task',
                 method: 'POST',
                 data: requestData,
             });
 
-            if (response.data.code === 200) {
+            if (response) {
                 toast({
                     title: '创建成功',
                     description: '任务已成功创建',
@@ -276,12 +270,6 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                 // 关闭弹窗并刷新列表
                 setIsNewSheetOpen(false);
                 onCreate();
-            } else {
-                toast({
-                    title: '创建失败',
-                    description: response.msg || '创建任务时发生错误',
-                    variant: 'destructive',
-                });
             }
         } catch (error) {
             console.error('创建任务失败:', error);

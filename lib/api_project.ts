@@ -1,4 +1,4 @@
-import { apiRequest, request, type ApiResponse } from './api_client';
+import { apiRequest, request } from './api_client';
 
 // 项目相关接口类型定义
 export interface ClassCode {
@@ -40,12 +40,6 @@ export interface ModelTypeConfig {
     name: string;
     class_codes: ClassCode[];
     api_configs: ApiConfig[];
-}
-
-export interface ApiResponse<T> {
-    code: number;
-    msg: string;
-    data: T;
 }
 
 export interface CreateProjectRequest {

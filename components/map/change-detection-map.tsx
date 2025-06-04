@@ -39,7 +39,7 @@ const ChangeDetectionMap: React.FC<ChangeDetectionMapProps> = ({ beforeImage, af
   const mapInstance = useRef<Map | null>(null);
   const beforeLayerRef = useRef<TileLayer<WMTS> | null>(null);
   const afterLayerRef = useRef<TileLayer<WMTS> | null>(null);
-  const geoJsonLayerRef = useRef<VectorLayer<VectorSource<GeoJSON>> | null>(null);
+  const geoJsonLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
 
   const tiandituKey = '7fe24454dfe4a72ff3f65a0f6ca165ac'; // 天地图密钥
@@ -117,8 +117,8 @@ const ChangeDetectionMap: React.FC<ChangeDetectionMapProps> = ({ beforeImage, af
         layer: config.layer,
         matrixSet: config.matrixSet,
         format: config.format,
-        projection: config.projection,
-        tileGrid: createWmtsTileGrid('baseTile'),
+        projection: config.projection!,
+        tileGrid: createWmtsTileGrid('baseTile')!,
         style: config.style,
         wrapX: config.wrapX,
       });
@@ -137,8 +137,8 @@ const ChangeDetectionMap: React.FC<ChangeDetectionMapProps> = ({ beforeImage, af
       layer: imageData.layer,
       matrixSet: 'EPSG:4326',
       format: 'image/png',
-      projection: projection,
-      tileGrid: createWmtsTileGrid('geoServerTile'),
+      projection: projection!,
+      tileGrid: createWmtsTileGrid('geoServerTile')!,
       style: '',
       wrapX: true,
     });

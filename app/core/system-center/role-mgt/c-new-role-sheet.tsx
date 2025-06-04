@@ -12,18 +12,19 @@ import { Input } from '@/components/ui/input';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RefreshCw } from 'lucide-react';
-import { request } from '@/lib/api_client';
+import { apiRequest, request } from '@/lib/api_client';
 import { useToast } from '@/hooks/use-toast';
+import { UserRoleData, RoleConfig } from '../../c-secondary-nav-bar';
 
 // Define interfaces here or import from a shared types file
-export interface RoleConfig {
-  id?: number;
-  role?: number;
-  name: string;
-  key: string;
-  value: boolean | string | number;
-  type_str: string;
-}
+// export interface RoleConfig {
+//   id?: number;
+//   role?: number;
+//   name: string;
+//   key: string;
+//   value: boolean | string | number;
+//   type_str: string;
+// }
 
 interface ApiResponse<T> {
   code: number;
@@ -50,39 +51,16 @@ export function NewRoleSheet({ isNewRoleSheetOpen, setIsNewRoleSheetOpen, onRole
     setIsLoadingDefaultConfigs(true);
     setError(null);
     try {
-      const response = await request<{
-        code: number;
-        msg: string;
-        data: {
-          code: number;
-           msg: string;
-           data: {
-             user: any;
-             role_id: number;
-             role_name: string;
-             configs: RoleConfig[];
-           };
-        }
-      }>({ // Adjusted to match the expected structure from page.tsx
+      const response = await apiRequest<UserRoleData>({ // Adjusted to match the expected structure from page.tsx
         url: `/user/role?user_id=${localStorage.getItem('user_id')}`,
         method: 'GET',
       });
 
-      console.log(response.data.code);
-      console.log(response.data.data);
-
       // Assuming the actual RoleConfig array is nested under response.data.data.data based on previous structure
-      if (response.data.code === 200 && response.data.data) {
-        const initializedConfigs = response.data.data.configs.map(config => ({ ...config, value: false }));
+      if (response) {
+        const initializedConfigs = response.configs.map(config => ({ ...config, value: false }));
         setDefaultRoleConfigs(initializedConfigs);
         setNewRoleConfigs(initializedConfigs);
-      } else {
-        setError(response.data.msg || 'Failed to fetch default role configurations');
-        toast({
-          title: '加载失败',
-          description: response.data.msg || '无法加载默认角色配置。',
-          variant: 'destructive',
-        });
       }
     } catch (err) {
       setError((err as Error).message || 'An error occurred while fetching default configurations');

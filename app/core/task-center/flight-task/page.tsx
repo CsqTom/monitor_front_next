@@ -5,7 +5,7 @@ import {RefreshCw, Trash2} from "lucide-react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {useToast} from '@/hooks/use-toast';
 import {useEffect, useState} from "react";
-import {ApiResponse, request} from "@/lib/api_client";
+import {apiRequest, ApiResponse, request} from "@/lib/api_client";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -59,7 +59,7 @@ export default function Page() {
     // 从后端获取数据
     const handleRefresh = async (page: number, pageSize: number = 10, is_show_success: boolean = false) => {
         try {
-            const response = await request<PagTaskData>({
+            const response = await apiRequest<PagTaskData>({
                 url: '/task/all_page', // Replace with actual delete endpoint
                 method: 'GET',
                 params: {
@@ -68,13 +68,11 @@ export default function Page() {
                   project_id: localStorage.getItem("project_id") || 0
                 },
             });
-            if (response.data.code === 200) {
+            if (response) {
                 if (is_show_success) {
                     toast({title: '成功', description: '刷新成功'});
                 }
-                setPageTaskData(response.data.data);
-            } else {
-                toast({title: '错误', description: response.data.msg || '刷新失败', variant: 'destructive'});
+                setPageTaskData(response);
             }
         } catch (e) {
             toast({title: '错误', description: (e as Error).message || '刷新失败', variant: 'destructive'});
@@ -142,13 +140,13 @@ export default function Page() {
             pageTaskData?.records.forEach(async (task) => {
                 if (task.status >= 201 && task.status <= 299) {
                     try {
-                        const response = await request<ApiResponse<TaskData>>({
+                        const response = await apiRequest<TaskData>({
                             url: '/task/get',
                             method: 'GET',
                             params: {task_id: task.task_id},
                         });
-                        if (response.data.code === 200 && response.data.data) {
-                            const updatedTask = response.data.data;
+                        if (response) {
+                            const updatedTask = response;
                             setPageTaskData(prevData => {
                                 if (!prevData) return null;
                                 return {

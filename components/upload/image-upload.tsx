@@ -68,6 +68,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({all_len, data_para_ke
                         ) : `Part ${idx + 1} of ${all_len}`}
                     </Label>
                     <ChunkFileUploader
+                        suffix=".tif"
                         onUploadSuccess={(fileName, uploadId, sql_id) => handleSingleUploadSuccess(fileName, uploadId, sql_id)}/>
                 </div>
             ))}
