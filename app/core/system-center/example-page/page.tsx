@@ -83,7 +83,7 @@ export default function ExamplePage() {
           </TabsContent>
           
           <TabsContent value="settings" className="space-y-4">
-            <PageTransition animationType="bounce" duration="fast">
+            <PageTransition animationType="scale" duration="fast">
               <Card>
                 <CardHeader>
                   <CardTitle>系统设置</CardTitle>

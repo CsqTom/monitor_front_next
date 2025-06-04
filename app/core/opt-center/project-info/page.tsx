@@ -28,6 +28,8 @@ import { ProjectEditSheet } from './c-edit-project-sheet';
 import { EditDroneProjectSheet } from './c-edit-drone-project-sheet';
 import { projectApi, SetDefaultProject } from '@/lib/api_project';
 import { triggerProjectInfoUpdate } from '@/app/core/c-secondary-nav-bar';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Card } from '@/components/ui/card';
 
 interface ClassCode {
     id: number;
@@ -174,6 +176,8 @@ export default function Page() {
     };
 
     return (
+        <PageTransition animationType="scale" duration="default">
+        <Card>
         <div className="container mx-auto py-3">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold">项目管理</h1>
@@ -252,5 +256,7 @@ export default function Page() {
             />
 
         </div>
+        </Card>
+        </PageTransition>
     );
 }

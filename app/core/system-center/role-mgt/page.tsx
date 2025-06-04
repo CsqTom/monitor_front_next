@@ -27,6 +27,8 @@ import {PlusCircle, RefreshCw, Trash2} from 'lucide-react';
 import {QPagination} from '@/components/ui/pagination';
 import {RoleEditSheet, RoleRecord} from './c-edit-role-sheet';
 import {NewRoleSheet} from './c-new-role-sheet';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Card } from '@/components/ui/card';
 
 // Interfaces are now primarily in RoleDetailsSheet.tsx, re-declare or import if needed broadly
 // For page.tsx, we mainly need RolesPageData
@@ -136,6 +138,8 @@ export default function Page() {
     }
 
     return (
+        <PageTransition animationType="scale" duration="default">
+        <Card>
         <div className="container mx-auto py-3">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold">角色管理</h1>
@@ -225,5 +229,7 @@ export default function Page() {
                 </AlertDialogContent>
             </AlertDialog>
         </div>
+        </Card>
+        </PageTransition>
     );
 }

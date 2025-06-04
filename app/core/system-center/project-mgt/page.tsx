@@ -28,6 +28,8 @@ import { ProjectEditSheet } from './c-edit-project-sheet';
 import { NewProjectSheet } from './c-new-project-sheet';
 import { LinkUserSheet } from './c-link-user-sheet';
 import { projectApi } from '@/lib/api_project';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Card } from '@/components/ui/card';
 
 interface ClassCode {
     id: number;
@@ -182,6 +184,8 @@ export default function Page() {
     };
 
     return (
+        <PageTransition animationType="scale" duration="default">
+        <Card>
         <div className="container mx-auto py-3">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold">项目管理</h1>
@@ -284,5 +288,7 @@ export default function Page() {
                 onUserLinkUpdate={fetchProjects}
             />
         </div>
+        </Card>
+        </PageTransition>
     );
 }

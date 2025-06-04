@@ -21,6 +21,8 @@ import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/compon
 import {QPagination} from "@/components/ui/pagination";
 import {NewTaskSheet} from "./c-new-task-sheet";
 import CTaskDetailChangeDetection from "./c-task-change-detection";
+import { PageTransition } from "@/components/ui/page-transition";
+import { Card } from "@/components/ui/card";
 
 interface TaskData {
     id: number
@@ -175,6 +177,8 @@ export default function Page() {
 
     // 写界面
     return (
+        <PageTransition animationType="scale" duration="default">
+        <Card>
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold">数据分析任务</h1>
@@ -315,5 +319,7 @@ export default function Page() {
                 />
             )}
         </div>
+        </Card>
+        </PageTransition>
     );
 }

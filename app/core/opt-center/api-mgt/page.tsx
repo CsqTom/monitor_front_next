@@ -7,6 +7,7 @@ import { apiRequest } from '@/lib/api_client';
 import { useToast } from '@/hooks/use-toast';
 import { CAlgorithmSidebar } from './c-algorithm-sidebar';
 import { CAlgorithmTabs } from './c-algorithm-tabs';
+import { PageTransition } from '@/components/ui/page-transition';
 
 interface ClassCode {
   id: number;
@@ -111,6 +112,8 @@ export default function ApiMgtPage() {
   }
 
   return (
+    <PageTransition animationType="scale" duration="default">
+    <Card>
     <div className="p-3 space-y-3">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">API管理</h1>
@@ -147,6 +150,8 @@ export default function ApiMgtPage() {
         </div>
       </div>
     </div>
+    </Card>
+    </PageTransition>
   );
 }
 

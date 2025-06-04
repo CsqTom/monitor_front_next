@@ -9,6 +9,8 @@ import { apiRequest } from '@/lib/api_client';
 import { QPagination } from '@/components/ui/pagination';
 import { FlightPlanDetailSheet, FlightPlan } from './c-flight-plan-detail-sheet';
 import { NewFlightPlanSheet } from './c-new-flight-plan-sheet';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Card } from '@/components/ui/card';
 
 // 分页数据结构
 interface FlightPlanPageData {
@@ -152,6 +154,8 @@ export default function Page() {
   };
 
   return (
+    <PageTransition animationType="scale" duration="default">
+    <Card>
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">飞行计划列表</h1>
@@ -247,5 +251,7 @@ export default function Page() {
         onSuccess={handleRefresh}
       />
     </div>
+    </Card>
+    </PageTransition>
   );
 }

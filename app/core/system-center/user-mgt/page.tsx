@@ -26,6 +26,8 @@ import {PlusCircle, RefreshCw, Trash2} from 'lucide-react';
 import {UserDetailsSheet, UserRecord} from './c-edit-user-sheet'; // Placeholder for UserDetailsSheet
 import {C_newUserSheet} from './c-new-user-sheet'; // Placeholder for NewUserSheet
 import {QPagination} from '@/components/ui/pagination';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Card } from '@/components/ui/card';
 
 interface UserPageData {
     records: UserRecord[];
@@ -126,6 +128,8 @@ export default function Page() {
     }
 
     return (
+        <PageTransition animationType="scale" duration="default">
+        <Card>
         <div className="container mx-auto py-3">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold">用户管理</h1>
@@ -214,5 +218,7 @@ export default function Page() {
                 </AlertDialogContent>
             </AlertDialog>
         </div>
+        </Card>
+        </PageTransition>
     );
 }
