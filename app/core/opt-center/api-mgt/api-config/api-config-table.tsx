@@ -77,12 +77,12 @@ export function CApiConfigTable({ modelType, onUpdate }: CApiConfigTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center font-bold bg-gray-100">ID</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">名称</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">接口地址</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">类别代码键</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">状态</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
+              <TableHead className="table-head-light">ID</TableHead>
+              <TableHead className="table-head-light">名称</TableHead>
+              <TableHead className="table-head-light">接口地址</TableHead>
+              <TableHead className="table-head-light">类别代码键</TableHead>
+              <TableHead className="table-head-light">状态</TableHead>
+              <TableHead className="table-head-light">操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

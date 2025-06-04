@@ -283,11 +283,11 @@ export function CEditApiConfigSheet({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-center font-bold bg-gray-100">参数名</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">默认值</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">数据配置</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">类别配置</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
+                        <TableHead className="table-head-light">参数名</TableHead>
+                        <TableHead className="table-head-light">默认值</TableHead>
+                        <TableHead className="table-head-light">数据配置</TableHead>
+                        <TableHead className="table-head-light">类别配置</TableHead>
+                        <TableHead className="table-head-light">操作</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -362,10 +362,10 @@ export function CEditApiConfigSheet({
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="text-center font-bold bg-gray-100">目标字段</TableHead>
-                          <TableHead className="text-center font-bold bg-gray-100">上传数量</TableHead>
-                          <TableHead className="text-center font-bold bg-gray-100">格式/协议</TableHead>
-                          <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
+                          <TableHead className="table-head-light">目标字段</TableHead>
+                          <TableHead className="table-head-light">上传数量</TableHead>
+                          <TableHead className="table-head-light">格式/协议</TableHead>
+                          <TableHead className="table-head-light">操作</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>

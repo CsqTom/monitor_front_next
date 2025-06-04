@@ -202,31 +202,31 @@ export default function Page() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="text-center font-bold bg-gray-100">ID</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">项目名称</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">Logo路径</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">经度</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">纬度</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">海拔</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">配置</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">状态</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
+                        <TableHead className="table-head-light">ID</TableHead>
+                        <TableHead className="table-head-light">项目名称</TableHead>
+                        <TableHead className="table-head-light">Logo路径</TableHead>
+                        <TableHead className="table-head-light">经度</TableHead>
+                        <TableHead className="table-head-light">纬度</TableHead>
+                        <TableHead className="table-head-light">海拔</TableHead>
+                        <TableHead className="table-head-light">配置</TableHead>
+                        <TableHead className="table-head-light">状态</TableHead>
+                        <TableHead className="table-head-light">操作</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {pageProjectData?.records.map((project) => (
-                        <TableRow key={project.id}>
-                            <TableCell className="text-center">{project.id}</TableCell>
-                            <TableCell className="text-center">{project.name}</TableCell>
-                            <TableCell className="text-center flex justify-center items-center">{project.logo_path && isHttpUrl(project.logo_path) ? 
+                        <TableRow key={project.id} className="table-row-hover">
+                            <TableCell className="table-cell-center">{project.id}</TableCell>
+                            <TableCell className="table-cell-center">{project.name}</TableCell>
+                            <TableCell className="table-cell-center flex justify-center items-center">{project.logo_path && isHttpUrl(project.logo_path) ? 
                                 <img src={project.logo_path} alt={project.name} width="30" height="30" /> : project.logo_path || 'N/A'}
                             </TableCell>
-                            <TableCell className="text-center">{project.longitude}</TableCell>
-                            <TableCell className="text-center">{project.latitude}</TableCell>
-                            <TableCell className="text-center">{project.altitude}</TableCell>
-                            <TableCell className="text-center">{renderConfigs(project.configs)}</TableCell>
-                            <TableCell className="text-center">{project.is_delete ? '已删除' : '正常'}</TableCell>
-                            <TableCell className="space-x-2 text-center">
+                            <TableCell className="table-cell-center">{project.longitude}</TableCell>
+                            <TableCell className="table-cell-center">{project.latitude}</TableCell>
+                            <TableCell className="table-cell-center">{project.altitude}</TableCell>
+                            <TableCell className="table-cell-center">{renderConfigs(project.configs)}</TableCell>
+                            <TableCell className="table-cell-center">{project.is_delete ? '已删除' : '正常'}</TableCell>
+                            <TableCell className="table-cell-center space-x-2">
                                 <Button variant="outline" size="sm" onClick={() => handleEdit(project)}>
                                     <Edit className="mr-1 h-4 w-4"/> 编辑
                                 </Button>

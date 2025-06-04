@@ -191,15 +191,15 @@ export default function Page() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="text-center font-bold bg-gray-100">ID</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">项目名称</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">Logo路径</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">经度</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">纬度</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">海拔</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">配置</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">状态</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
+                        <TableHead className="table-head-light">ID</TableHead>
+                        <TableHead className="table-head-light">项目名称</TableHead>
+                        <TableHead className="table-head-light">Logo路径</TableHead>
+                        <TableHead className="table-head-light">经度</TableHead>
+                        <TableHead className="table-head-light">纬度</TableHead>
+                        <TableHead className="table-head-light">海拔</TableHead>
+                        <TableHead className="table-head-light">配置</TableHead>
+                        <TableHead className="table-head-light">状态</TableHead>
+                        <TableHead className="table-head-light">操作</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

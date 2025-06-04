@@ -146,14 +146,14 @@ export default function Page() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="text-center font-bold bg-gray-100">ID</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">用户名</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">邮箱</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">角色</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">状态</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">创建时间</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">更新时间</TableHead>
-                        <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
+                        <TableHead className="table-head-light">ID</TableHead>
+                        <TableHead className="table-head-light">用户名</TableHead>
+                        <TableHead className="table-head-light">邮箱</TableHead>
+                        <TableHead className="table-head-light">角色</TableHead>
+                        <TableHead className="table-head-light">状态</TableHead>
+                        <TableHead className="table-head-light">创建时间</TableHead>
+                        <TableHead className="table-head-light">更新时间</TableHead>
+                        <TableHead className="table-head-light">操作</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

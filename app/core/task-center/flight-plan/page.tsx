@@ -175,13 +175,13 @@ export default function Page() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center font-bold bg-gray-100">ID</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">名称</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">状态</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">开始时间</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">任务类型</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">重复选项</TableHead>
-              <TableHead className="text-center font-bold bg-gray-100">操作</TableHead>
+              <TableHead className="table-head-light">ID</TableHead>
+              <TableHead className="table-head-light">名称</TableHead>
+              <TableHead className="table-head-light">状态</TableHead>
+              <TableHead className="table-head-light">开始时间</TableHead>
+              <TableHead className="table-head-light">任务类型</TableHead>
+              <TableHead className="table-head-light">重复选项</TableHead>
+              <TableHead className="table-head-light">操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

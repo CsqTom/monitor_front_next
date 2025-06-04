@@ -187,15 +187,15 @@ export default function Page() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className='text-center font-bold bg-gray-100'>任务ID</TableHead>
-                        <TableHead className='text-center font-bold bg-gray-100'>任务类型</TableHead>
-                        <TableHead className='text-center font-bold bg-gray-100'>名称</TableHead>
-                        <TableHead className='text-center font-bold bg-gray-100'>进度</TableHead>
-                        <TableHead className='text-center font-bold bg-gray-100'>状态</TableHead>
-                        <TableHead className='text-center font-bold bg-gray-100'>创建时间</TableHead>
-                        <TableHead className='text-center font-bold bg-gray-100'>更新时间</TableHead>
-                        <TableHead className='text-center font-bold bg-gray-100'>消息</TableHead>
-                        <TableHead className='text-center font-bold bg-gray-100'>操作</TableHead>
+                        <TableHead className='table-head-light'>任务ID</TableHead>
+                        <TableHead className='table-head-light'>任务类型</TableHead>
+                        <TableHead className='table-head-light'>名称</TableHead>
+                        <TableHead className='table-head-light'>进度</TableHead>
+                        <TableHead className='table-head-light'>状态</TableHead>
+                        <TableHead className='table-head-light'>创建时间</TableHead>
+                        <TableHead className='table-head-light'>更新时间</TableHead>
+                        <TableHead className='table-head-light'>消息</TableHead>
+                        <TableHead className='table-head-light'>操作</TableHead>
                     </TableRow>
                 </TableHeader>
 
