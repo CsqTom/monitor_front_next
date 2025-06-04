@@ -1,15 +1,18 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Save, GripVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ModelType, ClassCode } from '../page';
-import { CEditClassCodeSheet } from './c-edit-class-code-sheet';
-import { CNewClassCodeSheet } from './c-new-class-code-sheet';
 import { apiRequest } from '@/lib/api_client';
+
+interface EditableClassCode extends ClassCode {
+  isNew?: boolean;
+}
 
 interface CClassCodeTableProps {
   modelType: ModelType;
@@ -18,20 +21,47 @@ interface CClassCodeTableProps {
 
 export function CClassCodeTable({ modelType, onUpdate }: CClassCodeTableProps) {
   const { toast } = useToast();
-  const [isNewSheetOpen, setIsNewSheetOpen] = useState(false);
-  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
-  const [selectedClassCode, setSelectedClassCode] = useState<ClassCode | null>(null);
+  const [classCodes, setClassCodes] = useState<EditableClassCode[]>([]);
+  const [originalClassCodes, setOriginalClassCodes] = useState<EditableClassCode[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<ClassCode | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<EditableClassCode | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
 
-  const handleEdit = (classCode: ClassCode) => {
-    setSelectedClassCode(classCode);
-    setIsEditSheetOpen(true);
+  // 初始化数据
+  useEffect(() => {
+    const initialData = [...modelType.class_codes].sort((a, b) => a.position - b.position);
+    setClassCodes(initialData);
+    setOriginalClassCodes(JSON.parse(JSON.stringify(initialData)));
+  }, [modelType.class_codes]);
+
+  // 检测变更
+  useEffect(() => {
+    const hasChanged = JSON.stringify(classCodes) !== JSON.stringify(originalClassCodes);
+    setHasChanges(hasChanged);
+  }, [classCodes, originalClassCodes]);
+
+  // 新增行
+  const handleAddNew = () => {
+    const newClassCode: EditableClassCode = {
+      id: Date.now(), // 临时ID
+      name: '',
+      class_code: '',
+      position: classCodes.length + 1,
+      isNew: true
+    };
+    setClassCodes([...classCodes, newClassCode]);
   };
 
-  const handleDelete = (classCode: ClassCode) => {
-    setDeleteTarget(classCode);
-    setIsDeleteDialogOpen(true);
+  // 删除行
+  const handleDelete = (classCode: EditableClassCode) => {
+    if (classCode.isNew) {
+      // 直接删除新增的行
+      setClassCodes(classCodes.filter(code => code.id !== classCode.id));
+    } else {
+      setDeleteTarget(classCode);
+      setIsDeleteDialogOpen(true);
+    }
   };
 
   const confirmDelete = async () => {
@@ -43,69 +73,166 @@ export function CClassCodeTable({ modelType, onUpdate }: CClassCodeTableProps) {
         url: '/ai_config/delete_class_code',
         method: 'GET', 
         params:{class_code_id: deleteTarget.id}
-      })
+      });
 
+      // 从列表中移除并重新计算位置
+      const filteredCodes = classCodes.filter(code => code.id !== deleteTarget.id);
+      const updatedCodes = filteredCodes.map((code, index) => ({
+        ...code,
+        position: index + 1
+      }));
+      
+      setClassCodes(updatedCodes);
       toast({ title: '成功', description: '算法类别删除成功' });
       setIsDeleteDialogOpen(false);
       setDeleteTarget(null);
-      onUpdate();
     } catch (error) {
       toast({ title: '失败', description: (error as Error).message || '删除算法类别失败', variant: 'destructive' });
       console.error('Error deleting class code:', error);
     }
   };
 
-  const handleCreateSuccess = () => {
-    setIsNewSheetOpen(false);
-    onUpdate();
+  // 更新字段值
+  const updateField = (id: number, field: keyof EditableClassCode, value: string | number) => {
+    setClassCodes(classCodes.map(code => 
+      code.id === id ? { ...code, [field]: value } : code
+    ));
   };
 
-  const handleEditSuccess = () => {
-    setIsEditSheetOpen(false);
-    setSelectedClassCode(null);
-    onUpdate();
+  // 拖拽开始
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  // 拖拽结束
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
+  // 拖拽悬停
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  // 拖拽放置
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+
+    const newClassCodes = [...classCodes];
+    const draggedItem = newClassCodes[draggedIndex];
+    
+    // 移除拖拽的项目
+    newClassCodes.splice(draggedIndex, 1);
+    // 插入到新位置
+    newClassCodes.splice(dropIndex, 0, draggedItem);
+    
+    // 重新计算position
+    const updatedClassCodes = newClassCodes.map((code, index) => ({
+      ...code,
+      position: index + 1
+    }));
+    
+    setClassCodes(updatedClassCodes);
+  };
+
+  // 保存变更
+  const handleSave = async () => {
+    try {
+      const configs = classCodes.map(code => ({
+        name: code.name,
+        class_code: code.class_code,
+        position: code.position
+      }));
+
+      await apiRequest({
+        url: '/ai_config/reset_class_codes',
+        method: 'POST',
+        data: {
+          model_type_id: modelType.id,
+          configs
+        }
+      });
+
+      toast({ title: '成功', description: '算法类别保存成功' });
+      onUpdate();
+    } catch (error) {
+      toast({ title: '失败', description: (error as Error).message || '保存算法类别失败', variant: 'destructive' });
+      console.error('Error saving class codes:', error);
+    }
   };
 
   return (
     <div className="space-y-4 h-full flex flex-col">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">算法类别管理</h3>
-        <Button
-          onClick={() => setIsNewSheetOpen(true)}
-          className="flex items-center gap-2"
-          size="sm"
-        >
-          <Plus className="h-4 w-4" />
-          新增类别
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleSave}
+            disabled={!hasChanges}
+            className="flex items-center gap-2"
+            size="sm"
+          >
+            <Save className="h-4 w-4" />
+            保存变更
+          </Button>
+          <Button
+            onClick={handleAddNew}
+            className="flex items-center gap-2"
+            size="sm"
+            variant="outline"
+          >
+            <Plus className="h-4 w-4" />
+            新增类别
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="table-head-light">ID</TableHead>
+              <TableHead className="table-head-light w-12"></TableHead>
+              <TableHead className="table-head-light">位置</TableHead>
               <TableHead className="table-head-light">名称</TableHead>
               <TableHead className="table-head-light">类别代码</TableHead>
-              <TableHead className="table-head-light">位置</TableHead>
               <TableHead className="table-head-light">操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {modelType.class_codes.map((classCode) => (
-              <TableRow key={classCode.id}>
-                <TableCell className="text-center">{classCode.id}</TableCell>
-                <TableCell className="text-center">{classCode.name}</TableCell>
-                <TableCell className="text-center">{classCode.class_code}</TableCell>
-                <TableCell className="text-center">{classCode.position}</TableCell>
-                <TableCell className="text-center space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEdit(classCode)}
-                  >
-                    <Edit className="h-3 w-3" />
-                  </Button>
+            {classCodes.map((classCode, index) => (
+              <TableRow 
+                key={classCode.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, index)}
+                className={`${draggedIndex === index ? 'opacity-50' : ''} ${classCode.isNew ? 'bg-blue-50' : ''}`}
+              >
+                <TableCell className="table-cell-center">
+                  <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
+                </TableCell>
+                <TableCell className="table-cell-center">{classCode.position}</TableCell>
+                <TableCell className="table-cell-center">
+                  <Input
+                    value={classCode.name}
+                    onChange={(e) => updateField(classCode.id, 'name', e.target.value)}
+                    className="text-center border-0 bg-transparent focus:bg-white focus:border"
+                    placeholder="请输入名称"
+                  />
+                </TableCell>
+                <TableCell className="table-cell-center">
+                  <Input
+                    value={classCode.class_code}
+                    onChange={(e) => updateField(classCode.id, 'class_code', e.target.value)}
+                    className="text-center border-0 bg-transparent focus:bg-white focus:border"
+                    placeholder="请输入类别代码"
+                  />
+                </TableCell>
+                <TableCell className="table-cell-center">
                   <Button
                     size="sm"
                     variant="destructive"
@@ -119,31 +246,12 @@ export function CClassCodeTable({ modelType, onUpdate }: CClassCodeTableProps) {
           </TableBody>
         </Table>
 
-        {modelType.class_codes.length === 0 && (
+        {classCodes.length === 0 && (
           <div className="text-center text-gray-500 py-8">
             暂无算法类别数据
           </div>
         )}
       </div>
-
-      {/* 新增算法类别Sheet */}
-      <CNewClassCodeSheet
-        isOpen={isNewSheetOpen}
-        setIsOpen={setIsNewSheetOpen}
-        modelTypeId={modelType.id}
-        onSuccess={handleCreateSuccess}
-      />
-      
-      {/* 编辑算法类别Sheet */}
-      {selectedClassCode && (
-        <CEditClassCodeSheet
-          isOpen={isEditSheetOpen}
-          setIsOpen={setIsEditSheetOpen}
-          classCode={selectedClassCode}
-          modelTypeId={modelType.id}
-          onSuccess={handleEditSuccess}
-        />
-      )}
 
       {/* 删除确认对话框 */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
