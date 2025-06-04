@@ -6,17 +6,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SecondaryNavBar, NavItem } from '@/app/core/c-secondary-nav-bar';
 import { getTokenData, clearTokenData } from '@/lib/api_client'; 
 import { Button } from '@/components/ui/button'; 
-import { Card } from '@/components/ui/card'; 
 import { LogOut, ChevronRight } from 'lucide-react'; 
 import { navigationLinks } from '@/app/core/c-secondary-nav-bar'; 
 import { HeaderThemeToggle } from '@/components/header-theme-toggle'; // 导入顶部导航栏主题切换组件
-
-// import useSettingStore from "@/stores/setting"
-// import { initChatsDb } from "@/db/chats"
-// import dayjs from "dayjs"
-// import zh from "dayjs/locale/zh-cn";
-// import en from "dayjs/locale/en";
-// import { useI18n } from "@/hooks/useI18n"
 
 export default function RootLayout({
   children,
@@ -27,11 +19,7 @@ export default function RootLayout({
   const pathname = usePathname();
   const [breadcrumbs, setBreadcrumbs] = useState<string[]>([]);
 
-  // const { initSettingData } = useSettingStore()
-  // const { currentLocale } = useI18n()
   useEffect(() => {
-    // initSettingData()
-    // initChatsDb()
     const { accessToken } = getTokenData();
     if (!accessToken) {
       router.push('/login');
@@ -102,10 +90,8 @@ export default function RootLayout({
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-y-auto p-4">
-            <Card className='p-4'>
-              {children}
-            </Card>
+          <main className="flex-1 overflow-y-auto p-4 bg-gray-50">
+            {children}
           </main>
         </div>
       </div>

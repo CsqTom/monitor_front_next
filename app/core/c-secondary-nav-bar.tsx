@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils'; // Assuming you have a cn utility for classnames
 import { apiRequest } from '@/lib/api_client';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, AlignJustify } from 'lucide-react';
 
 interface ProjectInfo {
   id: number;
@@ -75,6 +75,7 @@ export const navigationLinks: NavGroup[] = [
       { name: '角色管理', href: '/core/system-center/role-mgt', key: 'sys-role_config' },
       { name: '用户管理', href: '/core/system-center/user-mgt', key: 'sys-user_mgt' },
       { name: '项目&用户', href: '/core/system-center/project-mgt', key: 'sys-project_mgt' },
+      { name: '样式示例', href: '/core/system-center/example-page', key: 'sys-project_mgt' },
     ],
   },
 ];
@@ -184,12 +185,12 @@ export function SecondaryNavBar() {
   };
 
   return (
-    <nav className="w-64 flex-shrink-0 border-r bg-background p-4 space-y-4">
+    <nav className="w-55 flex-shrink-0 border-r bg-gray-50 dark:bg-sidebar p-4 space-y-4">
       {/* 项目信息显示区域 */}
       <div className="border-b pb-4 mb-4">
         {loading ? (
           <div className="flex items-center justify-center py-4">
-            <RefreshCw className="animate-spin h-4 w-4 mr-2" />
+            <AlignJustify className="animate-spin h-4 w-4 mr-2" />
             <span className="text-sm text-muted-foreground">加载中...</span>
           </div>
         ) : projectInfo ? (
@@ -206,7 +207,7 @@ export function SecondaryNavBar() {
                 />
               )}
               <div>
-                <h2  className="font-semibold text-l truncate" title={projectInfo.name}>
+                <h2 className="font-semibold text-l truncate text-primary" title={projectInfo.name}>
                   {projectInfo.name}
                 </h2>
               </div>
@@ -228,19 +229,25 @@ export function SecondaryNavBar() {
       ) : (
         getFilteredNavigationLinks().map((group) => (
           <div key={group.group}>
-            <h2 className="mb-2 text-lg font-semibold tracking-tight text-muted-foreground">
-              {group.group}
+            <h2 className="mb-2 text-sm tracking-tight text-primary">
+              <div className='flex pl-4'>
+                <AlignJustify className='w-4 h-4 mr-2'  />
+                {group.group}
+              </div>
             </h2>
-            <div className="space-y-1">
+            <div className="space-y-1 mb-2">
               {group.items.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground',
-                    pathname === item.href ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
+                    'group flex pl-8 rounded-md py-2 text-sm font-medium',
+                    pathname === item.href 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   )}
                 >
+                  <AlignJustify className='w-4 h-4 mr-2'  />
                   {item.name}
                 </Link>
               ))}

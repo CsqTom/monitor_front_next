@@ -1,0 +1,18 @@
+/* 表格样式 */
+.table-head-light {
+  @apply text-center font-bold bg-gray-100 dark:bg-gray-800 dark:text-gray-100;
+}
+
+.table-cell-center {
+  @apply text-center;
+}
+
+/* 表格头部悬停效果 */
+.table-head-light th:hover {
+  @apply bg-gray-200 dark:bg-gray-700 transition-colors duration-200;
+}
+
+/* 表格行悬停效果 */
+.table-row-hover:hover {
+  @apply bg-gray-50 dark:bg-gray-900 transition-colors duration-200;
+}
