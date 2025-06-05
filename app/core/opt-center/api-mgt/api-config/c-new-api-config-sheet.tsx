@@ -380,6 +380,7 @@ export function CNewApiConfigSheet({
                             <SelectContent>
                               <SelectItem value="tif">tif</SelectItem>
                               <SelectItem value="shp">shp</SelectItem>
+                              <SelectItem value="rtmp">rtmp</SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>

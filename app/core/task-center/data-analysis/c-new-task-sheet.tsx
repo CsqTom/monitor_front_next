@@ -328,6 +328,14 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                                             onUrlSubmit={(url) => handleUrlSubmit(userData.data_para_key, url)}
                                         />
                                     )}
+                                    {userData.data_format === 'rtmp' && (
+                                        <HttpInputComponent 
+                                            need_check={ userData.data_para_key.includes('src') }
+                                            all_len={userData.all_len}
+                                            format={userData.data_format}
+                                            onUrlSubmit={(url) => handleUrlSubmit(userData.data_para_key, url)}
+                                        />
+                                    )}
                                     {/* TODO: Add more conditions for other formats or all_len values if necessary */}
                                 </div>
                             ))}

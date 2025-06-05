@@ -396,6 +396,7 @@ export function CEditApiConfigSheet({
                                 <SelectContent>
                                   <SelectItem value="tif">tif</SelectItem>
                                   <SelectItem value="http">http</SelectItem>
+                                  <SelectItem value="rtmp">rtmp</SelectItem>
                                 </SelectContent>
                                 </div>
                               </Select>
