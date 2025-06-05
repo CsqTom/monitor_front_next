@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw } from 'lucide-react';
+import VideoPlayerExample from '@/components/task/video-player-example';
 
 export default function ExamplePage() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -112,6 +113,7 @@ export default function ExamplePage() {
             </PageTransition>
           </TabsContent>
         </Tabs>
+        <VideoPlayerExample />
       </div>
     </PageTransition>
   );

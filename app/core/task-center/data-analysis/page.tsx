@@ -21,6 +21,7 @@ import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/compon
 import {QPagination} from "@/components/ui/pagination";
 import {NewTaskSheet} from "./c-new-task-sheet";
 import CTaskDetailChangeDetection from "./c-task-change-detection";
+import CTaskObjectVideoDialog from "./c-task-object-video-dialog";
 import { PageTransition } from "@/components/ui/page-transition";
 import { Card } from "@/components/ui/card";
 
@@ -56,6 +57,7 @@ export default function Page() {
     const [toDelete, setToDelete] = useState<TaskData | null>(null);
     const [isNewSheetOpen, setIsNewSheetOpen] = useState(false);
     const [isChangeDetailOpen, setIsChangeDetailOpen] = useState(false);
+    const [isVideoDetailOpen, setIsVideoDetailOpen] = useState(false);
     const [selectedTaskForDetail, setSelectedTaskForDetail] = useState<TaskData | null>(null);
 
     // 从后端获取数据
@@ -120,6 +122,8 @@ export default function Page() {
                 return "变化检测";
             case 1:
                 return "目标检测-视频";
+            case 20:
+                return "视频对象检测";
             case 2:
                 return "2";
             case 3:
@@ -132,6 +136,15 @@ export default function Page() {
     const handleViewChangeDetectionDetail = (task: TaskData) => {
         setSelectedTaskForDetail(task);
         setIsChangeDetailOpen(true);
+    };
+
+    const handleViewTaskDetail = (task: TaskData) => {
+        setSelectedTaskForDetail(task);
+        if (task.task_type === 0) {
+            setIsChangeDetailOpen(true);
+        } else if (task.task_type === 20) {
+            setIsVideoDetailOpen(true);
+        }
     };
 
     const handleNew = () => {
@@ -257,13 +270,9 @@ export default function Page() {
                                 )}
                             </TableCell>
                             <TableCell className="text-center space-x-1">
-                                {task.task_type === 0 ? (
-                                    <Button variant="outline" size="sm" onClick={() => handleViewChangeDetectionDetail(task)}>
-                                        <Eye className="mr-1 h-4 w-4"/> 查看
-                                    </Button>
-                                ) : (
-                                    <Button variant="outline" size="sm" onClick={() => setSelectedTaskForDetail(task)}>详情</Button>
-                                )}
+                                <Button variant="outline" size="sm" onClick={() => handleViewTaskDetail(task)}>
+                                    <Eye className="mr-1 h-4 w-4"/> 查看
+                                </Button>
                                 <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(task)}><Trash2
                                     className="mr-1 h-4 w-4"/> 删除</Button>
                             </TableCell>
@@ -317,6 +326,18 @@ export default function Page() {
                     isOpen={isChangeDetailOpen}
                     onClose={() => {
                         setIsChangeDetailOpen(false);
+                        setSelectedTaskForDetail(null);
+                    }}
+                />
+            )}
+
+            {/*视频对象检测详情对话框*/}
+            {selectedTaskForDetail && isVideoDetailOpen && selectedTaskForDetail?.task_type === 20 && (
+                <CTaskObjectVideoDialog
+                    taskId={selectedTaskForDetail.task_id}
+                    isOpen={isVideoDetailOpen}
+                    onClose={() => {
+                        setIsVideoDetailOpen(false);
                         setSelectedTaskForDetail(null);
                     }}
                 />
