@@ -27,9 +27,6 @@ interface FlvPlayerProps {
 let flvjs: any;
 
 const maxReloadCount = 100; //最大重连次数
-let count = 0;
-let lastDecodedFrames = 0;
-let stuckTime = 0;
 
 const liveOptimizeConfig = {
   //启用 IO 存储缓冲区。如果您需要实时（最小延迟）进行实时流播放，则设置为 false，但如果存在网络抖动，则可能会停止。
@@ -42,7 +39,6 @@ const liveOptimizeConfig = {
   autoCleanupMaxBackwardDuration: 60, //    当向后缓冲区持续时间超过此值（以秒为单位）时，请对SourceBuffer进行自动清理
   autoCleanupMinBackwardDuration: 40, //     指示进行自动清除时为反向缓冲区保留的持续时间（以秒为单位）。
 };
-let flvPlayer: any;
 
 const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
   const {
@@ -64,6 +60,10 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
   } = props;
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const flvPlayerRef = useRef<any>(null);
+  const countRef = useRef<number>(0);
+  const lastDecodedFramesRef = useRef<number>(0);
+  const stuckTimeRef = useRef<number>(0);
   const [muted, setMuted] = useState(true);
 
   useEffect(() => {
@@ -87,13 +87,13 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
       });
     }
     return () => {
-      if (flvPlayer) {
+      if (flvPlayerRef.current) {
         // 销毁player
-        flvPlayer?.pause();
-        flvPlayer?.unload();
-        flvPlayer?.detachMediaElement();
-        flvPlayer?.destroy();
-        flvPlayer = null;
+        flvPlayerRef.current?.pause();
+        flvPlayerRef.current?.unload();
+        flvPlayerRef.current?.detachMediaElement();
+        flvPlayerRef.current?.destroy();
+        flvPlayerRef.current = null;
       }
       if (videoRef.current) {
         // 销毁video
@@ -112,7 +112,7 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
     try {
       flvjs = (await import('flv.js')).default;
       if (flvjs.isSupported() && videoRef.current) {
-        flvPlayer = flvjs.createPlayer(
+        flvPlayerRef.current = flvjs.createPlayer(
           {
             type,
             url,
@@ -124,37 +124,38 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
             ...(isLive ? liveOptimizeConfig : {}),
           },
         );
-        flvPlayer.attachMediaElement(videoRef.current);
-        flvPlayer.unload();
-        flvPlayer.load();
+        console.log('flv.js is support', url, flvPlayerRef.current);
+        flvPlayerRef.current.attachMediaElement(videoRef.current);
+        flvPlayerRef.current.unload();
+        flvPlayerRef.current.load();
 
-        const playPromise = flvPlayer.play();
+        const playPromise = flvPlayerRef.current.play();
 
         if (playPromise !== undefined) {
           console.log(' 😈😈', playPromise);
           playPromise
             .then(() => {
-              console.log('播放成功', flvPlayer);
+              console.log('播放成功', flvPlayerRef.current);
             })
             .catch((e: any) => {
               console.log('播放失败', e);
             });
         }
 
-        flvPlayer.on(flvjs.Events.STATISTICS_INFO, (info: any) => {
+        flvPlayerRef.current.on(flvjs.Events.STATISTICS_INFO, (info: any) => {
           checkStuck(info);
         });
-        flvPlayer.on(flvjs.Events.RECOVERED_EARLY_EOF, (info: any) => {
+        flvPlayerRef.current.on(flvjs.Events.RECOVERED_EARLY_EOF, (info: any) => {
           console.log('RECOVERED_EARLY_EOF', info);
         });
-        // flvPlayer.on('error', err => {
+        // flvPlayerRef.current.on('error', err => {
         //   console.log('ERROR🤖', err)
         // })
-        flvPlayer.on(flvjs.Events.ERROR, (err: any) => {
-          // flvPlayer.destroy()
+        flvPlayerRef.current.on(flvjs.Events.ERROR, (err: any) => {
+          // flvPlayerRef.current.destroy()
 
           console.log('flvjs.Events.ERROR👻', err);
-          if (count <= maxReloadCount) {
+          if (countRef.current <= maxReloadCount) {
             // 重连
             rebuild();
           } else {
@@ -174,23 +175,23 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
 
   function checkStuck(info: any) {
     const { decodedFrames } = info;
-    let player = flvPlayer;
+    let player = flvPlayerRef.current;
     if (!player) return;
 
-    if (lastDecodedFrames === decodedFrames) {
+    if (lastDecodedFramesRef.current === decodedFrames) {
       // 可能卡住了，重载
-      stuckTime++;
-      console.log(`stuckTime${stuckTime},${new Date()}`);
+      stuckTimeRef.current++;
+      console.log(`stuckTime${stuckTimeRef.current},${new Date()}`);
 
-      if (stuckTime > 5) {
+      if (stuckTimeRef.current > 5) {
         console.log(`%c卡住，重建视频`, 'background:red;color:#fff', new Date());
         // 先destroy，再重建player实例
-        stuckTime = 0;
+        stuckTimeRef.current = 0;
         rebuild();
       }
     } else {
-      lastDecodedFrames = decodedFrames;
-      stuckTime = 0;
+      lastDecodedFramesRef.current = decodedFrames;
+      stuckTimeRef.current = 0;
       if (player && player?.buffered?.length > 0) {
         let end = player.buffered.end(0); //获取当前buffered值(缓冲区末尾)
         let delta = end - player.currentTime; //获取buffered与当前播放位置的差值
@@ -215,14 +216,14 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
   const rebuild = () => {
     // 可以防止内存泄漏 摧毁重载一次整个flvjsplayer实例
     try {
-      count++;
-      if (flvPlayer) {
-        console.log('😭触发重连操作', count);
-        flvPlayer?.pause();
-        flvPlayer?.unload();
-        flvPlayer?.detachMediaElement();
-        flvPlayer?.destroy();
-        flvPlayer = null;
+      countRef.current++;
+      if (flvPlayerRef.current) {
+        console.log('😭触发重连操作', countRef.current);
+        flvPlayerRef.current?.pause();
+        flvPlayerRef.current?.unload();
+        flvPlayerRef.current?.detachMediaElement();
+        flvPlayerRef.current?.destroy();
+        flvPlayerRef.current = null;
         init();
       }
     } catch (error) {
