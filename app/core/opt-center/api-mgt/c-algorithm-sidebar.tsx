@@ -46,7 +46,7 @@ export function CAlgorithmSidebar({
       <Card className="h-full">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">算法大类</CardTitle>
+            <CardTitle className="text-l">算法大类</CardTitle>
             <Button 
               size="sm"
               onClick={() => setIsNewModelTypeSheetOpen(true)}

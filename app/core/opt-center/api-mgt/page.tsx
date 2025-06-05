@@ -114,9 +114,9 @@ export default function ApiMgtPage() {
   return (
     <PageTransition animationType="scale" duration="default">
     <Card>
-    <div className="p-3 space-y-3">
+    <div className="px-6 space-y-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">API管理</h1>
+        <h1 className="text-2l font-bold">API管理</h1>
       </div>
 
       <div className="flex gap-3 h-[calc(100vh-200px)]">

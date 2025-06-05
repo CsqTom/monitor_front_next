@@ -26,7 +26,7 @@ export function CAlgorithmTabs({
     <Card className="h-full">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">{selectedModelType.name}</h2>
+          <h2 className="text-l font-semibold">{selectedModelType.name}</h2>
           <div className="text-sm text-muted-foreground">ID: {selectedModelType.id}</div>
         </div>
       </CardHeader>

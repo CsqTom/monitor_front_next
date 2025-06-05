@@ -181,9 +181,9 @@ export default function Page() {
     return (
         <PageTransition animationType="scale" duration="default">
         <Card>
-        <div>
+        <div className="px-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-semibold">数据分析任务</h1>
+                <h1 className="text-l font-semibold">数据分析任务</h1>
                 <div className="space-x-2">
                     <Button onClick={handleNew} variant="outline">
                         <PlusCircle className="mr-2 h-4 w-4"/> 新建任务

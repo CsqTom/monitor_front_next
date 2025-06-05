@@ -127,9 +127,9 @@ export default function Page() {
     return (
         <PageTransition animationType="scale" duration="default">
         <Card>
-        <div className="container mx-auto py-3">
+        <div className="container mx-auto px-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-semibold">用户管理</h1>
+                <h1 className="text-l font-semibold">用户管理</h1>
                 <div className="space-x-2">
                     <Button onClick={handleNew} variant="outline">
                         <PlusCircle className="mr-2 h-4 w-4"/> 新建用户

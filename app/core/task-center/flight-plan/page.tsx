@@ -156,9 +156,9 @@ export default function Page() {
   return (
     <PageTransition animationType="scale" duration="default">
     <Card>
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto px-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">飞行计划列表</h1>
+        <h1 className="text-l font-bold">飞行计划列表</h1>
         <div className="flex space-x-2">
           <Button onClick={() => setIsNewPlanSheetOpen(true)} variant="default" size="sm">
             <Plus className="h-4 w-4 mr-2" />
