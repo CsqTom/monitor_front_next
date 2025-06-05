@@ -61,12 +61,13 @@ export default function Page() {
     // 从后端获取数据
     const handleRefresh = async (page: number, pageSize: number = 10, is_show_success: boolean = false) => {
         try {
+            const type_str =  Array.from({ length: 100 }, (_, i) => i).join(',');// 0,1,xxx,99
             const response = await apiRequest<PagTaskData>({
                 url: '/task/all_page', // Replace with actual delete endpoint
                 method: 'GET',
                 params: {
                     page, pageSize, 
-                    task_type: "0,1,2,3,4", 
+                    task_type: type_str,
                     project_id: localStorage.getItem("project_id") || 0
                 },
             });
@@ -306,7 +307,7 @@ export default function Page() {
             </AlertDialog>
 
             {/*变化检测详情对话框*/}
-            {selectedTaskForDetail && isChangeDetailOpen && (
+            {selectedTaskForDetail && isChangeDetailOpen && selectedTaskForDetail?.task_type === 0 && (
                 <CTaskDetailChangeDetection
                     taskId={selectedTaskForDetail.task_id}
                     taskName={selectedTaskForDetail.name}

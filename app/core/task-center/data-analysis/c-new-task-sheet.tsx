@@ -79,7 +79,7 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
     const [userDataConfigs, setUserDataConfigs] = useState<UserData[]>([]);
 
     const [httpUrls, setHttpUrls] = useState<Record<string, string>>({});
-    const [imageInfo, setImageInfo] = useState<Record<string, string>>({});
+    const [imageInfo, setImageInfo] = useState<Record<string, string>>({});  // 多个合成一个项
     const {toast} = useToast();
 
     // 获取API配置
@@ -160,8 +160,10 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
         }
     };
 
-    const handleUrlSubmit = (dataParaKey: string, url: string) => {
-        setHttpUrls(prev => ({...prev, [dataParaKey]: url}));
+    const handleUrlSubmit = (key: string, url: string, is_active: boolean | undefined) => {
+        console.log("handleUrlSubmit", key, url, is_active);
+        if (!is_active) return;
+        setHttpUrls(prev => ({...prev, [key]: url}));
     };
 
     const handleCreate = async () => {
@@ -213,6 +215,24 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                     });
                     return;
                 }
+            } else if (userData.data_format === 'rtmp') {
+                if (! httpUrls[userData.data_para_key]) {
+                    toast({
+                        title: '验证失败',
+                        description: `请输入${userData.data_para_key}参数的HTTP地址`,
+                        variant: 'destructive',
+                    });
+                    return;
+                }
+            }
+            else {
+                console.log("暂不支持该格式的数据输入");
+                toast({
+                    title: '验证失败',
+                    description: `暂不支持${userData.data_format}格式的数据输入`,
+                    variant: 'destructive',
+                });
+                return;
             }
         }
 
@@ -231,16 +251,36 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
             // 获取选中API配置的class_code_key和算法类别的class_code
             const classCodeKey = algorithmSelection.algorithmApi?.classCodeKey || 'model_sign';
             const classCodeValue = algorithmSelection.algorithmCategory?.classCode || 'building_change';
+
+            const make_task_type_id = ()=> {
+                if (algorithmSelection.algorithmType?.name.includes('变化')) {
+                    if (classCodeValue === 'building_change') return 0; // 违建
+                } else if (algorithmSelection.algorithmType?.name.includes('目标')) {
+                    if (algorithmSelection.algorithmApi?.name.includes('视频')) return 20; // 视频流
+                }
+
+                return -1;
+            }
+            const task_type_id = make_task_type_id();
+            if (task_type_id === -1) {
+                toast({
+                    title: '验证失败',
+                    description: '暂时不支持该算法类型，请联系开发人员',
+                    variant: 'destructive',
+                });
+                return;
+            }
             
             // 构建请求参数
             const requestData = {
                 project_id: localStorage.getItem('project_id') || 1,
                 ai_config_id: algorithmSelection.algorithmApi?.id || 0,
                 task_name: taskName,
-                image_info: imageInfo, // 直接使用 imageInfo，它应该是 { data_para_key: "file_ids" } 的形式
+                image_info: task_type_id === 0 ? imageInfo : httpUrls, // 直接使用 imageInfo，它应该是 { data_para_key: "file_ids" } 的形式
                 class_codes: {
                     [classCodeKey]: classCodeValue
-                }
+                },
+                task_type: task_type_id,
             };
 
             console.log('创建任务请求参数:', requestData);
@@ -324,8 +364,10 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                                     )}
                                     {userData.data_format === 'http' && (
                                         <HttpInputComponent
+                                            need_check={ userData.data_para_key.includes('src') }
                                             all_len={userData.all_len}
-                                            onUrlSubmit={(url) => handleUrlSubmit(userData.data_para_key, url)}
+                                            format={userData.data_format}
+                                            onUrlSubmit={(url, is_active) => handleUrlSubmit(userData.data_para_key, url, is_active)}
                                         />
                                     )}
                                     {userData.data_format === 'rtmp' && (
@@ -333,7 +375,7 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                                             need_check={ userData.data_para_key.includes('src') }
                                             all_len={userData.all_len}
                                             format={userData.data_format}
-                                            onUrlSubmit={(url) => handleUrlSubmit(userData.data_para_key, url)}
+                                            onUrlSubmit={(url, is_active) => handleUrlSubmit(userData.data_para_key, url, is_active)}
                                         />
                                     )}
                                     {/* TODO: Add more conditions for other formats or all_len values if necessary */}

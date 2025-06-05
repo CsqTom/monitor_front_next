@@ -17,14 +17,20 @@ interface HttpInputProps {
 const HttpInputComponent: React.FC<HttpInputProps> = ({need_check, all_len, format, onUrlSubmit}) => {
     const [url, setUrl] = useState('');
     const [isChecking, setIsChecking] = useState(false);
-    const [isValid, setIsValid] = useState<boolean | null>(null);
+    const [isValid, setIsValid] = useState<boolean | null>(null); // null表示还没有验证，true表示验证成功，false表示验证失败
     const [errorMessage, setErrorMessage] = useState('');
     const { toast } = useToast();
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     // 自动提交函数
     const handleSubmit = () => {
-        onUrlSubmit(url, isValid);
+        console.log('http handleSubmit', url, isValid);
+        // 确保 url 不为空，即使 isValid 为 false 或 null
+        if (!url) {
+            console.log('http handleSubmit: url is empty');
+            return;
+        }
+        onUrlSubmit(url, isValid === true);
     };
 
     // 检查URL格式是否符合要求
@@ -37,7 +43,7 @@ const HttpInputComponent: React.FC<HttpInputProps> = ({need_check, all_len, form
 
     const checkHttpUrl = async (url: string) => {
         setIsChecking(true);
-        setIsValid(null);
+        setIsValid(false);
         setErrorMessage('');
         
         try {
@@ -64,8 +70,8 @@ const HttpInputComponent: React.FC<HttpInputProps> = ({need_check, all_len, form
                     response.body.cancel();
                 }
                 
-                // 验证成功后自动提交
-                handleSubmit();
+                // 验证成功后直接调用 onUrlSubmit，传入当前 url 参数
+                onUrlSubmit(url, true);
                 return true;
             } catch (error) {
                 // 如果使用no-cors模式仍然失败，尝试使用默认模式（可能会受到CORS限制）
@@ -88,8 +94,8 @@ const HttpInputComponent: React.FC<HttpInputProps> = ({need_check, all_len, form
                             description: '该地址可以访问'
                         });
                         
-                        // 验证成功后自动提交
-                        handleSubmit();
+                        // 验证成功后直接调用 onUrlSubmit，传入当前 url 参数
+                        onUrlSubmit(url, true);
                         return true;
                     } else {
                         throw new Error(`HTTP错误: ${directResponse.status}`);
@@ -126,8 +132,8 @@ const HttpInputComponent: React.FC<HttpInputProps> = ({need_check, all_len, form
                 description: '流媒体地址格式正确，但无法验证连接性'
             });
             
-            // 验证成功后自动提交
-            handleSubmit();
+            // 验证成功后直接调用 onUrlSubmit，传入当前 url 参数
+            onUrlSubmit(url, true);
             return true;
         } else {
             setIsValid(false);
@@ -142,7 +148,8 @@ const HttpInputComponent: React.FC<HttpInputProps> = ({need_check, all_len, form
     };
 
     // 自动验证函数
-    const autoCheckUrl = async () => {
+    const autoCheckUrl = async (url: string) => {
+        console.log('http autoCheckUrl now', url);
         if (!url) {
             return;
         }
@@ -165,6 +172,7 @@ const HttpInputComponent: React.FC<HttpInputProps> = ({need_check, all_len, form
     const changeUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
         const net_addr = e.target.value;
         setUrl(net_addr);
+        console.log('http changeUrl', net_addr);
         
         // 重置状态
         setIsChecking(false);
@@ -183,7 +191,8 @@ const HttpInputComponent: React.FC<HttpInputProps> = ({need_check, all_len, form
                 // 设置一个短暂的延迟，让用户有机会完成输入
                 debounceTimerRef.current = setTimeout(() => {
                     setIsValid(true);
-                    handleSubmit();
+                    // 直接调用 onUrlSubmit，传入当前的 net_addr
+                    onUrlSubmit(net_addr, true);
                 }, 500);
             } else {
                 setIsChecking(false);
@@ -195,9 +204,15 @@ const HttpInputComponent: React.FC<HttpInputProps> = ({need_check, all_len, form
         
         // 如果需要验证，设置防抖定时器，停止输入2秒后自动验证
         if (net_addr && checkUrlFormat(net_addr)) {
+            console.log('start autoCheckUrl', net_addr);
             debounceTimerRef.current = setTimeout(() => {
-                autoCheckUrl();
+                autoCheckUrl(net_addr);
             }, 2000); // 2秒后自动验证
+        }
+        else {
+            setIsChecking(false);
+            setIsValid(false);
+            setErrorMessage('请输入正确的网络地址');
         }
     };
 
