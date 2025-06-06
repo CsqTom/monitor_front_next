@@ -153,7 +153,6 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
   // }, [isOpen, taskData]);
 
 
-
   // 停止任务
   const handleStopTask = async () => {
     if (!taskData) return;
@@ -217,14 +216,14 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
         )}
 
         {error && (
-          <div className="flex-grow flex items-center justify-center text-red-500">
+          <div className="flex-grow flex items-center justify-center text-red-500 ">
             加载失败: {error}
           </div>
         )}
 
         {!loading && !error && taskData && (
           <>
-            <div className="px-6 pb-3 grid grid-cols-1 md:grid-cols-3 gap-4 border-b drank:bg-black-100">
+            <div className="px-6 pb-3 grid grid-cols-1 md:grid-cols-3 gap-4 border-b drank:bg-black-100  text-sm">
               <div><span>任务ID:</span> {taskData.task_id || 'N/A'}</div>
               <div><span>任务名称:</span> {taskData.name || 'N/A'}</div>
               <div><span>任务状态:</span> {getStatusText(taskData.status)}</div>
@@ -235,7 +234,7 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
             </div>
 
             <div className="flex-grow px-6 overflow-auto">
-              <Tabs defaultValue="video" className="w-full">                
+              <Tabs defaultValue={taskData.status === 200 ? "results" : "video"} className="w-full">                
                 <TabsList className="mb-4">                  
                   <TabsTrigger value="video"><Video className="h-4 w-4 mr-2" />实时视频</TabsTrigger>                  
                   <TabsTrigger value="results"><Image className="h-4 w-4 mr-2" />检测结果</TabsTrigger>                  
@@ -256,7 +255,7 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
                           destroy={destroyVideo}
                         />
                       ) : (
-                        <div className="text-center p-4 bg-gray-100 rounded-md">
+                        <div className="text-center p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
                           未找到有效的视频流地址 / {taskData.msg || ''}
                         </div>
                       )}
@@ -283,13 +282,13 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
                       <CardTitle>任务参数</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         {parsedParams && (
                           <>
                             <div><span className="font-semibold">源视频流:</span> {parsedParams.src_url || 'N/A'}</div>
                             <div><span className="font-semibold">结果视频流:</span> {parsedParams.dst_url || 'N/A'}</div>
                             <div><span className="font-semibold">类别代码:</span> {parsedParams.class_codes || 'N/A'}</div>
-                            <div><span className="font-semibold">结果文件夹:</span> {parsedParams.result_folder || 'N/A'}</div>
+                            <div className='truncate'><span className="font-semibold">结果文件夹:</span> {parsedParams.result_folder || 'N/A'}</div>
                           </>
                         )}
                         {!parsedParams && <div>无法解析任务参数</div>}

@@ -4,11 +4,11 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pagination } from "@/components/ui/pagination";
+import { QPagination } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ChevronLeft, ChevronRight, ZoomIn, Download } from "lucide-react";
+import { Loader2, ZoomIn, Download } from "lucide-react";
 import { apiRequest } from "@/lib/api_client";
 
 interface VideoResult {
@@ -154,7 +154,7 @@ const VideoResultGallery = ({ taskId }: { taskId: string | number }) => {
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium">视频检测结果 {imageCount > 0 ? `(${imageCount}张)` : ''}</h3>
+        <h3 className="font-medium">视频检测结果 {imageCount > 0 ? `(${imageCount}张)` : ''}</h3>
         <Button 
           variant="outline" 
           size="sm" 
@@ -187,7 +187,7 @@ const VideoResultGallery = ({ taskId }: { taskId: string | number }) => {
 
       {results && results.files.length > 0 && (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             {results.files.map((file) => (
               <Card key={file.filename} className="overflow-hidden">
                 <CardContent className="p-2">
@@ -234,27 +234,12 @@ const VideoResultGallery = ({ taskId }: { taskId: string | number }) => {
 
           {results.total_pages > 1 && (
             <div className="flex justify-center mt-6">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <span className="text-sm">
-                  第 {page} 页，共 {results.total_pages} 页
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page === results.total_pages}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+              <QPagination
+                current={page}
+                pages={results.total_pages}
+                total={results.total}
+                onPageChange={handlePageChange}
+              />
             </div>
           )}
         </>
