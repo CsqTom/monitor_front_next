@@ -82,7 +82,7 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
     // 不暂停直播流
     if (videoRef?.current) {
       videoRef?.current?.addEventListener('pause', () => {
-        console.log('暂停了，继续播放');
+        // console.log('暂停了，继续播放');
         videoRef.current?.play();
       });
     }
@@ -108,7 +108,7 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
   }, [url]);
 
   const init = async () => {
-    console.log('加载直播流--------------------------------------------------------');
+    // console.log('加载直播流--------------------------------------------------------');
     try {
       flvjs = (await import('flv.js')).default;
       if (flvjs.isSupported() && videoRef.current) {
@@ -124,7 +124,6 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
             ...(isLive ? liveOptimizeConfig : {}),
           },
         );
-        console.log('flv.js is support', url, flvPlayerRef.current);
         flvPlayerRef.current.attachMediaElement(videoRef.current);
         flvPlayerRef.current.unload();
         flvPlayerRef.current.load();
@@ -204,7 +203,7 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
         }
         // 追帧
         if (delta > 1) {
-          console.log('追帧', delta);
+          // console.log('追帧', delta);
           player.playbackRate = 1.1;
         } else {
           player.playbackRate = 1;

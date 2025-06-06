@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/api_client';
 import VideoPlayer from '@/components/task/video-player';
+import VideoResultGallery from '@/components/task/video-result-gallery';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Video, Image } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface VideoTaskData {
   id: number;
@@ -183,66 +185,81 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
 
         {!loading && !error && taskData && (
           <>
-            <div className="pl-6 pr-6 pb-3 grid grid-cols-1 md:grid-cols-3 gap-4 border-b">
-              <div><span className="font-semibold">任务ID:</span> {taskData.task_id || 'N/A'}</div>
-              <div><span className="font-semibold">任务名称:</span> {taskData.name || 'N/A'}</div>
-              <div><span className="font-semibold">任务状态:</span> {getStatusText(taskData.status)}</div>
-              <div><span className="font-semibold">进度:</span> {taskData.percent}%</div>
-              <div><span className="font-semibold">创建时间:</span> {taskData.create_time || 'N/A'}</div>
-              <div><span className="font-semibold">更新时间:</span> {taskData.update_time || 'N/A'}</div>
+            <div className="px-6 pb-3 grid grid-cols-1 md:grid-cols-3 gap-4 border-b drank:bg-black-100">
+              <div><span>任务ID:</span> {taskData.task_id || 'N/A'}</div>
+              <div><span>任务名称:</span> {taskData.name || 'N/A'}</div>
+              <div><span>任务状态:</span> {getStatusText(taskData.status)}</div>
+              <div><span>进度:</span> {taskData.percent}%</div>
+              <div><span>创建时间:</span> {taskData.create_time || 'N/A'}</div>
+              <div><span>更新时间:</span> {taskData.update_time || 'N/A'}</div>
+              <div><span>任务消息:</span> {taskData.msg|| 'N/A'}</div>
             </div>
 
-            <div className="flex-grow p-6 overflow-auto">
-              <Card className="mb-4">
-                <CardHeader>
-                  <CardTitle>视频流</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {parsedParams ? (
-                    <VideoPlayer 
-                      src_url={parsedParams.src_url} 
-                      dst_url={parsedParams.dst_url}
-                      width="100%"
-                      height="360px"
-                      destroy={destroyVideo}
-                    />
-                  ) : (
-                    <div className="text-center p-4 bg-gray-100 rounded-md">
-                      未找到有效的视频流地址
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+            <div className="flex-grow px-6 overflow-auto">
+              <Tabs defaultValue="video" className="w-full">                
+                <TabsList className="mb-4">                  
+                  <TabsTrigger value="video"><Video className="h-4 w-4 mr-2" />实时视频</TabsTrigger>                  
+                  <TabsTrigger value="results"><Image className="h-4 w-4 mr-2" />检测结果</TabsTrigger>                  
+                  <TabsTrigger value="params">任务参数</TabsTrigger>                
+                </TabsList>
+                <TabsContent value="video" className="mt-0">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>实时视频流</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {parsedParams ? (
+                        <VideoPlayer 
+                          src_url={parsedParams.src_url} 
+                          dst_url={parsedParams.dst_url}
+                          width="100%"
+                          height="360px"
+                          destroy={destroyVideo}
+                        />
+                      ) : (
+                        <div className="text-center p-4 bg-gray-100 rounded-md">
+                          未找到有效的视频流地址
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="results" className="mt-0">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>检测结果图片</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {taskData && (
+                        <VideoResultGallery taskId={taskData.task_id} />
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="params" className="mt-0">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>任务参数</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {parsedParams && (
+                          <>
+                            <div><span className="font-semibold">源视频流:</span> {parsedParams.src_url || 'N/A'}</div>
+                            <div><span className="font-semibold">结果视频流:</span> {parsedParams.dst_url || 'N/A'}</div>
+                            <div><span className="font-semibold">类别代码:</span> {parsedParams.class_codes || 'N/A'}</div>
+                            <div><span className="font-semibold">结果文件夹:</span> {parsedParams.result_folder || 'N/A'}</div>
+                          </>
+                        )}
+                        {!parsedParams && <div>无法解析任务参数</div>}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>任务参数</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {parsedParams && (
-                      <>
-                        <div><span className="font-semibold">源视频流:</span> {parsedParams.src_url || 'N/A'}</div>
-                        <div><span className="font-semibold">结果视频流:</span> {parsedParams.dst_url || 'N/A'}</div>
-                        <div><span className="font-semibold">类别代码:</span> {parsedParams.class_codes || 'N/A'}</div>
-                        <div><span className="font-semibold">结果文件夹:</span> {parsedParams.result_folder || 'N/A'}</div>
-                      </>
-                    )}
-                    {!parsedParams && <div>无法解析任务参数</div>}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {taskData.msg && (
-                <Card className="mt-4">
-                  <CardHeader>
-                    <CardTitle>任务消息</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="p-2 bg-gray-50 rounded border">{taskData.msg}</div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           </>
         )}
