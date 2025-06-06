@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { apiRequest, request } from '@/lib/api_client';
 import { useToast } from '@/hooks/use-toast';
@@ -58,9 +59,9 @@ export interface AlgorithmSelectionResult {
         configId: number; // config.id
     } | null;
     algorithmCategory: {
-        id: number;
-        name: string;
-        classCode: string; // category.class_code
+        id: string; // 多选时为最后选中的id，单选时为选中的id
+        name: string; // 多选时格式"id1:name1,id2:name2"，单选时为选中的name
+        classCode: string; // 多选时格式"class_code1,class_code2"，单选时为选中的class_code
     } | null;
     algorithmApi: {
         id: number;
@@ -88,6 +89,7 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
     const [projectConfigs, setProjectConfigs] = useState<ProjectAlgorithmConfig[]>([]);
     const [selectedAlgorithmType, setSelectedAlgorithmType] = useState<string>(initialSelection?.algorithmType || '');
     const [selectedAlgorithmCategory, setSelectedAlgorithmCategory] = useState<string>(initialSelection?.algorithmCategory || '');
+    const [selectedAlgorithmCategories, setSelectedAlgorithmCategories] = useState<string[]>([]); // 多选类别
     const [selectedApiConfig, setSelectedApiConfig] = useState<string>(initialSelection?.algorithmApi || '');
     const [availableCategories, setAvailableCategories] = useState<ClassCode[]>([]);
     const [availableApiConfigs, setAvailableApiConfigs] = useState<ApiConfig[]>([]);
@@ -127,6 +129,11 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
         fetchProjectConfigs();
     }, [toast]); // 移除selectedAlgorithmType依赖项，避免循环更新
 
+    // 判断是否支持多选
+    const isMultiSelectEnabled = (algorithmType: string): boolean => {
+        return algorithmType.includes('目标');
+    };
+
     // 处理算法类型切换
     const handleAlgorithmTypeChange = (type: string) => {
         // 保存当前类型的选择状态
@@ -160,6 +167,20 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
             setSelectedAlgorithmCategory('');
             setSelectedApiConfig('');
         }
+        
+        // 清空多选状态
+        setSelectedAlgorithmCategories([]);
+    };
+
+    // 处理多选类别变化
+    const handleMultiCategoryChange = (categoryClassCode: string, checked: boolean) => {
+        setSelectedAlgorithmCategories(prev => {
+            if (checked) {
+                return [...prev, categoryClassCode];
+            } else {
+                return prev.filter(code => code !== categoryClassCode);
+            }
+        });
     };
 
     // 更新可用的类别和API配置
@@ -175,7 +196,7 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
                 setAvailableCategories(categories);
 
                 // 如果没有设置过类别，则使用默认值
-                if (!selectedAlgorithmCategory && categories.length > 0) {
+                if (!selectedAlgorithmCategory && categories.length > 0 && !isMultiSelectEnabled(selectedAlgorithmType)) {
                     setSelectedAlgorithmCategory(categories[0].class_code);
                 }
 
@@ -234,8 +255,38 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
             const { algorithmType, algorithmCategory, apiConfig, projectConfigs, availableCategories, availableApiConfigs } = selectionRef.current;
             
             const algorithmTypeConfig = projectConfigs.find(config => config.name === algorithmType);
-            const categoryObj = availableCategories.find(category => category.class_code === algorithmCategory);
             const apiConfigObj = availableApiConfigs.find(config => config.id === parseInt(apiConfig));
+
+            let categoryResult = null;
+            
+            if (isMultiSelectEnabled(algorithmType) && selectedAlgorithmCategories.length > 0) {
+                // 多选模式
+                const selectedCategoryObjs = availableCategories.filter(category => 
+                    selectedAlgorithmCategories.includes(category.class_code)
+                );
+                
+                if (selectedCategoryObjs.length > 0) {
+                    const lastSelectedCategory = selectedCategoryObjs[selectedCategoryObjs.length - 1];
+                    const nameFormat = selectedCategoryObjs.map(cat => `${cat.id}:${cat.name}`).join(',');
+                    const classCodeFormat = selectedCategoryObjs.map(cat => cat.class_code).join(',');
+                    
+                    categoryResult = {
+                        id: lastSelectedCategory.id.toString(),
+                        name: nameFormat,
+                        classCode: classCodeFormat
+                    };
+                }
+            } else {
+                // 单选模式
+                const categoryObj = availableCategories.find(category => category.class_code === algorithmCategory);
+                if (categoryObj) {
+                    categoryResult = {
+                        id: categoryObj.id.toString(),
+                        name: categoryObj.name,
+                        classCode: categoryObj.class_code
+                    };
+                }
+            }
 
             return {
                 algorithmType: algorithmTypeConfig ? {
@@ -243,11 +294,7 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
                     name: algorithmTypeConfig.name,
                     configId: algorithmTypeConfig.id
                 } : null,
-                algorithmCategory: categoryObj ? {
-                    id: categoryObj.id,
-                    name: categoryObj.name,
-                    classCode: categoryObj.class_code
-                } : null,
+                algorithmCategory: categoryResult,
                 algorithmApi: apiConfigObj ? {
                     id: apiConfigObj.id,
                     name: apiConfigObj.name,
@@ -257,10 +304,10 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
         };
 
         // 只有当选择真正变化时才通知父组件
-        if (selectedAlgorithmType || selectedAlgorithmCategory || selectedApiConfig) {
+        if (selectedAlgorithmType || selectedAlgorithmCategory || selectedApiConfig || selectedAlgorithmCategories.length > 0) {
             onSelectionChange(getSelectionResult());
         }
-    }, [selectedAlgorithmType, selectedAlgorithmCategory, selectedApiConfig, projectConfigs, availableCategories, availableApiConfigs]);
+    }, [selectedAlgorithmType, selectedAlgorithmCategory, selectedApiConfig, selectedAlgorithmCategories, projectConfigs, availableCategories, availableApiConfigs]);
 
     return (
         <Card>
@@ -301,19 +348,38 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
 
                 {selectedAlgorithmType && availableCategories.length > 0 && (
                     <div className="pt-4">
-                        <Label>算法类别</Label>
-                        <RadioGroup
-                            value={selectedAlgorithmCategory}
-                            onValueChange={setSelectedAlgorithmCategory}
-                            className="flex space-x-4 mt-3"
-                        >
-                            {availableCategories.map((category) => (
-                                <div key={category.id} className="flex items-center space-x-2">
-                                    <RadioGroupItem value={category.class_code} id={`category-${category.id}`} />
-                                    <Label htmlFor={`category-${category.id}`}>{category.name}</Label>
-                                </div>
-                            ))}
-                        </RadioGroup>
+                        <Label>算法类别{isMultiSelectEnabled(selectedAlgorithmType) ? '（多选）' : ''}</Label>
+                        {isMultiSelectEnabled(selectedAlgorithmType) ? (
+                            // 多选模式
+                            <div className="flex flex-wrap gap-4 mt-3">
+                                {availableCategories.map((category) => (
+                                    <div key={category.id} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`category-${category.id}`}
+                                            checked={selectedAlgorithmCategories.includes(category.class_code)}
+                                            onCheckedChange={(checked) => 
+                                                handleMultiCategoryChange(category.class_code, checked as boolean)
+                                            }
+                                        />
+                                        <Label htmlFor={`category-${category.id}`}>{category.name}</Label>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            // 单选模式
+                            <RadioGroup
+                                value={selectedAlgorithmCategory}
+                                onValueChange={setSelectedAlgorithmCategory}
+                                className="flex space-x-4 mt-3"
+                            >
+                                {availableCategories.map((category) => (
+                                    <div key={category.id} className="flex items-center space-x-2">
+                                        <RadioGroupItem value={category.class_code} id={`category-${category.id}`} />
+                                        <Label htmlFor={`category-${category.id}`}>{category.name}</Label>
+                                    </div>
+                                ))}
+                            </RadioGroup>
+                        )}
                     </div>
                 )}
 
