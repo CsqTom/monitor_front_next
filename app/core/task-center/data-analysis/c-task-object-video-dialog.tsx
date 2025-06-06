@@ -8,7 +8,7 @@ import { apiRequest } from '@/lib/api_client';
 import VideoPlayer from '@/components/task/video-player';
 import VideoResultGallery from '@/components/task/video-result-gallery';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Video, Image } from 'lucide-react';
+import { Loader2, Video, Image, Square } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface VideoTaskData {
@@ -52,6 +52,7 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [destroyVideo, setDestroyVideo] = useState<boolean>(false);
+  const [stopping, setStopping] = useState<boolean>(false);
   const { toast } = useToast();
 
   // 解析params_json字符串
@@ -153,11 +154,49 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
 
 
 
+  // 停止任务
+  const handleStopTask = async () => {
+    if (!taskData) return;
+    
+    setStopping(true);
+    try {
+      await apiRequest({
+        url: '/task/stop_task/video',
+        method: 'POST',
+        data: { task_id: taskData.task_id },
+      });
+      
+      toast({
+        title: '成功',
+        description: '任务停止请求已发送',
+        variant: 'default',
+      });
+      
+      // 重新获取任务数据以更新状态
+      await fetchTaskData();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '停止任务失败';
+      toast({
+        title: '错误',
+        description: `停止任务失败: ${errorMessage}`,
+        variant: 'destructive',
+      });
+      console.error('Failed to stop task:', err);
+    } finally {
+      setStopping(false);
+    }
+  };
+
   // 获取任务状态文本
   const getStatusText = (status: number): string => {
     if (status >= 201 && status <= 299) return '处理中';
     if (status === 200) return '已完成';
     return '失败';
+  };
+
+  // 判断任务是否正在处理中
+  const isTaskProcessing = (status: number): boolean => {
+    return status >= 201 && status <= 299;
   };
 
   return (
@@ -208,7 +247,7 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
                       <CardTitle>实时视频流</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {parsedParams ? (
+                      {parsedParams && isTaskProcessing(taskData.status) ? (
                         <VideoPlayer 
                           src_url={parsedParams.src_url} 
                           dst_url={parsedParams.dst_url}
@@ -218,7 +257,7 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
                         />
                       ) : (
                         <div className="text-center p-4 bg-gray-100 rounded-md">
-                          未找到有效的视频流地址
+                          未找到有效的视频流地址 / {taskData.msg || ''}
                         </div>
                       )}
                     </CardContent>
@@ -265,6 +304,26 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
         )}
 
         <DialogFooter className="p-6 pt-3 border-t">
+          {taskData && isTaskProcessing(taskData.status) && (
+            <Button 
+              variant="destructive" 
+              onClick={handleStopTask}
+              disabled={stopping}
+              className="mr-2"
+            >
+              {stopping ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  停止中...
+                </>
+              ) : (
+                <>
+                  <Square className="h-4 w-4 mr-2" />
+                  停止任务
+                </>
+              )}
+            </Button>
+          )}
           <Button variant="outline" onClick={handleClose}>关闭</Button>
         </DialogFooter>
       </DialogContent>
