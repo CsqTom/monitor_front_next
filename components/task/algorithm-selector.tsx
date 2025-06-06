@@ -281,6 +281,24 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
                     </RadioGroup>
                 </div>
 
+                {selectedAlgorithmType && availableApiConfigs.length > 0 && (
+                    <div className="pt-4">
+                        <Label>算法API</Label>
+                        <RadioGroup
+                            value={selectedApiConfig}
+                            onValueChange={setSelectedApiConfig}
+                            className="flex space-x-4 mt-3"
+                        >
+                            {availableApiConfigs.map((apiConf) => (
+                                <div key={apiConf.id} className="flex items-center space-x-2">
+                                    <RadioGroupItem value={apiConf.id.toString()} id={`api-${apiConf.id}`} />
+                                    <Label htmlFor={`api-${apiConf.id}`}>{apiConf.name}</Label>
+                                </div>
+                            ))}
+                        </RadioGroup>
+                    </div>
+                )}
+
                 {selectedAlgorithmType && availableCategories.length > 0 && (
                     <div className="pt-4">
                         <Label>算法类别</Label>
@@ -299,23 +317,6 @@ export function AlgorithmSelector({ onSelectionChange, initialSelection }: Algor
                     </div>
                 )}
 
-                {selectedAlgorithmType && availableApiConfigs.length > 0 && (
-                    <div className="pt-4">
-                        <Label>算法API</Label>
-                        <RadioGroup
-                            value={selectedApiConfig}
-                            onValueChange={setSelectedApiConfig}
-                            className="flex space-x-4 mt-3"
-                        >
-                            {availableApiConfigs.map((apiConf) => (
-                                <div key={apiConf.id} className="flex items-center space-x-2">
-                                    <RadioGroupItem value={apiConf.id.toString()} id={`api-${apiConf.id}`} />
-                                    <Label htmlFor={`api-${apiConf.id}`}>{apiConf.name}</Label>
-                                </div>
-                            ))}
-                        </RadioGroup>
-                    </div>
-                )}
             </CardContent>
         </Card>
     );
