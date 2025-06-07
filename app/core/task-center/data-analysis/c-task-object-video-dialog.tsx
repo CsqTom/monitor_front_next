@@ -36,13 +36,13 @@ interface ParsedParamsJson {
 }
 
 interface VideoTaskDetailProps {
-  taskId: string;
+  task: VideoTaskData | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
 const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
-  taskId,
+  task,
   isOpen,
   onClose,
 }) => {
@@ -67,15 +67,17 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
     }
   };
 
-  // 获取任务数据
+  // 获取任务数据（仅在没有传入task时使用）
   const fetchTaskData = async () => {
+    if (!task?.task_id) return;
+    
     setLoading(true);
     setError(null);
     try {
       const response = await apiRequest<VideoTaskData>({
         url: '/task/get',
         method: 'GET',
-        params: { task_id: taskId },
+        params: { task_id: task.task_id },
       });
       
       if (response) {
@@ -116,7 +118,23 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
     }, 100);
   };
 
-  // 组件挂载和isOpen变化时获取数据
+  // 当传入的task数据变化时，更新本地状态
+  useEffect(() => {
+    if (task) {
+      setTaskData(task);
+      setError(null);
+      
+      // 解析params_json
+      if (task.params_json) {
+        const parsed = parseParamsJson(task.params_json);
+        if (parsed) {
+          setParsedParams(parsed);
+        }
+      }
+    }
+  }, [task]);
+
+  // 组件挂载和isOpen变化时的处理
   useEffect(() => {
     const updateSize = () => {
       const newWidth = window.innerWidth * 0.9;
@@ -127,7 +145,10 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
     if (isOpen) {
       updateSize();
       window.addEventListener('resize', updateSize);
-      fetchTaskData();
+      // 如果没有传入task数据，则主动获取
+      if (!task) {
+        fetchTaskData();
+      }
       // 确保打开对话框时视频不是销毁状态
       setDestroyVideo(false);
     } else {
@@ -135,23 +156,7 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
     }
 
     return () => window.removeEventListener('resize', updateSize);
-  }, [isOpen, taskId]);
-
-  // 如果任务状态在201-299之间，定时轮询更新状态
-  // useEffect(() => {
-  //   let intervalId: NodeJS.Timeout | null = null;
-    
-  //   if (isOpen && taskData && taskData.status >= 201 && taskData.status <= 299) {
-  //     intervalId = setInterval(fetchTaskData, 5000); // 每5秒更新一次
-  //   }
-    
-  //   return () => {
-  //     if (intervalId) {
-  //       clearInterval(intervalId);
-  //     }
-  //   };
-  // }, [isOpen, taskData]);
-
+  }, [isOpen, task]);
 
   // 停止任务
   const handleStopTask = async () => {

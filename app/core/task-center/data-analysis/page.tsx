@@ -180,6 +180,11 @@ export default function Page() {
                                     ),
                                 };
                             });
+                            
+                            // 如果当前正在查看的任务被更新，同时更新selectedTaskForDetail
+                            if (selectedTaskForDetail && selectedTaskForDetail.id === updatedTask.id) {
+                                setSelectedTaskForDetail({...selectedTaskForDetail, ...updatedTask});
+                            }
                         }
                     } catch (error) {
                         console.error(`Failed to fetch status for task ${task.task_id}:`, error);
@@ -334,13 +339,13 @@ export default function Page() {
             {/*视频对象检测详情对话框*/}
             {selectedTaskForDetail && isVideoDetailOpen && selectedTaskForDetail?.task_type === 20 && (
                 <CTaskObjectVideoDialog
-                    taskId={selectedTaskForDetail.task_id}
-                    isOpen={isVideoDetailOpen}
-                    onClose={() => {
-                        setIsVideoDetailOpen(false);
-                        setSelectedTaskForDetail(null);
-                    }}
-                />
+                task={selectedTaskForDetail}
+                isOpen={isVideoDetailOpen}
+                onClose={() => {
+                    setIsVideoDetailOpen(false);
+                    setSelectedTaskForDetail(null);
+                }}
+            />
             )}
         </div>
         </Card>
