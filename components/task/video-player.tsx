@@ -86,7 +86,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   // 组件卸载时清理资源
   useEffect(() => {
     return () => {
-      console.log('VideoPlayer组件卸载，清理资源');
       setSrcUrl('');
       setDstUrl('');
     };

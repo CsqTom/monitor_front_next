@@ -210,7 +210,7 @@ export function CClassCodeTable({ modelType, onUpdate }: CClassCodeTableProps) {
                 onDragEnd={handleDragEnd}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, index)}
-                className={`${draggedIndex === index ? 'opacity-50' : ''} ${classCode.isNew ? 'bg-blue-50' : ''}`}
+                className={`${draggedIndex === index ? 'opacity-50' : ''} ${classCode.isNew ? 'bg-blue-50' : ''} dark:bg-muted`}
               >
                 <TableCell className="table-cell-center">
                   <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
@@ -220,7 +220,7 @@ export function CClassCodeTable({ modelType, onUpdate }: CClassCodeTableProps) {
                   <Input
                     value={classCode.name}
                     onChange={(e) => updateField(classCode.id, 'name', e.target.value)}
-                    className="text-center border-0 bg-transparent focus:bg-white focus:border"
+                    className="text-center bg-transparent focus:bg-white focus:border"
                     placeholder="请输入名称"
                   />
                 </TableCell>
@@ -228,7 +228,7 @@ export function CClassCodeTable({ modelType, onUpdate }: CClassCodeTableProps) {
                   <Input
                     value={classCode.class_code}
                     onChange={(e) => updateField(classCode.id, 'class_code', e.target.value)}
-                    className="text-center border-0 bg-transparent focus:bg-white focus:border"
+                    className="text-center bg-transparent focus:bg-white focus:border"
                     placeholder="请输入类别代码"
                   />
                 </TableCell>
