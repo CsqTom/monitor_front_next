@@ -366,11 +366,11 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       }
       
       // 发送请求
-      // await apiRequest({
-      //   url: '/drone/plan',
-      //   method: 'POST',
-      //   data: requestData,
-      // });
+      await apiRequest({
+        url: '/drone/plan',
+        method: 'POST',
+        data: requestData,
+      });
       
       console.log('requestData:', requestData);
       
