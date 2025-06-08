@@ -136,9 +136,9 @@ const ExistingFileDialog: React.FC<ExistingFileDialogProps> = ({ open, onOpenCha
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent style={{ width: dialogSize.width, height: dialogSize.height, maxWidth: dialogSize.width }} className="flex flex-col">
                 <DialogHeader>
-                    <DialogTitle>Select an Existing File</DialogTitle>
+                    <DialogTitle className='text-sm'>请选择图像</DialogTitle>
                     <DialogDescription>
-                        Choose a previously uploaded file from the list below.
+                        从列表中选择已上传的图像.
                     </DialogDescription>
                 </DialogHeader>
                 {/* Conditional rendering for loading and error states, but keep table visible if files exist */}
@@ -154,17 +154,17 @@ const ExistingFileDialog: React.FC<ExistingFileDialogProps> = ({ open, onOpenCha
                      <p className="text-center text-muted-foreground py-4 flex-grow flex items-center justify-center">No files found.</p>
                 )}
                 {(files.length > 0) && (
-                    <RadioGroup value={selectedFileId} onValueChange={setSelectedFileId} className="overflow-y-auto flex-grow">
+                    <RadioGroup value={selectedFileId} onValueChange={setSelectedFileId} className="overflow-y-auto flex-grow text-sm">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[50px] text-center font-bold bg-gray-100">选 择</TableHead>
-                                    <TableHead className='text-center font-bold bg-gray-100'>文 件 名</TableHead>
-                                    <TableHead className='text-center font-bold bg-gray-100'>上 传 时 间</TableHead>
-                                    <TableHead className='text-center font-bold bg-gray-100'>文件大小</TableHead>
-                                    <TableHead className='text-center font-bold bg-gray-100'>经 度</TableHead>
-                                    <TableHead className='text-center font-bold bg-gray-100'>纬 度</TableHead>
-                                    <TableHead className='text-center font-bold bg-gray-100'>地 理 位 置</TableHead>
+                                    <TableHead className="w-[50px] table-head-light">选 择</TableHead>
+                                    <TableHead className='table-head-light'>文 件 名</TableHead>
+                                    <TableHead className='table-head-light'>上 传 时 间</TableHead>
+                                    <TableHead className='table-head-light'>文件大小</TableHead>
+                                    <TableHead className='table-head-light'>经 度</TableHead> 
+                                    <TableHead className='table-head-light'>纬 度</TableHead>
+                                    <TableHead className='table-head-light'>地 理 位 置</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -174,8 +174,8 @@ const ExistingFileDialog: React.FC<ExistingFileDialogProps> = ({ open, onOpenCha
                                             <RadioGroupItem value={file.id.toString()} id={`file-${file.id}`} />
                                         </TableCell>
                                         <TableCell className="font-medium text-center">{file.file_name}</TableCell>
-                                        <TableCell className='text-center'>{new Date(file.upload_time).toLocaleString()}</TableCell>
-                                        <TableCell className='text-center'>{file.size_gb.toFixed(2)} GB</TableCell>
+                                        <TableCell className='table-cell-center'>{new Date(file.upload_time).toLocaleString()}</TableCell>
+                                        <TableCell className='table-cell-center'>{file.size_gb.toFixed(2)} GB</TableCell>
                                         {(() => {
                                             let otherInfoData = { longitude: 'N/A', latitude: 'N/A', address: 'N/A' };
                                             if (file.other_info) {

@@ -57,7 +57,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({all_len, data_para_ke
 
 
     return (
-        <div className={`grid ${gridLayoutClasses} gap-6 py-4`}>
+        <div className={`grid ${gridLayoutClasses} gap-6 py-3`}>
             {Array.from({length: all_len}).map((_, idx) => (
                 <div key={idx}> {/* Added rounded-lg, shadow-sm, flex for better item layout */}
                     {/* <Label className="text-base font-medium">Image {idx + 1}</Label> Adjusted Label */}
@@ -73,8 +73,8 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({all_len, data_para_ke
                 </div>
             ))}
             {uploadedFiles === all_len && (
-                <div className={`mt-6 p-4 bg-green-100 border border-green-300 rounded-md text-center ${successMessageSpanClasses}`}> {/* Adjusted colors and added span */}
-                    <p className="text-green-800 font-medium">All {all_len} images have been processed successfully!</p> {/* Adjusted colors and message */}
+                <div className={`mt-2 p-2 bg-green-100 dark:bg-green-800 border border-green-300 rounded-md text-center ${successMessageSpanClasses}`}> {/* Adjusted colors and added span */}
+                    <p className="text-green-800 dark:text-green-200">所有文件已完成上传！</p> {/* Adjusted colors and message */}
                 </div>
             )}
         </div>

@@ -38,6 +38,7 @@ import {
 } from './new-plan-params';
 import {DeviceObjectRsp, Drone, WayLineListRsp, WayLine} from "./new-plan-rsp";
 import { AlgorithmSelector, AlgorithmSelectionResult } from '@/components/task/algorithm-selector';
+import ImageUploadComponent, { IDict } from '@/components/upload/image-upload';
 
 // 定义接口
 interface ClassCode {
@@ -88,6 +89,10 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
     algorithmApi: null
   });
   
+  // 图像上传相关状态
+  const [imageUploadData, setImageUploadData] = useState<IDict | null>(null);
+  const [showImageUpload, setShowImageUpload] = useState<boolean>(false);
+  
   // 新增参数
   const [taskType, setTaskType] = useState<string>('immediate'); // 默认立即执行
   const [outOfControlAction, setOutOfControlAction] = useState<string>(OutOfControlActionInFlight.ReturnHome); // 默认返航
@@ -114,7 +119,34 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
   // 处理算法选择变化
   const handleAlgorithmSelectionChange = useCallback((selection: AlgorithmSelectionResult) => {
     setAlgorithmSelection(selection);
+    
+    // 判断算法类型是否包含"变化"字符
+    const hasChangeDetection = selection.algorithmType?.name?.includes('变化') ;
+    
+    setShowImageUpload(hasChangeDetection);
+    
+    // 如果不需要变化检测，清空图像上传数据
+    if (!hasChangeDetection) {
+      setImageUploadData(null);
+    }
   }, []);
+  
+  // 处理图像上传完成
+  const handleImageUploadComplete = useCallback((isSuccess: boolean, msg: string, data: IDict) => {
+    if (isSuccess) {
+      setImageUploadData(data);
+      toast({
+        title: '上传成功',
+        description: msg,
+      });
+    } else {
+      toast({
+        title: '上传失败',
+        description: msg,
+        variant: 'destructive',
+      });
+    }
+  }, [toast]);
   
   // 获取无人机列表
   useEffect(() => {
@@ -266,12 +298,27 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       const classCodeKey = algorithmSelection.algorithmApi?.classCodeKey || 'model_sign';
       const classCodeValue = algorithmSelection.algorithmCategory?.classCode || 'building_change';
       
+      // 根据算法类型判断e_rule_dict的值
+      let eRuleDict = {};
+      if (showImageUpload) {
+        if (!imageUploadData) {
+          toast({
+            title: '验证失败',
+            description: '变化检测算法需要上传前时相图像',
+            variant: 'destructive',
+          });
+          setIsSubmitting(false);
+          return;
+        }
+        eRuleDict = { [imageUploadData.key]: imageUploadData.value };
+      }
+      
       // 构建基础请求数据
       let requestData: any = {
         project_id: parseInt(projectId),
         e_model_type_id: algorithmSelection.algorithmType?.id || 1,
         e_class_code_dict: { [classCodeKey]: classCodeValue },
-        e_rule_dict: { file_path: "1" },
+        e_rule_dict: eRuleDict,
         name: name,
         wayline_uuid: waylineUuid,
         sn: droneSn,
@@ -339,6 +386,8 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
         algorithmCategory: null,
         algorithmApi: null
       });
+      setImageUploadData(null);
+      setShowImageUpload(false);
       
       // 关闭弹窗并刷新列表
       onClose();
@@ -380,6 +429,20 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
             <Label>* 算法配置</Label>
             <AlgorithmSelector onSelectionChange={handleAlgorithmSelectionChange} />
           </div>
+          
+          {/* 变化检测图像上传 */}
+          {showImageUpload && (
+            <div className="space-y-2">
+              <Label>* 前时相图像</Label>
+              <div className="border rounded-lg p-4">
+                <ImageUploadComponent
+                  all_len={1}
+                  data_para_key="file_path"
+                  onUploadComplete={handleImageUploadComplete}
+                />
+              </div>
+            </div>
+          )}
           
           <div className="space-y-2">
             <Label htmlFor="wayline">* 航线</Label>

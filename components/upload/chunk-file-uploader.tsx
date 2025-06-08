@@ -33,7 +33,19 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
     const { toast } = useToast();
     const uniqueId = useId(); // Generate a unique ID
     const [isExistingFileDialogOpen, setIsExistingFileDialogOpen] = useState(false);
+    const [canOperate, setCanOperate] = useState<boolean>(true); // 控制是否可以进行操作
     let lastToastTime = new Date().getTime();
+
+    const resetState = () => {
+        setSelectedFile(null);
+        setUploadProgress(0);
+        setIsCompleted(false);
+        setError(null);
+        setIsUploading(false);
+        setUploadId('');
+        setFileProcessingStatus('');
+        setCanOperate(true); // 重置时启用操作
+    };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
@@ -44,6 +56,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
             setError(null);
             setIsCompleted(false);
             setFileProcessingStatus(null);
+            setCanOperate(true); // 重置操作状态
         }
     };
 
@@ -57,6 +70,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
         setError(null);
         setUploadProgress(0);
         setIsCompleted(false);
+        setCanOperate(false); // 开始上传时禁用操作
 
         let currentUploadId = '';
         let chunkSize = 0;
@@ -106,7 +120,6 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
                 description: `${selectedFile.name} has been successfully uploaded. Processing started...`,
                 variant: 'default',
             });
-            // onUploadSuccess(selectedFile.name, currentUploadId);
 
             // 4. Poll for file processing status
             await pollFileStatus(selectedFile.name, currentUploadId);
@@ -114,6 +127,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
         } catch (err: any) {
             console.error('Upload failed:', err);
             setError(err.message || 'An unknown error occurred during upload.');
+            setCanOperate(true); // 上传失败时重新启用操作
             toast({
                 title: 'Upload Failed',
                 description: err.message || 'An unknown error occurred.',
@@ -121,6 +135,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
             });
         } finally {
             setIsUploading(false);
+            setFileProcessingStatus(null);
         }
     }, [selectedFile, onUploadSuccess, toast]);
 
@@ -163,11 +178,13 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
                         if (statusCode >= 203) {
                             // progress bar should be full at this point
                             setUploadProgress(100);
-                            setIsCompleted(true);
-                            // console.log('File processing complete!', file_name, fileUploadId, sql_id);
+                            setIsCompleted(true);  // 后端处理完成，前端上传完成, 这时才能允许新的操作
+                            setCanOperate(true); // 上传完成后重新启用操作
+                            
                             onUploadSuccess(file_name, fileUploadId, sql_id);
                             toast({title: 'Success', description: 'File processed and ready.', variant: 'default'});
                         } else {
+                            setCanOperate(true); // 上传出错后重新启用操作
                             toast({
                                 title: 'Error',
                                 description: 'File processing failed on server.',
@@ -206,6 +223,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
         setFileProcessingStatus('Selected from existing files.');
         setError(null);
         setIsUploading(false);
+        setCanOperate(true); // 选择现有文件后启用操作
         onUploadSuccess(file.file_name, file.upload_id, file.id);
         toast({
             title: 'File Selected',
@@ -218,9 +236,9 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
     return (
         <div className="p-4 border rounded-lg shadow-sm bg-card text-card-foreground w-full max-w-md mx-auto">
             <div className="flex flex-col items-center space-y-4">
-                <label htmlFor={uniqueId} className="cursor-pointer w-full"> {/* Use uniqueId for htmlFor 解决多个组件同时渲染时，互相影响的问题*/}
+                <label htmlFor={canOperate ? uniqueId : undefined} className={`w-full ${canOperate ? 'cursor-pointer' : 'cursor-not-allowed'}`}> {/* Use uniqueId for htmlFor 解决多个组件同时渲染时，互相影响的问题*/}
                     <div
-                        className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg hover:border-primary/70 transition-colors ${isUploading ? 'border-muted' : 'border-primary/50'}`}>
+                        className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg transition-colors ${!canOperate ? 'border-muted bg-muted/20' : isUploading ? 'border-muted' : 'border-primary/50 hover:border-primary/70'}`}>
                         {isCompleted ? (
                             <CheckCircle2 className="w-16 h-16 text-green-500 mb-2"/>
                         ) : selectedFile ? (
@@ -229,16 +247,31 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
                             <UploadCloud className="w-16 h-16 text-muted-foreground mb-2"/>
                         )}
                         <span className="text-sm font-medium">
-              {isCompleted ? `Uploaded: ${selectedFile?.name}` : selectedFile ? selectedFile.name : 'Click to select a file'}
-            </span>
-                        <span className="text-xs text-muted-foreground">
-              {isCompleted ? `Uploaded: ${selectedFile?.name}` : selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'Supports all file types'}
-            </span>
+                        {isCompleted ? `上传成功: ${selectedFile?.name}` : selectedFile ? selectedFile.name : `选择本地文件(*${suffix})`}
+                        </span>
+                        <span className="text-xs text-muted-foreground mt-2">
+                        {isCompleted ? `点击: 重新上传` : selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : ` `}
+                        </span>
+
                         {fileProcessingStatus && !isCompleted && (
                             <div className="mt-2 flex items-center text-sm text-muted-foreground">
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
                                 {fileProcessingStatus}
                             </div>
+                        )}
+
+                        {selectedFile && !isCompleted && (
+                            <Button
+                                onClick={handleUpload}
+                                disabled={!canOperate || isUploading || !selectedFile}
+                                className="w-full mt-2"
+                            >
+                                {isUploading ? (
+                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {`Uploading... ${uploadProgress}%`}</>
+                                ) : (
+                                    <><UploadCloud className="mr-2 h-4 w-4" />开始上传</>
+                                )}
+                            </Button>
                         )}
                     </div>
                 </label>
@@ -248,30 +281,12 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
                     accept={suffix}
                     onChange={handleFileChange}
                     className="hidden"
-                    disabled={isUploading || isCompleted}
+                    disabled={!canOperate}
                 />
 
-                <div className="w-full space-y-2 mt-4">
-                    {selectedFile && !isCompleted && (
-                        <Button
-                            onClick={handleUpload}
-                            disabled={isUploading || !selectedFile}
-                            className="w-full"
-                        >
-                            {isUploading ? (
-                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {`Uploading... ${uploadProgress}%`}</>
-                            ) : (
-                                <><UploadCloud className="mr-2 h-4 w-4" /> Upload New File</>
-                            )}
-                        </Button>
-                    )}
-                    {!selectedFile && !isCompleted && (
-                        <Button onClick={() => document.getElementById(uniqueId)?.click()} className="w-full">
-                            <UploadCloud className="mr-2 h-4 w-4" /> Select New File
-                        </Button>
-                    )}
-                    <Button variant="outline" onClick={() => setIsExistingFileDialogOpen(true)} className="w-full" disabled={isUploading || isCompleted}>
-                        <List className="mr-2 h-4 w-4" /> Select From Existing
+                <div className="w-full space-y-2">
+                    <Button variant="outline" onClick={() => setIsExistingFileDialogOpen(true)} className="w-full" disabled={!canOperate}>
+                        <List className="mr-2 h-4 w-4" /> 从列表中选择
                     </Button>
                 </div>
 
