@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/hooks/use-toast'; // Assuming you have a toast hook
 import { setTokenData } from '@/lib/api_client';
 import { userApi } from '@/lib/api_user';
+import WaveBg from '@/components/wave-bg';
 
 interface LoginResponseData {
   id: number;
@@ -63,8 +64,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <Card className="w-full max-w-sm">
+    <div className="relative flex min-h-screen items-center justify-center bg-background overflow-hidden">
+      {/* 波浪背景 - 仅在浅色主题下显示 */}
+      <div className="absolute inset-0 dark:hidden">
+        <WaveBg themeColor="#3b82f6" />
+      </div>
+      
+      <Card className="relative z-10 w-full max-w-sm ">
         <CardHeader>
           <CardTitle className="text-2xl">登录</CardTitle>
           <CardDescription>
@@ -99,7 +105,7 @@ export default function LoginPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full mt-4" disabled={isLoading}>
               {isLoading ? '登录中...' : '登录'}
             </Button>
           </CardFooter>
