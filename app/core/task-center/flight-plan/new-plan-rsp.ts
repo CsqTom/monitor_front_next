@@ -23,7 +23,7 @@ interface CameraWithLens extends Camera {
     lens_list: Lens[];
 }
 
-interface Gateway {
+export interface Gateway {
     sn: string;
     callsign: string;
     device_model: DeviceModel;

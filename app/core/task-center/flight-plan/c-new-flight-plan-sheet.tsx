@@ -36,7 +36,7 @@ import {
   RthMode, 
   WaylinePrecisionType 
 } from './new-plan-params';
-import {DeviceObjectRsp, Drone, WayLineListRsp, WayLine} from "./new-plan-rsp";
+import {DeviceObjectRsp, Gateway,  WayLineListRsp, WayLine} from "./new-plan-rsp";
 import { AlgorithmSelector, AlgorithmSelectionResult } from '@/components/task/algorithm-selector';
 import ImageUploadComponent, { IDict } from '@/components/upload/image-upload';
 
@@ -80,7 +80,7 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
   const [waylineUuid, setWaylineUuid] = useState<string>('');
   const [droneSn, setDroneSn] = useState<string>('');
   const [timeZone, setTimeZone] = useState<string>('Asia/Shanghai'); // 默认值
-  const [rthAltitude, setRthAltitude] = useState<number>(10); // 默认值
+  const [rthAltitude, setRthAltitude] = useState<number>(120); // 默认返航高度 (米)
   
   // 算法选择
   const [algorithmSelection, setAlgorithmSelection] = useState<AlgorithmSelectionResult>({
@@ -97,7 +97,7 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
   const [taskType, setTaskType] = useState<string>('immediate'); // 默认立即执行
   const [outOfControlAction, setOutOfControlAction] = useState<string>(OutOfControlActionInFlight.ReturnHome); // 默认返航
   const [rthMode, setRthMode] = useState<string>(RthMode.Optimal); // 默认最优路径
-  const [waylinePrecisionType, setWaylinePrecisionType] = useState<string>(WaylinePrecisionType.Gnss); // 默认GNSS
+  const [waylinePrecisionType, setWaylinePrecisionType] = useState<string>(WaylinePrecisionType.Rtk); // 默认Rtk
   const [minBatteryCapacity, setMinBatteryCapacity] = useState<number>(50); // 默认最低电量50%
   
   // 时间相关参数
@@ -113,7 +113,7 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
   const [selectedDaysOfMonth, setSelectedDaysOfMonth] = useState<number[]>([1]); // 默认每月1号
   
   // 选项数据
-  const [droneList, setDroneList] = useState<Drone[]>([]);
+  const [gatewayList, setGatewayList] = useState<Gateway[]>([]);
   const [waylineList, setWaylineList] = useState<WayLine[]>([]);
   
   // 处理算法选择变化
@@ -151,12 +151,12 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
   // 获取无人机列表
   useEffect(() => {
     if (isOpen) {
-      fetchDroneList();
+      fetchDroneDeviceList();
       fetchWaylineList();
     }
   }, [isOpen]);
   
-  const fetchDroneList = async () => {
+  const fetchDroneDeviceList = async () => {
     try {
       const projectId = localStorage.getItem('project_id');
       if (!projectId) {
@@ -177,16 +177,16 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       
       if (response.list && response.list.length > 0) {
         // 从返回数据中提取无人机信息，只获取class为drone的设备
-        const drones: Drone[] = response.list
-          .filter(item => item.drone && item.drone.device_model && item.drone.device_model.class === 'drone')
-          .map(item => item.drone);
+        const drones: Gateway[] = response.list
+          .filter(item => item.gateway && item.gateway.device_model && item.gateway.device_model.class === 'airport')
+          .map(item => item.gateway);
         
-        setDroneList(drones);
+        setGatewayList(drones);
         if (drones.length > 0) {
           setDroneSn(drones[0].sn);
         }
       } else {
-        setDroneList([]);
+        setGatewayList([]);
       }
     } catch (err) {
       console.error('获取无人机列表失败:', err);
@@ -274,7 +274,7 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
     if (!droneSn) {
       toast({
         title: '验证失败',
-        description: '请选择无人机',
+        description: '请选择机场',
         variant: 'destructive',
       });
       return;
@@ -467,14 +467,14 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="drone">* 无人机</Label>
+            <Label htmlFor="drone">* 机场</Label>
             <Select value={droneSn} onValueChange={setDroneSn}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="选择无人机" />
+                <SelectValue placeholder="选择机场" />
               </SelectTrigger>
               <SelectContent>
-                {droneList.length > 0 ? (
-                  droneList.map((drone) => (
+                {gatewayList.length > 0 ? (
+                  gatewayList.map((drone) => (
                     <SelectItem key={drone.sn} value={drone.sn}>
                       {drone.callsign ? `${drone.device_model.name} - ${drone.callsign} (${drone.sn})` 
                       : `${drone.device_model.name} - ${drone.sn}`}
