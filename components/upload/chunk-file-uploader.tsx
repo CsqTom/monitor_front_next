@@ -14,6 +14,7 @@ import {
 } from '@/lib/api_upload';
 import { UploadCloud, File as FileIcon, CheckCircle2, Loader2, List } from 'lucide-react'; // Changed ListFiles to List
 import ExistingFileDialog, { ApiFileRecord } from './existing-file-dialog'; // Import the new dialog
+import { getGeoTIFFCRSCode } from './check-epsg-func';
 
 interface ChunkFileUploaderProps {
     suffix: string; // Added suffix
@@ -34,6 +35,9 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
     const uniqueId = useId(); // Generate a unique ID
     const [isExistingFileDialogOpen, setIsExistingFileDialogOpen] = useState(false);
     const [canOperate, setCanOperate] = useState<boolean>(true); // 控制是否可以进行操作
+    const [epsgCheckPassed, setEpsgCheckPassed] = useState<boolean>(false); // EPSG检查是否通过
+    const [epsgInfo, setEpsgInfo] = useState<string>(''); // EPSG信息
+    const [isCheckingEpsg, setIsCheckingEpsg] = useState<boolean>(false); // EPSG检查中状态
     let lastToastTime = new Date().getTime();
 
     const resetState = () => {
@@ -45,6 +49,9 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
         setUploadId('');
         setFileProcessingStatus('');
         setCanOperate(true); // 重置时启用操作
+        setEpsgCheckPassed(false); // 重置EPSG检查状态
+        setEpsgInfo(''); // 重置EPSG信息
+        setIsCheckingEpsg(false); // 重置EPSG检查中状态
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,12 +64,36 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
             setIsCompleted(false);
             setFileProcessingStatus(null);
             setCanOperate(true); // 重置操作状态
+            setEpsgCheckPassed(false); // 重置EPSG检查状态
+            setEpsgInfo(''); // 重置EPSG信息
+            setIsCheckingEpsg(false); // 重置EPSG检查中状态
+            
+            // 只对tif/tiff文件进行EPSG检查
+            const file = event.target.files[0];
+            if (isTiffFile(file)) {
+                checkFileEpsg(file);
+            } else {
+                // 非tif/tiff文件直接通过EPSG检查
+                setEpsgCheckPassed(true);
+                setEpsgInfo('非TIFF文件，跳过坐标系统检查');
+            }
         }
     };
 
     const handleUpload = useCallback(async () => {
         if (!selectedFile) {
             setError('Please select a file first.');
+            return;
+        }
+        
+        // 只对tif/tiff文件检查EPSG
+        if (isTiffFile(selectedFile) && !epsgCheckPassed) {
+            setError('EPSG coordinate system check must pass before uploading.');
+            toast({
+                title: 'Upload Blocked',
+                description: 'TIFF file must have valid EPSG coordinate system to upload.',
+                variant: 'destructive'
+            });
             return;
         }
 
@@ -137,7 +168,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
             setIsUploading(false);
             setFileProcessingStatus(null);
         }
-    }, [selectedFile, onUploadSuccess, toast]);
+    }, [selectedFile, onUploadSuccess, toast, epsgCheckPassed]);
 
     const getStatusMessage = (statusCode: number): string => {
         switch (statusCode) {
@@ -214,6 +245,55 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
         }
     }, [toast, onUploadSuccess, lastUploadCode]); // Added onUploadSuccess and lastUploadCode to dependencies as they are used inside
 
+    // EPSG检查函数
+    const checkFileEpsg = useCallback(async (file: File) => {
+        if (!file) return;
+        
+        setIsCheckingEpsg(true);
+        setEpsgCheckPassed(false);
+        setEpsgInfo('');
+        
+        try {
+            const epsgCode = await getGeoTIFFCRSCode(file);
+            
+            if (epsgCode && epsgCode !== 'empty') {
+                setEpsgCheckPassed(true);
+                setEpsgInfo(epsgCode);
+                toast({
+                    title: '坐标系统检查通过',
+                    description: `检测到坐标系统: ${epsgCode}`,
+                    variant: 'default'
+                });
+            } else {
+                setEpsgCheckPassed(false);
+                setEpsgInfo('');
+                toast({
+                    title: '坐标系统检查失败',
+                    description: '未检测到有效的EPSG坐标系统信息',
+                    variant: 'destructive'
+                });
+            }
+        } catch (error: any) {
+            console.error('EPSG检查失败:', error);
+            setEpsgCheckPassed(false);
+            setEpsgInfo('');
+            toast({
+                title: '坐标系统检查错误',
+                description: error.message || '检查过程中发生错误',
+                variant: 'destructive'
+            });
+        } finally {
+            setIsCheckingEpsg(false);
+        }
+    }, [toast]);
+
+    // 检查是否为TIFF文件
+    const isTiffFile = (file: File | null): boolean => {
+        if (!file) return false;
+        const fileName = file.name.toLowerCase();
+        return fileName.endsWith('.tif') || fileName.endsWith('.tiff');
+    };
+
     const handleSelectExistingFile = (file: ApiFileRecord) => {
         // Simulate a successful upload for an existing file
         setSelectedFile(new File([], file.file_name)); // Create a dummy file for display purposes
@@ -224,6 +304,13 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
         setError(null);
         setIsUploading(false);
         setCanOperate(true); // 选择现有文件后启用操作
+        setEpsgCheckPassed(true); // 假设现有文件已经通过EPSG检查
+        const dummyFile = new File([], file.file_name);
+        if (isTiffFile(dummyFile)) {
+            setEpsgInfo('EPSG:4326'); // 设置默认EPSG信息
+        } else {
+            setEpsgInfo('非TIFF文件，跳过坐标系统检查');
+        }
         onUploadSuccess(file.file_name, file.upload_id, file.id);
         toast({
             title: 'File Selected',
@@ -249,9 +336,50 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
                         <span className="text-sm font-medium">
                         {isCompleted ? `上传成功: ${selectedFile?.name}` : selectedFile ? selectedFile.name : `选择本地文件(*${suffix})`}
                         </span>
-                        <span className="text-xs text-muted-foreground mt-2">
-                        {isCompleted ? `点击: 重新上传` : selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : ` `}
-                        </span>
+                        {/* 文件信息和EPSG检查信息显示 */}
+                         {selectedFile && !isCompleted && (
+                             <div className="w-full mt-3 space-y-2">
+                                 <div className="flex items-center justify-center text-xs">
+                                     <span className="text-muted-foreground mr-2">
+                                         {`${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`}
+                                     </span>
+                                     {isTiffFile(selectedFile) ? (
+                                         isCheckingEpsg ? (
+                                             <div className="flex items-center text-muted-foreground">
+                                                 <Loader2 className="mr-1 h-3 w-3 animate-spin"/>
+                                                 <span>检查坐标系统...</span>
+                                             </div>
+                                         ) : epsgCheckPassed ? (
+                                             <div className="flex items-center text-green-600">
+                                                 <CheckCircle2 className="mr-1 h-3 w-3"/>
+                                                 <span>{epsgInfo || 'EPSG检查通过'}</span>
+                                             </div>
+                                         ) : (
+                                             <div className="flex items-center text-red-600">
+                                                 <span className="mr-1">❌</span>
+                                                 <span>无效坐标系统</span>
+                                             </div>
+                                         )
+                                     ) : (
+                                         <div className="flex items-center text-blue-600">
+                                             <CheckCircle2 className="mr-1 h-3 w-3"/>
+                                             <span>非TIFF文件</span>
+                                         </div>
+                                     )}
+                                 </div>
+                                 {isTiffFile(selectedFile) && !epsgCheckPassed && !isCheckingEpsg && (
+                                     <p className="text-xs text-muted-foreground text-center">
+                                         TIFF文件必须包含有效的EPSG坐标系统信息才能上传
+                                     </p>
+                                 )}
+                             </div>
+                         )}
+                        
+                        {isCompleted && (
+                            <span className="text-xs text-muted-foreground mt-2">
+                                点击: 重新上传
+                            </span>
+                        )}
 
                         {fileProcessingStatus && !isCompleted && (
                             <div className="mt-2 flex items-center text-sm text-muted-foreground">
@@ -263,7 +391,7 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
                         {selectedFile && !isCompleted && (
                             <Button
                                 onClick={handleUpload}
-                                disabled={!canOperate || isUploading || !selectedFile}
+                                disabled={!canOperate || isUploading || !selectedFile || !epsgCheckPassed}
                                 className="w-full mt-2"
                             >
                                 {isUploading ? (
@@ -273,6 +401,11 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
                                 )}
                             </Button>
                         )}
+
+                        {(isUploading || (uploadProgress > 0 && uploadProgress < 100 && selectedFile)) && (
+                            <Progress value={uploadProgress} className="w-full h-2 mt-2"/>
+                        )}
+
                     </div>
                 </label>
                 <Input
@@ -290,13 +423,12 @@ const ChunkFileUploader: React.FC<ChunkFileUploaderProps> = ({suffix = '.tif', o
                     </Button>
                 </div>
 
-                {(isUploading || (uploadProgress > 0 && uploadProgress < 100 && selectedFile)) && (
-                    <Progress value={uploadProgress} className="w-full h-2 mt-2"/>
-                )}
+                
 
                 {error && (
                     <p className="text-sm text-destructive mt-2 text-center">{error}</p>
                 )}
+
             </div>
             <ExistingFileDialog 
                 open={isExistingFileDialogOpen} 
