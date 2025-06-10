@@ -271,7 +271,9 @@ export default function Page() {
                                         <span className="text-center block">{task.msg.trim()}</span>
                                     )
                                 ) : (
-                                    "N/A"
+                                    <div>
+                                        {task.status >= 201 && task.status <= 299 ? '运行中' : "N/A"}
+                                    </div>
                                 )}
                             </TableCell>
                             <TableCell className="text-center space-x-1">

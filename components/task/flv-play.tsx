@@ -68,6 +68,7 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
 
   useEffect(() => {
     if (!url) return;
+    console.log(`加载直播流：${url}`);
     init();
     const handleOnlineStatusChange = () => {
       if (navigator.onLine) {
