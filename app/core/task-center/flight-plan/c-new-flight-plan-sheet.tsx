@@ -39,6 +39,7 @@ import {
 import {DeviceObjectRsp, Gateway,  WayLineListRsp, WayLine} from "./new-plan-rsp";
 import { AlgorithmSelector, AlgorithmSelectionResult } from '@/components/task/algorithm-selector';
 import ImageUploadComponent, { IDict } from '@/components/upload/image-upload';
+import { useRouter } from 'next/navigation';
 
 // 定义接口
 interface ClassCode {
@@ -73,6 +74,7 @@ const repeatTypeOptions = [
 
 export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlanSheetProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // 表单数据
@@ -373,11 +375,10 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       });
       
       console.log('requestData:', requestData);
-      
-      toast({
-        title: '创建成功',
-        description: '飞行计划已成功创建',
-      });
+
+      // 显示执行转圈，延迟5秒后，关页面，提示成功与跳到飞行任务列表
+      // 保持加载状态，延迟5秒
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       // 重置表单
       setName('');
@@ -392,6 +393,16 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       // 关闭弹窗并刷新列表
       onClose();
       onSuccess();
+      
+      // 显示成功提示
+      toast({
+        title: '创建成功，自动跳转 任务 列表',
+        description: '飞行计划已成功创建，正在跳转到飞行任务列表',
+      });
+
+      // 跳转到飞行任务
+      router.push('/core/task-center/flight-task');
+
     } catch (err) {
       console.error('创建飞行计划失败:', err);
       toast({

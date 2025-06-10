@@ -48,9 +48,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         const app = match[2] || 'live';
         const streamName = match[3];
 
-        console.log(`RTMP URL转换为HTTP-FLV URL: ${rtmpUrl} -> http://${host}:80/${app}/${streamName}.live.flv`);
+        const flv_port = 1980; // HTTP-FLV端口，默认1980
+        console.log(`RTMP URL转换为HTTP-FLV URL: ${rtmpUrl} -> http://${host}:${flv_port}/${app}/${streamName}.live.flv`);
         
-        return `http://${host}:80/${app}/${streamName}.live.flv`;
+        return `http://${host}:${flv_port}/${app}/${streamName}.live.flv`;
       }
       
       return rtmpUrl; // 如果无法解析，返回原始URL
