@@ -119,18 +119,12 @@ export default function Page() {
 
     const task_type_to_name = (task_type: number) => {
         switch (task_type) {
-            case 0:
-                return "变化检测";
-            case 1:
-                return "目标检测-视频";
-            case 20:
-                return "视频对象检测";
-            case 2:
-                return "2";
-            case 3:
-                return "3";
+            case TaskTypeEnum.data_task_cd_building_change:
+                return "建筑变化";
+            case TaskTypeEnum.data_task_obj_video:
+                return "实时视频";
             default:
-                return "未知";
+                return `未知${task_type}`;
         }
     }
 
@@ -141,9 +135,9 @@ export default function Page() {
 
     const handleViewTaskDetail = (task: TaskData) => {
         setSelectedTaskForDetail(task);
-        if (task.task_type === 0) {
+        if (task.task_type === TaskTypeEnum.data_task_cd_building_change) {
             setIsChangeDetailOpen(true);
-        } else if (task.task_type === 20) {
+        } else if (task.task_type === TaskTypeEnum.data_task_obj_video) {
             setIsVideoDetailOpen(true);
         }
     };
@@ -151,7 +145,6 @@ export default function Page() {
     const handleNew = () => {
         setIsNewSheetOpen(true);
     };
-
 
     // 页数改变时触发
     useEffect(() => {
@@ -328,7 +321,7 @@ export default function Page() {
                 <CTaskDetailChangeDetection
                     taskId={selectedTaskForDetail.task_id}
                     taskName={selectedTaskForDetail.name}
-                    taskStatus={selectedTaskForDetail.status.toString()} // 您可能希望将状态码映射为更易读的文本
+                    taskStatus={selectedTaskForDetail.status.toString()}
                     createdAt={selectedTaskForDetail.create_time}
                     updatedAt={selectedTaskForDetail.update_time}
                     isOpen={isChangeDetailOpen}

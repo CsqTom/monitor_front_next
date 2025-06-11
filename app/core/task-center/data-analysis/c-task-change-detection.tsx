@@ -68,7 +68,7 @@ const CTaskDetailChangeDetection: React.FC<ChangeDetectionTaskDetailProps> = ({
           setError(null);
           try {
             // TODO: Replace with actual API base URL from a config or env variable
-            const response = await fetch(`http://localhost:61301/api/task/geoserver_wms_url?task_id=${taskId}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/task/geoserver_wms_url?task_id=${taskId}`);
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -114,12 +114,12 @@ const CTaskDetailChangeDetection: React.FC<ChangeDetectionTaskDetailProps> = ({
         </DialogHeader>
 
         <div className="pl-6 pr-6 pb-3 grid grid-cols-1 md:grid-cols-3 gap-4 border-b">
-          <div><span className="font-semibold">任务ID:</span> {taskId || 'N/A'}</div>
-          <div><span className="font-semibold">任务名称:</span> {taskName || 'N/A'}</div>
-          <div><span className="font-semibold">任务状态:</span> {taskStatus || 'N/A'}</div>
-          <div><span className="font-semibold">创建时间:</span> {createdAt || 'N/A'}</div>
-          <div><span className="font-semibold">更新时间:</span> {updatedAt || 'N/A'}</div>
-          <div><span className="font-semibold">中心地址:</span> {address || 'N/A'}</div>
+          <div><span>任务ID:</span> {taskId || 'N/A'}</div>
+          <div><span>任务名称:</span> {taskName || 'N/A'}</div>
+          <div><span>任务状态:</span> {taskStatus || 'N/A'}</div>
+          <div><span>创建时间:</span> {createdAt || 'N/A'}</div>
+          <div><span>更新时间:</span> {updatedAt || 'N/A'}</div>
+          <div><span>中心地址:</span> {address || 'N/A'}</div>
         </div>
 
         <div className="flex-grow overflow-hidden">

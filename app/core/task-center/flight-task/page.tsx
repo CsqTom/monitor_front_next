@@ -20,9 +20,10 @@ import {Progress} from "@/components/ui/progress";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {QPagination} from "@/components/ui/pagination";
 import CTaskDetailChangeDetection from '../data-analysis/c-task-change-detection';
+import CTaskObjectVideoDialog from "../data-analysis/c-task-object-video-dialog";
 import { PageTransition } from "@/components/ui/page-transition";
 import { Card } from "@/components/ui/card";
-import CTaskObjectVideoDialog from "../data-analysis/c-task-object-video-dialog";
+
 import { TaskTypeEnum } from "../run-staus";
 
 interface TaskData {
@@ -55,9 +56,10 @@ export default function Page() {
     const [pageTaskData, setPageTaskData] = useState<PagTaskData | null>(null);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [toDelete, setToDelete] = useState<TaskData | null>(null);
-    const [selectedTaskForDetail, setSelectedTaskForDetail] = useState<TaskData | null>(null);
-    const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+    
+    const [isChangeDetailOpen, setIsChangeDetailOpen] = useState(false);
     const [isVideoDetailOpen, setIsVideoDetailOpen] = useState(false);
+    const [selectedTaskForDetail, setSelectedTaskForDetail] = useState<TaskData | null>(null);
 
     // 从后端获取数据
     const handleRefresh = async (page: number, pageSize: number = 10, is_show_success: boolean = false) => {
@@ -117,19 +119,33 @@ export default function Page() {
     };
 
     const task_type_to_name = (task_type: number) => {
-        if (task_type >= 100 && task_type <= 199) {
-            return "飞行任务";
+        switch (task_type) {
+            case TaskTypeEnum.flight_cd_building_change:
+                return "建筑变化";
+            case TaskTypeEnum.flight_obj_video:
+                return "实时视频";
+            default:
+                return `未知${task_type}`;
         }
-        return "未知";
     }
 
     const handleViewDetail = (task: TaskData) => {
         setSelectedTaskForDetail(task);
-        setIsDetailDialogOpen(true);
+        setIsChangeDetailOpen(true);
+    };
+
+
+    const handleViewTaskDetail = (task: TaskData) => {
+        setSelectedTaskForDetail(task);
+        if (task.task_type === TaskTypeEnum.flight_cd_building_change) {
+            setIsChangeDetailOpen(true);
+        } else if (task.task_type === TaskTypeEnum.flight_obj_video) {
+            setIsVideoDetailOpen(true);
+        }
     };
 
     const handleCloseDetail = () => {
-        setIsDetailDialogOpen(false);
+        setIsChangeDetailOpen(false);
         setSelectedTaskForDetail(null);
     };
 
@@ -138,15 +154,6 @@ export default function Page() {
         handleRefresh(pageTaskData?.current || 1).then(r => {
         }); //(/ Fetch current page or default to 1
     }, []);
-
-    const handleViewTaskDetail = (task: TaskData) => {
-        setSelectedTaskForDetail(task);
-        if (task.task_type === TaskTypeEnum.flight_cd_building_change) {
-            setIsDetailDialogOpen(true);
-        } else if (task.task_type === TaskTypeEnum.flight_obj_video) {
-            setIsVideoDetailOpen(true);
-        }
-    };
 
     // 定时更新处理中的任务状态
     useEffect(() => {
@@ -170,6 +177,11 @@ export default function Page() {
                                     ),
                                 };
                             });
+                            
+                            // 如果当前正在查看的任务被更新，同时更新selectedTaskForDetail
+                            if (selectedTaskForDetail && selectedTaskForDetail.id === updatedTask.id) {
+                                setSelectedTaskForDetail({...selectedTaskForDetail, ...updatedTask});
+                            }
                         }
                     } catch (error) {
                         console.error(`Failed to fetch status for task ${task.task_id}:`, error);
@@ -242,7 +254,7 @@ export default function Page() {
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger className="truncate max-w-xs block text-center mx-auto">
-                                                    {`${task.msg.trim().substring(0, 30)}...`}
+                                                    {`${task.msg.trim().substring(0, 10)}...`}
                                                 </TooltipTrigger>
                                                 <TooltipContent>
                                                     <p>{task.msg.trim()}</p>
@@ -297,14 +309,14 @@ export default function Page() {
             </AlertDialog>
 
             {/* 详情对话框 */}
-            {selectedTaskForDetail && isDetailDialogOpen && selectedTaskForDetail?.task_type === TaskTypeEnum.flight_cd_building_change && (
+            {selectedTaskForDetail && isChangeDetailOpen && selectedTaskForDetail?.task_type === TaskTypeEnum.flight_cd_building_change && (
                 <CTaskDetailChangeDetection
                     taskId={selectedTaskForDetail.task_id}
                     taskName={selectedTaskForDetail.name}
                     taskStatus={selectedTaskForDetail.status.toString()}
                     createdAt={selectedTaskForDetail.create_time}
                     updatedAt={selectedTaskForDetail.update_time}
-                    isOpen={isDetailDialogOpen}
+                    isOpen={isChangeDetailOpen}
                     onClose={handleCloseDetail}
                 />
             )}
