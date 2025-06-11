@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils'; // Assuming you have a cn utility for classnames
 import { apiRequest } from '@/lib/api_client';
+import { fetchUserRole, extractAllowedKeys, UserRoleData, RoleConfig } from '@/lib/api_role';
 import { RefreshCw, AlignJustify } from 'lucide-react';
 
 interface ProjectInfo {
@@ -17,28 +18,7 @@ interface ProjectInfo {
   altitude: number;
 }
 
-export interface RoleConfig {
-  id: number;
-  role: number;
-  name: string;
-  key: string;
-  value: boolean;
-  type_str: string;
-}
 
-export interface UserRoleData {
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    date_joined: string;
-    last_login: string;
-    is_active: boolean;
-  };
-  role_id: number;
-  role_name: string;
-  configs: RoleConfig[];
-}
 
 // 这里需在与app目录下的的路由相一致
 export interface NavItem {
@@ -57,7 +37,6 @@ export const navigationLinks: NavGroup[] = [
   {
     group: '运维中心',
     items: [
-      { name: 'api管理', href: '/core/opt-center/api-mgt', key: 'opt-ai_api_config' },
       { name: '项目管理', href: '/core/opt-center/project-info', key: 'opt-project_info' },
     ],
   },
@@ -70,8 +49,9 @@ export const navigationLinks: NavGroup[] = [
     ],
   },
   {
-    group: '用户中心',
+    group: '系统中心',
     items: [
+      { name: 'api管理', href: '/core/opt-center/api-mgt', key: 'opt-ai_api_config' },
       { name: '角色管理', href: '/core/system-center/role-mgt', key: 'sys-role_config' },
       { name: '用户管理', href: '/core/system-center/user-mgt', key: 'sys-user_mgt' },
       { name: '项目&用户', href: '/core/system-center/project-mgt', key: 'sys-project_mgt' },
@@ -122,29 +102,14 @@ export function SecondaryNavBar() {
     }
   };
 
-  const fetchUserRole = async () => {
+  const fetchUserRoleData = async () => {
     try {
       setRoleLoading(true);
-      const userId = localStorage.getItem('user_id');
-      if (!userId) {
-        console.warn('User ID not found in localStorage');
-        return;
-      }
-      
-      const data = await apiRequest<UserRoleData>({
-        url: `/user/role?user_id=${userId}`,
-        method: 'GET'
-      });
-      
+      const data = await fetchUserRole();
       setUserRole(data);
-
+      
       // 提取允许的菜单权限keys
-      const allowedKeys = new Set<string>();
-      data.configs.forEach(config => {
-        if (config.type_str === 'menu' && config.value) {
-          allowedKeys.add(config.key);
-        }
-      });
+      const allowedKeys = extractAllowedKeys(data, 'menu');
       setAllowedMenuKeys(allowedKeys);
       
     } catch (error) {
@@ -156,7 +121,7 @@ export function SecondaryNavBar() {
 
   useEffect(() => {
     fetchProjectInfo();
-    fetchUserRole();
+    fetchUserRoleData();
     
     // 注册更新回调, 更新用户当前项目信息，显示在左上角
     projectInfoUpdateCallbacks.push(fetchProjectInfo);

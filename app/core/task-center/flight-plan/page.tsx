@@ -228,7 +228,6 @@ export default function Page() {
       </div>
 
       {pageData && pageData.total > 0 && (
-        <div className="flex justify-center">
           <QPagination
             current={pageData.current}
             pages={pageData.pages}
@@ -236,7 +235,6 @@ export default function Page() {
             pageSize={pageData.size}
             onPageChange={handlePageChange}
           />
-        </div>
       )}
 
       <FlightPlanDetailSheet

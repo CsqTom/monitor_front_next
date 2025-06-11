@@ -254,7 +254,7 @@ export default function Page() {
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger className="truncate max-w-xs block text-center mx-auto">
-                                                    {`${task.msg.trim().substring(0, 10)}...`}
+                                                    {`${task.msg.trim().substring(0, 7)}...`}
                                                 </TooltipTrigger>
                                                 <TooltipContent>
                                                     <p>{task.msg.trim()}</p>

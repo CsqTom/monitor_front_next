@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Download } from 'lucide-react';
 import { apiRequest } from '@/lib/api_client';
+import { fetchUserRole, extractAllowedKeys, UserRoleData, RoleConfig } from '@/lib/api_role';
 import ChangeDetectionMap from '@/components/map/change-detection-map';
 
 interface TaskData {
@@ -31,15 +32,7 @@ interface DownloadResponse {
   zip_http: string;
 }
 
-interface UserRoleConfig {
-  key: string;
-  type_str: string;
-  value: boolean;
-}
 
-interface UserRoleData {
-  configs: UserRoleConfig[];
-}
 
 interface ChangeDetectionTaskDetailProps {
   taskId: string | null;
@@ -71,27 +64,13 @@ const CTaskDetailChangeDetection: React.FC<ChangeDetectionTaskDetailProps> = ({
   const { toast } = useToast();
 
   // 获取用户角色权限
-  const fetchUserRole = async () => {
+  const fetchUserRoleData = async () => {
     try {
       setRoleLoading(true);
-      const userId = localStorage.getItem('user_id');
-      if (!userId) {
-        console.warn('User ID not found in localStorage');
-        return;
-      }
-      
-      const data = await apiRequest<UserRoleData>({
-        url: `/user/role?user_id=${userId}`,
-        method: 'GET'
-      });
+      const data = await fetchUserRole();
       
       // 提取允许的按钮权限keys
-      const allowedKeys = new Set<string>();
-      data.configs.forEach(config => {
-        if (config.type_str === 'button' && config.value) {
-          allowedKeys.add(config.key);
-        }
-      });
+      const allowedKeys = extractAllowedKeys(data, 'button');
       setAllowedButtonKeys(allowedKeys);
       
     } catch (error) {
@@ -113,7 +92,7 @@ const CTaskDetailChangeDetection: React.FC<ChangeDetectionTaskDetailProps> = ({
       window.addEventListener('resize', updateSize);
       
       // 获取用户权限
-      fetchUserRole();
+      fetchUserRoleData();
       
       if (taskId) {
         const fetchTaskDetails = async () => {
