@@ -73,3 +73,26 @@ export interface WayLineListRsp {
 }
 
 // end region
+
+//start region
+interface SchemaOption {
+    url: string;
+}
+
+interface Converter {
+    converter_name: string;
+    converter_id: string;
+    sn: string;
+    camera_index: string;
+    schema: string;
+    schema_option: SchemaOption;
+    auto_push_stream: boolean;
+    device_online_status: boolean;
+    device_callsign: string;
+    state: string;
+    state_code: number;
+    state_message: string;
+}
+
+export type ConverterList = Converter[];
+// end region

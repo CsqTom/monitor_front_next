@@ -17,6 +17,7 @@ import ImageUploadComponent from '@/components/upload/image-upload';
 import {IDict} from "@/components/upload/image-upload";
 import HttpInputComponent from '@/components/upload/http-input';
 import {AlgorithmSelector, AlgorithmSelectionResult} from '@/components/task/algorithm-selector';
+import { TaskTypeEnum } from '../run-staus';
 
 // 定义接口
 interface ProjectData {
@@ -256,7 +257,7 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
                 if (algorithmSelection.algorithmType?.name.includes('变化')) {
                     if (classCodeValue === 'building_change') return 0; // 违建
                 } else if (algorithmSelection.algorithmType?.name.includes('目标')) {
-                    if (algorithmSelection.algorithmApi?.name.includes('视频')) return 20; // 视频流
+                    if (algorithmSelection.algorithmApi?.name.includes('视频')) return TaskTypeEnum.data_task_obj_video; // 视频流
                 }
 
                 return -1;
@@ -273,7 +274,7 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
             
             // 构建请求参数
             const requestData = {
-                project_id: localStorage.getItem('project_id') || 1,
+                project_id: localStorage.getItem('project_id') || 0,
                 ai_config_id: algorithmSelection.algorithmApi?.id || 0,
                 task_name: taskName,
                 image_info: task_type_id === 0 ? imageInfo : httpUrls, // 直接使用 imageInfo，它应该是 { data_para_key: "file_ids" } 的形式

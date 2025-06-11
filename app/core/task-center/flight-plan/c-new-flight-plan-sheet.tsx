@@ -13,8 +13,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -36,7 +34,7 @@ import {
   RthMode, 
   WaylinePrecisionType 
 } from './new-plan-params';
-import {DeviceObjectRsp, Gateway,  WayLineListRsp, WayLine} from "./new-plan-rsp";
+import {DeviceObjectRsp, Gateway,  WayLineListRsp, WayLine, ConverterList} from "./new-plan-rsp";
 import { AlgorithmSelector, AlgorithmSelectionResult } from '@/components/task/algorithm-selector';
 import ImageUploadComponent, { IDict } from '@/components/upload/image-upload';
 import { useRouter } from 'next/navigation';
@@ -102,6 +100,11 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
   const [waylinePrecisionType, setWaylinePrecisionType] = useState<string>(WaylinePrecisionType.Rtk); // 默认Rtk
   const [minBatteryCapacity, setMinBatteryCapacity] = useState<number>(50); // 默认最低电量50%
   
+  // 视频流相关参数
+  const [liveStreamUrl, setLiveStreamUrl] = useState<string>(''); // 视频流源地址
+  const [resultStreamUrl, setResultStreamUrl] = useState<string>(''); // 视频流结果地址
+  const [converterList, setConverterList] = useState<ConverterList>([]); // 转换器列表
+  
   // 时间相关参数
   const [beginDate, setBeginDate] = useState<Date | undefined>(new Date());
   const [beginTime, setBeginTime] = useState<string>('12:00');
@@ -123,7 +126,7 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
     setAlgorithmSelection(selection);
     
     // 判断算法类型是否包含"变化"字符
-    const hasChangeDetection = selection.algorithmType?.name?.includes('变化') ;
+    const hasChangeDetection = selection.algorithmType?.name?.includes('变化') ? true : false;
     
     setShowImageUpload(hasChangeDetection);
     
@@ -155,8 +158,48 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
     if (isOpen) {
       fetchDroneDeviceList();
       fetchWaylineList();
+      fetchConverterList();
     }
   }, [isOpen]);
+  
+  // 获取视频流转换器列表
+  const fetchConverterList = async () => {
+    try {
+      const projectId = localStorage.getItem('project_id');
+      if (!projectId) {
+        toast({
+          title: '错误',
+          description: '未找到项目ID，请先选择项目',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      const response = await apiRequest<ConverterList>({
+        url: '/drone/live-stream/converter',
+        method: 'GET',
+        params: { project_id: projectId },
+      });
+      
+      if (response) {
+        console.log('获取视频流转换器列表成功:', response);
+        setConverterList(response);
+        // 默认选择第一个转换器
+        if (response.length > 0) {
+          setLiveStreamUrl(response[0].schema_option.url);
+        }
+      } else {
+        setConverterList([]);
+      }
+    } catch (err) {
+      console.error('获取视频流转换器列表失败:', err);
+      toast({
+        title: '获取视频流转换器列表失败',
+        description: (err as Error).message || '无法连接到服务器或发生未知错误',
+        variant: 'destructive',
+      });
+     }
+   };
   
   const fetchDroneDeviceList = async () => {
     try {
@@ -367,6 +410,10 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
         requestData.min_battery_capacity = minBatteryCapacity;
       }
       
+      // 添加视频流相关参数
+      requestData.e_live_stream_url = liveStreamUrl || '';
+      requestData.e_result_stream_url = resultStreamUrl || '';
+      
       // 发送请求
       await apiRequest({
         url: '/drone/plan',
@@ -389,6 +436,8 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
       });
       setImageUploadData(null);
       setShowImageUpload(false);
+      setLiveStreamUrl('');
+      setResultStreamUrl('');
       
       // 关闭弹窗并刷新列表
       onClose();
@@ -500,6 +549,42 @@ export function NewFlightPlanSheet({ isOpen, onClose, onSuccess }: NewFlightPlan
               </SelectContent>
             </Select>
           </div>
+          
+          {/* 视频流源地址 */}
+          <div className="space-y-2">
+            <Label htmlFor="liveStream">视频流源地址</Label>
+            <Select value={liveStreamUrl} onValueChange={setLiveStreamUrl}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="选择视频流源地址" />
+              </SelectTrigger>
+              <SelectContent>
+                {converterList.length > 0 ? (
+                  converterList.map((converter) => (
+                    <SelectItem key={converter.converter_id} value={converter.schema_option.url}>
+                      {converter.converter_name} {converter.schema_option.url}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="no_converter" disabled>
+                    暂无可用转换器
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* 视频流结果地址 - 只在非变化检测时显示 */}
+          {!showImageUpload && (
+            <div className="space-y-2">
+              <Label htmlFor="resultStream">视频流结果地址</Label>
+              <Input
+                id="resultStream"
+                placeholder="请输入视频流结果地址"
+                value={resultStreamUrl}
+                onChange={(e) => setResultStreamUrl(e.target.value)}
+              />
+            </div>
+          )}
           
           <div className="space-y-2">
             <Label>* 任务类型</Label>

@@ -24,6 +24,7 @@ import CTaskDetailChangeDetection from "./c-task-change-detection";
 import CTaskObjectVideoDialog from "./c-task-object-video-dialog";
 import { PageTransition } from "@/components/ui/page-transition";
 import { Card } from "@/components/ui/card";
+import { TaskTypeEnum } from "../run-staus";
 
 interface TaskData {
     id: number
@@ -339,7 +340,7 @@ export default function Page() {
             )}
 
             {/*视频对象检测详情对话框*/}
-            {selectedTaskForDetail && isVideoDetailOpen && selectedTaskForDetail?.task_type === 20 && (
+            {selectedTaskForDetail && isVideoDetailOpen && selectedTaskForDetail?.task_type === TaskTypeEnum.data_task_obj_video && (
                 <CTaskObjectVideoDialog
                 task={selectedTaskForDetail}
                 isOpen={isVideoDetailOpen}

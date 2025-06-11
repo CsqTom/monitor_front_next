@@ -22,6 +22,8 @@ import {QPagination} from "@/components/ui/pagination";
 import CTaskDetailChangeDetection from '../data-analysis/c-task-change-detection';
 import { PageTransition } from "@/components/ui/page-transition";
 import { Card } from "@/components/ui/card";
+import CTaskObjectVideoDialog from "../data-analysis/c-task-object-video-dialog";
+import { TaskTypeEnum } from "../run-staus";
 
 interface TaskData {
     id: number
@@ -55,6 +57,7 @@ export default function Page() {
     const [toDelete, setToDelete] = useState<TaskData | null>(null);
     const [selectedTaskForDetail, setSelectedTaskForDetail] = useState<TaskData | null>(null);
     const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+    const [isVideoDetailOpen, setIsVideoDetailOpen] = useState(false);
 
     // 从后端获取数据
     const handleRefresh = async (page: number, pageSize: number = 10, is_show_success: boolean = false) => {
@@ -135,6 +138,15 @@ export default function Page() {
         handleRefresh(pageTaskData?.current || 1).then(r => {
         }); //(/ Fetch current page or default to 1
     }, []);
+
+    const handleViewTaskDetail = (task: TaskData) => {
+        setSelectedTaskForDetail(task);
+        if (task.task_type === TaskTypeEnum.flight_cd_building_change) {
+            setIsDetailDialogOpen(true);
+        } else if (task.task_type === TaskTypeEnum.flight_obj_video) {
+            setIsVideoDetailOpen(true);
+        }
+    };
 
     // 定时更新处理中的任务状态
     useEffect(() => {
@@ -247,7 +259,7 @@ export default function Page() {
                                 )}
                             </TableCell>
                             <TableCell className="text-center space-x-1">
-                                <Button variant="outline" size="sm" onClick={() => handleViewDetail(task)}>
+                                <Button variant="outline" size="sm" onClick={() => handleViewTaskDetail(task)}>
                                     <Eye className="mr-1 h-4 w-4"/> 详情
                                 </Button>
                                 <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(task)}><Trash2
@@ -285,7 +297,7 @@ export default function Page() {
             </AlertDialog>
 
             {/* 详情对话框 */}
-            {selectedTaskForDetail && isDetailDialogOpen && (
+            {selectedTaskForDetail && isDetailDialogOpen && selectedTaskForDetail?.task_type === TaskTypeEnum.flight_cd_building_change && (
                 <CTaskDetailChangeDetection
                     taskId={selectedTaskForDetail.task_id}
                     taskName={selectedTaskForDetail.name}
@@ -296,6 +308,19 @@ export default function Page() {
                     onClose={handleCloseDetail}
                 />
             )}
+
+            {/*视频对象检测详情对话框*/}
+            {selectedTaskForDetail && isVideoDetailOpen && selectedTaskForDetail?.task_type === TaskTypeEnum.flight_obj_video && (
+                <CTaskObjectVideoDialog
+                task={selectedTaskForDetail}
+                isOpen={isVideoDetailOpen}
+                onClose={() => {
+                    setIsVideoDetailOpen(false);
+                    setSelectedTaskForDetail(null);
+                }}
+            />
+            )}
+
         </div>
         </Card>
         </PageTransition>
