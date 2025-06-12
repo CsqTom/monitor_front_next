@@ -50,6 +50,7 @@ export function C_newUserSheet({ isNewUserSheetOpen, setIsNewUserSheetOpen, onUs
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
+  const [licenseEndDate, setLicenseEndDate] = useState('');
   const [selectedRoleId, setSelectedRoleId] = useState<string | undefined>(undefined);
   const [roles, setRoles] = useState<Role[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,13 +77,14 @@ export function C_newUserSheet({ isNewUserSheetOpen, setIsNewUserSheetOpen, onUs
       setUsername('');
       setPassword('');
       setEmail('');
+      setLicenseEndDate('');
       setSelectedRoleId(undefined);
     }
   }, [isNewUserSheetOpen, toast]);
 
   const handleCreateUser = async () => {
-    if (!username || !password || !selectedRoleId) { // Removed email from validation
-      toast({ title: '提示', description: '用户名、密码和角色为必填项', variant: 'destructive' });
+    if (!username || !password || !selectedRoleId || !licenseEndDate) {
+      toast({ title: '提示', description: '用户名、密码、角色和许可最后日期为必填项', variant: 'destructive' });
       return;
     }
     setIsSubmitting(true);
@@ -101,6 +103,7 @@ export function C_newUserSheet({ isNewUserSheetOpen, setIsNewUserSheetOpen, onUs
           password: password_baser64,
           email,
           role_id: parseInt(selectedRoleId, 10),
+          last_name: licenseEndDate,
         },
       });
       if (response.data.code === 200) {
@@ -143,6 +146,18 @@ export function C_newUserSheet({ isNewUserSheetOpen, setIsNewUserSheetOpen, onUs
               邮箱 (可选)
             </Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="col-span-3" />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="licenseEndDate" className="text-right">
+              许可期限
+            </Label>
+            <Input 
+              id="licenseEndDate" 
+              type="date" 
+              value={licenseEndDate} 
+              onChange={(e) => setLicenseEndDate(e.target.value)} 
+              className="col-span-3" 
+            />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="role" className="text-right">

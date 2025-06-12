@@ -56,6 +56,11 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    if (error.response?.status === 402) {
+      clearTokenData();
+      if (typeof window !== 'undefined') window.location.href = '/login';
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const { refreshToken } = getTokenData();

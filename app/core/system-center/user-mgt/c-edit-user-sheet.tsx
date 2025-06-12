@@ -39,6 +39,7 @@ export interface UserRecord {
     is_active: boolean;
     date_joined: string; // Assuming string format from API
     last_login: string; // Assuming string format from API
+    last_name?: string; // 许可期限
     // Add other fields as necessary from your API response
 }
 
@@ -69,6 +70,7 @@ export function UserDetailsSheet({selectedUser, setSelectedUser, onUserUpdate}: 
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState(''); // For changing password, empty means no change
+    const [licenseEndDate, setLicenseEndDate] = useState('');
     const [selectedRoleId, setSelectedRoleId] = useState<string | undefined>(undefined);
     const [isActive, setIsActive] = useState(true);
     const [roles, setRoles] = useState<Role[]>([]);
@@ -98,6 +100,7 @@ export function UserDetailsSheet({selectedUser, setSelectedUser, onUserUpdate}: 
             fetchRoles();
             setUsername(selectedUser.username);
             setEmail(selectedUser.email);
+            setLicenseEndDate(selectedUser.last_name || '');
             setSelectedRoleId(String(selectedUser.role.id)); // Corrected: use selectedUser.role.id
             setIsActive(selectedUser.is_active);
             setPassword(''); // Clear password field on open
@@ -106,8 +109,8 @@ export function UserDetailsSheet({selectedUser, setSelectedUser, onUserUpdate}: 
 
     const handleSaveChanges = async () => {
         if (!selectedUser) return;
-        if (!username || !selectedRoleId) {
-            toast({title: '提示', description: '用户名和角色为必填项', variant: 'destructive'});
+        if (!username || !selectedRoleId || !licenseEndDate) {
+            toast({title: '提示', description: '用户名、角色和许可期限为必填项', variant: 'destructive'});
             return;
         }
         setIsSubmitting(true);
@@ -118,20 +121,21 @@ export function UserDetailsSheet({selectedUser, setSelectedUser, onUserUpdate}: 
             email,
             role_id: parseInt(selectedRoleId, 10),
             is_active: isActive,
+            last_name: licenseEndDate,
         };
 
         if (password) {
             payload.password = password;
-        }
-
-        try {
+            
             // 引入Base64, 用于对密码进行base64编码
             let password_baser64 = btoa(password);
             length = password_baser64.length;
             // 在password_baser64中间插入qty三个字符
             password_baser64 = password_baser64.slice(0, length / 2) + 'qty' + password_baser64.slice(length / 2, length);
             payload.password = password_baser64;
+        }
 
+        try {
             const response = await request<UpdateUserResponse>({
                 url: '/user/update_user_role',
                 method: 'POST',
@@ -187,6 +191,18 @@ export function UserDetailsSheet({selectedUser, setSelectedUser, onUserUpdate}: 
                         <Input id="password-edit" type="password" value={password}
                                onChange={(e) => setPassword(e.target.value)} placeholder="留空则不修改"
                                className="col-span-3"/>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="licenseEndDate-edit" className="text-right">
+                            许可期限
+                        </Label>
+                        <Input 
+                            id="licenseEndDate-edit" 
+                            type="date" 
+                            value={licenseEndDate} 
+                            onChange={(e) => setLicenseEndDate(e.target.value)} 
+                            className="col-span-3" 
+                        />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label className="text-right">
