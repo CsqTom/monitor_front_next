@@ -37,25 +37,25 @@ export const navigationLinks: NavGroup[] = [
   {
     group: '运维中心',
     items: [
-      { name: '项目管理', href: '/core/opt-center/project-info', key: 'opt-project_info' },
+      { name: '项目管理', href: '/core/opt-center/project-info', key: 'project_mgt' },
     ],
   },
   {
     group: '任务中心',
     items: [
-      { name: '数据分析', href: '/core/task-center/data-analysis', key: 'task-data-analysis' },
-      { name: '飞行计划', href: '/core/task-center/flight-plan', key: 'task-flight_plan' },
-      { name: '飞行任务', href: '/core/task-center/flight-task', key: 'task-flight_task' },
+      { name: '数据分析', href: '/core/task-center/data-analysis', key: 'data-analysis' },
+      { name: '飞行计划', href: '/core/task-center/flight-plan', key: 'flight_plan' },
+      { name: '飞行任务', href: '/core/task-center/flight-task', key: 'flight_task' },
     ],
   },
   {
     group: '系统中心',
     items: [
-      { name: 'api管理', href: '/core/opt-center/api-mgt', key: 'opt-ai_api_config' },
-      { name: '角色管理', href: '/core/system-center/role-mgt', key: 'sys-role_config' },
-      { name: '用户管理', href: '/core/system-center/user-mgt', key: 'sys-user_mgt' },
-      { name: '项目&用户', href: '/core/system-center/project-mgt', key: 'sys-project_mgt' },
-      { name: '样式示例', href: '/core/system-center/example-page', key: 'sys-project_mgt' },
+      { name: 'api管理', href: '/core/system-center/api-mgt', key: 'ai_api_config' },
+      { name: '角色管理', href: '/core/system-center/role-mgt', key: 'role_config' },
+      { name: '用户管理', href: '/core/system-center/user-mgt', key: 'user_mgt' },
+      { name: '项目&用户', href: '/core/system-center/project&user', key: 'project&user' },
+      { name: '样式示例', href: '/core/system-center/example-page', key: 'ai_api_config' },
     ],
   },
 ];
