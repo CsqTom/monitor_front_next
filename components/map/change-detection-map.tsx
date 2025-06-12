@@ -168,19 +168,55 @@ const ChangeDetectionMap: React.FC<ChangeDetectionMapProps> = ({ beforeImage, af
         source: vectorSource,
         style: (feature) => {
           const properties = feature.getProperties();
-          const classValue = properties.class || 'default';
+          const classValue = properties.class || 0;
           
-          // 根据class字段设置不同颜色
-          const colorMap: { [key: string]: string } = {
-            '1': '#ff0000', // 红色
-            '2': '#00ff00', // 绿色
-            '3': '#0000ff', // 蓝色
-            '4': '#ffff00', // 黄色
-            '5': '#ff00ff', // 紫色
-            'default': '#ff0000', // 默认红色
+          // 将0-255按每15为一组进行颜色映射
+          const getColorByValue = (value: number): string => {
+            // 确保值在0-255范围内
+            const clampedValue = Math.max(0, Math.min(255, value));
+            
+            // 计算组号 (0-17组，共18组)
+            const groupIndex = Math.floor(clampedValue / 15);
+            
+            // 定义18个组的基础颜色，组间差异大
+            const groupColors = [
+              '#000080', // 深蓝
+              '#0000FF', // 蓝色
+              '#4169E1', // 皇家蓝
+              '#00BFFF', // 深天蓝
+              '#00FFFF', // 青色
+              '#00FF7F', // 春绿
+              '#00FF00', // 绿色
+              '#7FFF00', // 草绿
+              '#FFFF00', // 黄色
+              '#FFD700', // 金色
+              '#FFA500', // 橙色
+              '#FF8C00', // 深橙
+              '#FF6347', // 番茄红
+              '#FF4500', // 橙红
+              '#FF1493', // 深粉
+              '#FF69B4', // 热粉
+              '#FF00FF', // 紫红
+              '#FF0000'  // 红色 (255时)
+            ];
+            
+            // 获取基础颜色
+            const baseColor = groupColors[Math.min(groupIndex, groupColors.length - 1)];
+            
+            // 组内微调：在组内根据具体值进行轻微的颜色变化
+            const valueInGroup = clampedValue % 15;
+            const intensity = 1 - (valueInGroup * 0.02); // 组内颜色强度微调
+            
+            // 解析颜色并应用强度调整
+            const hex = baseColor.replace('#', '');
+            const r = Math.floor(parseInt(hex.substring(0, 2), 16) * intensity);
+            const g = Math.floor(parseInt(hex.substring(2, 4), 16) * intensity);
+            const b = Math.floor(parseInt(hex.substring(4, 6), 16) * intensity);
+            
+            return `rgb(${r}, ${g}, ${b})`;
           };
           
-          const color = colorMap[classValue.toString()] || colorMap['default'];
+          const color = getColorByValue(Number(classValue));
           
           return new Style({
             stroke: new Stroke({
@@ -188,7 +224,7 @@ const ChangeDetectionMap: React.FC<ChangeDetectionMapProps> = ({ beforeImage, af
               width: 2,
             }),
             fill: new Fill({
-              color: color + '40', // 添加透明度
+              color: 'transparent', // 添加透明度
             }),
           });
         },
@@ -412,28 +448,28 @@ const ChangeDetectionMap: React.FC<ChangeDetectionMapProps> = ({ beforeImage, af
       {beforeImage && afterImage && (
         <div
           ref={dividerRef}
-          className="absolute top-0 bottom-0 w-1 bg-white shadow-lg cursor-ew-resize z-10 flex items-center justify-center"
+          className="absolute top-0 bottom-0 w-1 bg-muted shadow-lg cursor-ew-resize z-10 flex items-center justify-center"
           style={{ left: `50%`, transform: 'translateX(-50%)' }} // Initial position, will be updated by useEffect
         >
           <div className="w-6 h-12 bg-white rounded-full shadow-md flex items-center justify-center">
-            <div className="w-1 h-6 bg-gray-400 rounded-full"></div>
+            <div className="w-1 h-6 bg-muted rounded-full"></div>
           </div>
         </div>
       )}
       
       {/* 左侧标签 - 后时相 */}
-      <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-lg shadow-lg text-sm font-medium z-10">
+      <div className="absolute top-4 left-4 bg-muted/70 px-3 py-1 rounded-lg shadow-lg text-sm font-medium z-10">
         {formatStoreName(beforeImage?.store_name)}
       </div>
       
       {/* 右侧标签 - 前时相 */}
-      <div className="absolute top-4 right-4 bg-white/90 px-3 py-1 rounded-lg shadow-lg text-sm font-medium z-10">
+      <div className="absolute top-4 right-4 bg-muted/70 px-3 py-1 rounded-lg shadow-lg text-sm font-medium z-10">
       {formatStoreName(afterImage?.store_name)}
       </div>
       
       {/* 底部说明 */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 px-4 py-2 rounded-lg shadow-lg">
-        <div className="text-xs text-gray-500 text-center">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-muted/70 px-4 py-2 rounded-lg shadow-lg">
+        <div className="text-xs text-center">
           拖动中间分割线进行卷帘对比
         </div>
       </div>
