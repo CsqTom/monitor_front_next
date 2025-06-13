@@ -90,7 +90,7 @@ export default function RootLayout({
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-y-auto p-4 bg-gray-650 dark:bg-background">
+          <main className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-background">
             {children}
           </main>
         </div>

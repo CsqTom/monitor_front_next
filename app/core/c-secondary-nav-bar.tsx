@@ -150,7 +150,7 @@ export function SecondaryNavBar() {
   };
 
   return (
-    <nav className="w-55 flex-shrink-0 border-r bg-gray-50 dark:bg-sidebar p-4 space-y-4">
+    <nav className="w-55 flex-shrink-0 border-r bg-background dark:bg-sidebar p-4 space-y-4">
       {/* 项目信息显示区域 */}
       <div className="border-b pb-4 mb-4">
         {loading ? (
