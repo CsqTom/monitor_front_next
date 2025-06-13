@@ -168,7 +168,7 @@ const FlvPlayer: React.FC<FlvPlayerProps> = (props) => {
         console.error('flv.js is not support');
       }
     } catch (error) {
-      console.log('trycatch😭', flvPlayer);
+      console.log('trycatch😭', flvPlayerRef);
       console.error(error);
     }
   };

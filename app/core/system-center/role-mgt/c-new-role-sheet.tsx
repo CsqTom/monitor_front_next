@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { RefreshCw } from 'lucide-react';
 import { apiRequest, request } from '@/lib/api_client';
 import { useToast } from '@/hooks/use-toast';
-import { UserRoleData, RoleConfig } from '../../c-secondary-nav-bar';
+import { UserRoleData, RoleConfig } from '@/lib/api_role';
 
 // Define interfaces here or import from a shared types file
 // export interface RoleConfig {
