@@ -255,7 +255,7 @@ export function NewTaskSheet({isNewSheetOpen, setIsNewSheetOpen, onCreate}: NewS
 
             const make_task_type_id = ()=> {
                 if (algorithmSelection.algorithmType?.name.includes('变化')) {
-                    if (classCodeValue === 'building_change') return 0; // 违建
+                    if (classCodeValue === 'building_change') return TaskTypeEnum.data_task_cd_building_change; // 违建
                 } else if (algorithmSelection.algorithmType?.name.includes('目标')) {
                     if (algorithmSelection.algorithmApi?.name.includes('视频')) return TaskTypeEnum.data_task_obj_video; // 视频流
                 }

@@ -250,7 +250,7 @@ export default function Page() {
                             <TableCell className='text-center'>{task.update_time}</TableCell>
                             <TableCell className='text-center'>
                                 {task.msg && task.msg.trim() ? (
-                                    task.msg.trim().length > 30 ? (
+                                    task.msg.trim().length > 10 ? (
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger className="truncate max-w-xs block text-center mx-auto">

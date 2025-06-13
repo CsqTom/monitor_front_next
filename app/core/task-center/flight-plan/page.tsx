@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/api_client';
 import { QPagination } from '@/components/ui/pagination';
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import { FlightPlanDetailSheet, FlightPlan } from './c-flight-plan-detail-sheet';
 import { NewFlightPlanSheet } from './c-new-flight-plan-sheet';
 import { PageTransition } from '@/components/ui/page-transition';
@@ -140,14 +141,18 @@ export default function Page() {
     switch (status) {
       case 'waiting':
         return '等待中';
-      case 'running':
+      case 'executing':
         return '执行中';
-      case 'completed':
+      case 'success':
         return '已完成';
-      case 'failed':
+      case 'starting_failure':
         return '失败';
-      case 'canceled':
-        return '已取消';
+      case 'terminated':
+        return '被终止';
+      case 'suspended':
+        return '挂起';
+      case 'timeout':
+        return '超时';
       default:
         return status;
     }
@@ -177,10 +182,10 @@ export default function Page() {
             <TableRow>
               <TableHead className="table-head-light">ID</TableHead>
               <TableHead className="table-head-light">名称</TableHead>
-              <TableHead className="table-head-light">状态</TableHead>
               <TableHead className="table-head-light">开始时间</TableHead>
               <TableHead className="table-head-light">任务类型</TableHead>
               <TableHead className="table-head-light">重复选项</TableHead>
+              <TableHead className="table-head-light">状态/消息</TableHead>
               <TableHead className="table-head-light">操作</TableHead>
             </TableRow>
           </TableHeader>
@@ -195,14 +200,35 @@ export default function Page() {
               pageData.records.map((plan) => (
                 <TableRow key={plan.id}>
                   <TableCell className="text-center">{plan.id}</TableCell>
-                  <TableCell className="text-center">{plan.name}</TableCell>
-                  <TableCell className="text-center">{formatStatus(plan.status)}</TableCell>
+                  <TableCell className="text-center">{plan.name}</TableCell> 
                   <TableCell className="text-center">
                     {plan.begin_at ? formatTimestamp(plan.begin_at) : '-'}
                   </TableCell>
                   <TableCell className="text-center">{formatTaskType(plan.task_type)}</TableCell>
                   <TableCell className="text-center">
                     {formatRepeatOption(plan.repeat_option, plan.repeat_type)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {formatStatus(plan.status) && formatStatus(plan.status).trim() ? (
+                        formatStatus(plan.status).trim().length > 10 ? (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger className="truncate max-w-xs block text-center mx-auto">
+                                        {`${formatStatus(plan.status).trim().substring(0,10)}...`}
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{formatStatus(plan.status).trim()}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        ) : (
+                            <span className="text-center block">{formatStatus(plan.status).trim()}</span>
+                        )
+                    ) : (
+                        <div>
+                            {formatStatus(plan.status) ? '运行中' : "N/A"}
+                        </div>
+                    )}
                   </TableCell>
                   <TableCell className="text-center">
                     <Button

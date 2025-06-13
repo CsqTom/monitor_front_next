@@ -57,9 +57,9 @@ interface NewFlightPlanSheetProps {
 // 任务类型选项
 const taskTypeOptions = [
   { value: 'immediate', label: '立即执行' },
-  { value: 'scheduled', label: '定时执行' },
-  { value: 'recurring', label: '重复执行' },
-  { value: 'continuous', label: '连续执行' },
+  // { value: 'scheduled', label: '定时执行' },
+  // { value: 'recurring', label: '重复执行' },
+  // { value: 'continuous', label: '连续执行' },
 ];
 
 // 重复类型选项
