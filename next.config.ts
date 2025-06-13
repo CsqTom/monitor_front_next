@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  assetPrefix: isProd ? undefined : `http://${internalHost}:3456`,
+  assetPrefix: isProd ? undefined : `http://${internalHost}:9527`,
   sassOptions: {
     silenceDeprecations: ['legacy-js-api'],
   },
