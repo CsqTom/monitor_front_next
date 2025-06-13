@@ -228,7 +228,7 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
 
         {!loading && !error && taskData && (
           <>
-            <div className="px-6 pb-3 grid grid-cols-1 md:grid-cols-3 gap-4 border-b drank:bg-black-100  text-sm">
+            <div className="px-6 pb-3 grid grid-cols-1 md:grid-cols-3 gap-4 border-b text-sm">
               <div><span>任务ID:</span> {taskData.task_id || 'N/A'}</div>
               <div><span>任务名称:</span> {taskData.name || 'N/A'}</div>
               <div><span>任务状态:</span> {getStatusText(taskData.status)}</div>
@@ -238,7 +238,7 @@ const CTaskObjectVideoDialog: React.FC<VideoTaskDetailProps> = ({
               <div><span>任务消息:</span> {taskData.msg|| 'N/A'}</div>
             </div>
 
-            <div className="flex-grow px-6 overflow-auto">
+            <div className="flex-grow px-6 overflow-auto dark:bg-black pt-3">
               <Tabs defaultValue={taskData.status === 200 ? "results" : "video"} className="w-full">                
                 <TabsList className="mb-4">                  
                   <TabsTrigger value="video"><Video className="h-4 w-4 mr-2" />实时视频</TabsTrigger>                  
